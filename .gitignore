@@ -1,0 +1,7 @@
+/b2handle.egg-info
+/build
+*.pyc
+/.project
+/.pydevproject
+/.settings
+/dist/
