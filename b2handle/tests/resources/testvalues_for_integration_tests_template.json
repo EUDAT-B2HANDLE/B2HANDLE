@@ -1,0 +1,15 @@
+{
+    "user": "",
+    "user_without_index": "",
+    "nonexistent_user": "",
+    "reverselookup_username": "",
+    "reverselookup_password": "",
+    "url_https": "",
+    "password": "",
+    "handle_to_be_created": "",
+    "handle_to_be_modified": "",
+    "handle_with_10320loc": "",
+    "handle_without_10320loc": "",
+    "handle_doesnotexist": "",
+    "HTTP_verify":"False"
+}
