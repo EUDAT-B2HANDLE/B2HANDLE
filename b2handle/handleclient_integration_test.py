@@ -323,6 +323,23 @@ class EUDATHandleClient_10320loc_writeaccess_test(unittest.TestCase):
         requests.put(url, data=data, headers=headers, verify=False)
 
     if True:
+        def exchange_additional_URL_normal_test(self):
+            self.inst.exchange_additional_URL(TESTVALUES['handle_with_10320loc'], 'http://first.foo', 'http://newfirst.foo')
+            contained = self.inst.is_URL_contained_in_10320loc(TESTVALUES['handle_with_10320loc'], 'http://newfirst.foo')
+            assert contained
+    if True:
+        def exchange_additional_URL_doesnotexist_test(self):
+            self.inst.exchange_additional_URL(TESTVALUES['handle_with_10320loc'], 'http://sodohfasdkfjhanwikfhbawkedfhbawe.foo', 'http://newfirst.foo')
+            contained = self.inst.is_URL_contained_in_10320loc(TESTVALUES['handle_with_10320loc'], 'http://newfirst.foo')
+            assert contained==False
+
+    if True:
+        def exchange_additional_URL_no10320loc_test(self):
+            self.inst.exchange_additional_URL(TESTVALUES['handle_without_10320loc'], 'http://first.foo', 'http://newfirst.foo')
+            contained = self.inst.is_URL_contained_in_10320loc(TESTVALUES['handle_without_10320loc'], 'http://newfirst.foo')
+            assert contained==False
+
+    if True:
         def add_additional_URL_several_test(self):
             self.inst.add_additional_URL(TESTVALUES['handle_with_10320loc'], 'http://one', 'http://two', 'http://three')
             contained = self.inst.is_URL_contained_in_10320loc(TESTVALUES['handle_with_10320loc'], 'http://one')

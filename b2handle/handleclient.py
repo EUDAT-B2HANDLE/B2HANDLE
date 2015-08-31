@@ -646,6 +646,42 @@ class EUDATHandleClient(object):
             op = 'deleting handle'
             raise b2handle.handleexceptions.GenericHandleError(op, handle, resp)
 
+    def exchange_additional_URL(self, handle, old, new):
+        '''
+        Exchange an URL in the 10320/loc entry against another, keeping the same id
+        and other attributes.
+
+        :param handle: The handle to modify.
+        :param old: The URL to replace.
+        :param new: The URL to set as new URL.
+        '''
+        LOGGER.debug('Method "exchange_additional_URL"')
+
+        handlerecord_json = self.retrieve_handle_record_json(handle)
+        if handlerecord_json is None:
+            msg = 'Cannot exchange URLs in unexisting handle'
+            raise b2handle.handleexceptions.HandleNotFoundException(handle, msg, resp)
+        list_of_entries = handlerecord_json['values']
+
+        self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
+
+        resp = self.__send_handle_put_request(
+            handle,
+            list_of_entries,
+            overwrite=True
+        )
+        # TODO FIXME (one day): Implement overwriting by index (less risky),
+        # once HS have fixed the issue with the indices.
+        if self.handle_success(resp):
+            pass
+        elif self.not_authenticated(resp):
+            msg = 'Could not exchange URLs '+str(urls)
+            op = 'exchanging URLs'
+            raise b2handle.handleexceptions.HandleAuthentificationError(op, handle, resp)
+        else:
+            op = 'exchanging "'+str(urls)+'"'
+            raise b2handle.handleexceptions.GenericHandleError(op, handle, resp)
+
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
         Add a URL entry to the handle record's 10320/loc entry. If 10320/loc
@@ -1502,6 +1538,54 @@ class EUDATHandleClient(object):
                 indices.append(i)
         return indices
 
+    def __exchange_URL_in_13020loc(self, oldurl, newurl, list_of_entries, handle):
+        '''
+        Exchange every occurrence of oldurl against newurl in a 10320/loc entry.
+            This does not change the ids or other xml attributes of the
+            <location> element.
+
+        :param oldurl: The URL that will be overwritten.
+        :param newurl: The URL to write into the entry.
+        :param list_of_entries: A list of the existing entries (to find and
+            remove the correct one).
+        :param handle: Only for the exception message.
+        :raise: GenericHandleError: If several 10320/loc exist (unlikely).
+        '''
+
+        # Find existing 10320/loc entries
+        python_indices = self.__get_python_indices_for_key(
+            '10320/loc',
+            list_of_entries
+        )
+
+        num_exchanged = 0
+        if len(python_indices) > 0:
+
+            if len(python_indices) > 1:
+                msg = str(len(python_indices))+' entries of type "10320/loc".'
+                raise b2handle.handleexceptions.BrokenHandleRecordException(handle, msg)
+
+            for index in python_indices:
+                entry = list_of_entries.pop(index)
+                xmlroot = ET.fromstring(entry['data']['value'])
+                all_URL_elements = xmlroot.findall('location')
+                for element in all_URL_elements:
+                    if element.get('href') == oldurl:
+                        LOGGER.info('Exchanging URL '+oldurl +' from 10320/loc.')
+                        num_exchanged += 1
+                        element.set('href', newurl)
+                entry['data']['value'] = ET.tostring(xmlroot)
+                list_of_entries.append(entry)
+
+        if num_exchanged == 0:
+            LOGGER.info('No URLs exchanged in 10320/loc.')
+        else:
+            message = 'The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
+            ' times against the new url "'+newurl+'" in 10320/loc.'
+            message = message.replace('1 times', 'once')
+            LOGGER.info(message)
+
+
     def __remove_URL_from_10320loc(self, url, list_of_entries, handle):
         '''
         Remove an URL from the handle record's "10320/loc" entry.
@@ -1556,6 +1640,7 @@ class EUDATHandleClient(object):
             message = 'The URL "'+url+'" was removed '+str(num_removed)+\
             ' times from 10320/loc.'
             message = message.replace('1 times', 'once')
+            LOGGER.info(message)
 
     def __add_URL_to_10320loc(self, url, list_of_entries, handle=None, weight=None, http_role=None, **kvpairs):
         '''
