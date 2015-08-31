@@ -653,7 +653,7 @@ class EUDATHandleClient(object):
             contains the URL, it is not added a second time.
 
         :param handle: The handle to add the URL to.
-        :param urls: The URL(s) to be added.
+        :param urls: The URL(s) to be added. Several URLs may be specified.
         :param attributes: Optional. Additional key-value pairs to set as
             attributes to the <location> elements, e.g. weight, http_role or
             custom attributes. Note: If the URL already exists but the
@@ -690,7 +690,7 @@ class EUDATHandleClient(object):
         Remove a URL from the handle record's 10320/loc entry.
 
         :param handle: The handle to modify.
-        :param url: The URL to remove.
+        :param urls: The URL(s) to be removed. Several URLs may be specified.
         :raises: HandleNotFoundException
         :raises: HandleSyntaxError
         :raises: HandleAuthentificationError
