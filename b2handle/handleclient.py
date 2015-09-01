@@ -72,7 +72,6 @@ class EUDATHandleClient(object):
         self.__default_permissions = '011111110011' # default from hdl-admintool
         self.__can_modify_HS_ADMIN = False
         self.__10320loc_chooseby = None
-        self.__handle_server_url = 'https://hdl.handle.net'
         self.__url_extension_REST_API = '/api/handles/'
         self.__http_verify = True
         self.__allowed_search_keys = ['url', 'checksum']
