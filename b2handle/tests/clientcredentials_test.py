@@ -1,7 +1,6 @@
 import unittest
-#import handleclient_cont as b2handle
 from b2handle.clientcredentials import PIDClientCredentials
-from handleexceptions import * 
+from b2handle.handleexceptions import * 
 import mock
 import requests
 import urllib
