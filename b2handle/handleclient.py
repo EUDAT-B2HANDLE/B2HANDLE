@@ -92,7 +92,7 @@ class EUDATHandleClient(object):
             self.__url_extension_REST_API = args['REST_API_url_extension']
 
         if 'HTTP_verify' in args.keys():
-            LOGGER.info('"__init__(): Setting __http_verify to: '+\
+            LOGGER.debug('"__init__(): Setting __http_verify to: '+\
                 str(args['HTTP_verify']))
             self.__http_verify = self.string_to_bool(args['HTTP_verify'])
 
@@ -267,6 +267,7 @@ class EUDATHandleClient(object):
             please use "retrieve_handle_record()".
 
         :param handle whose record to retrieve.
+        :raises: HandleSyntaxError.
         :return: The handle record as a nested dict. If the handle does not
             exist, returns None.
         '''
@@ -341,7 +342,7 @@ class EUDATHandleClient(object):
             return None
         else:
             if len(indices) > 1:
-                LOGGER.info('The handle '+handle+' contains several entries\
+                LOGGER.debug('The handle '+handle+' contains several entries\
                  of type "'+key+'". Only the first one is returned.')
             return list_of_entries[indices[0]]['data']['value']
 
@@ -509,7 +510,7 @@ class EUDATHandleClient(object):
                                 'format':'admin',
                                 'value':newval
                             }
-                            LOGGER.info('modify_handle_value: Modified'+\
+                            LOGGER.info('Modified'+\
                                 ' "HS_ADMIN" of handle '+handle)
                         changed = True
                         nothingchanged = False
@@ -523,7 +524,7 @@ class EUDATHandleClient(object):
             # If the entry doesn't exist yet, add it:
             if not changed:
                 if add_if_not_exist:
-                    LOGGER.info('modify_handle_value: Adding entry "'+key+'"'+\
+                    LOGGER.debug('modify_handle_value: Adding entry "'+key+'"'+\
                         ' to handle '+handle)
                     index = self.__make_another_index(list_of_entries)
                     entry_to_add = self.__create_entry(key, newval, index, ttl)
@@ -538,7 +539,7 @@ class EUDATHandleClient(object):
 
         # Overwrite the old record:
         if nothingchanged:
-            LOGGER.info('modify_handle_value: There was no entries '+\
+            LOGGER.debug('modify_handle_value: There was no entries '+\
                 str(kvpairs.keys())+' to be modified (handle '+handle+').'+\
                 ' To add them, set add_if_not_exist = True')
         else:
@@ -601,6 +602,7 @@ class EUDATHandleClient(object):
         # delete and process response:
         resp = self.__send_handle_delete_request(handle, indices)
         if self.handle_success(resp):
+            LOGGER.debug("Deleted handle values "+str(keys)+"of handle "+handle)
             pass
         elif self.values_not_found(resp):
             pass
@@ -630,16 +632,15 @@ class EUDATHandleClient(object):
             message = 'You specified more than one argument. If you wanted'+\
                 ' to delete just some values from a handle, please use the'+\
                 ' new method "delete_handle_value()".'
-            print message
             raise TypeError(message)
 
         resp = self.__send_handle_delete_request(handle)
         if self.handle_success(resp):
-            LOGGER.info('delete_handle: Handle '+handle+' deleted.')
+            LOGGER.info('Handle '+handle+' deleted.')
         elif self.handle_not_found(resp):
             message = 'delete_handle: Handle '+handle+' did not exist, so'+\
                 ' it could not be deleted.'
-            LOGGER.info(message)
+            LOGGER.debug(message)
         else:
             op = 'deleting handle'
             raise GenericHandleError(op, handle, resp)
@@ -778,7 +779,6 @@ class EUDATHandleClient(object):
         :raises: HandleSyntaxError.
         :return: The handle name.
         '''
-        LOGGER.debug('"register_handle()" for handle '+handle+'.')
 
         # If already exists and can't be overwritten:
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -834,6 +834,7 @@ class EUDATHandleClient(object):
         )
 
         if self.was_handle_created(resp) or self.handle_success(resp):
+            LOGGER.info("Handle "+handle+" registered.")
             return json.loads(resp.content)['handle']
         else:
             if self.not_authenticated(resp):
@@ -877,7 +878,7 @@ class EUDATHandleClient(object):
         '''
 
         if url is None and len(key_value_pairs) == 0:
-            LOGGER.info('search_handle: No key value pair was specified.')
+            LOGGER.debug('search_handle: No key value pair was specified.')
             msg = 'Please specify at least one key-value pair to search for.'
             raise TypeError(msg)
 
@@ -1302,17 +1303,17 @@ class EUDATHandleClient(object):
 
         url = self.make_handle_URL(handle, indices)
         if indices is not None and len(indices) > 0:
-            LOGGER.info('DELETE Request for values '+str(indices))
+            LOGGER.debug('DELETE Request for values '+str(indices))
         else:
-            LOGGER.info('Deleting handle '+handle+'.')
-        LOGGER.info('DELETE Request to '+url)
+            LOGGER.debug('Deleting handle '+handle+'.')
+        LOGGER.debug('DELETE Request to '+url)
         LOGGER.debug('verify: '+str(self.__http_verify))
         resp = requests.delete(url, headers=self.__getHeaders('DELETE'),\
             verify=self.__http_verify)
         return resp
 
     def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
-        '''
+        '''ebug
         Send a HTTP PUT request to the handle server to write either an entire
             handle or to some specified values to an handle record, using the
             requests module.
@@ -1343,7 +1344,7 @@ class EUDATHandleClient(object):
             # the Handle System.
 
         url = self.make_handle_URL(handle, overwrite=overwrite)
-        LOGGER.info('PUT Request to '+url)
+        LOGGER.debug('PUT Request to '+url)
         LOGGER.debug('PUT Request payload: '+payload)
         LOGGER.debug('verify: '+str(self.__http_verify))
         resp = requests.put(url, data=payload, headers=self.__getHeaders('PUT'), verify=self.__http_verify)
@@ -1363,8 +1364,7 @@ class EUDATHandleClient(object):
         '''
 
         url = self.make_handle_URL(handle, indices)
-        LOGGER.info('GET Request to '+url)
-        LOGGER.debug('verify: '+str(self.__http_verify))
+        LOGGER.debug('GET Request to '+url)
         resp = requests.get(url, headers=self.__getHeaders('GET'), verify=self.__http_verify)
         return resp
 
@@ -1569,19 +1569,19 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == oldurl:
-                        LOGGER.info('Exchanging URL '+oldurl +' from 10320/loc.')
+                        LOGGER.debug('Exchanging URL '+oldurl +' from 10320/loc.')
                         num_exchanged += 1
                         element.set('href', newurl)
                 entry['data']['value'] = ET.tostring(xmlroot)
                 list_of_entries.append(entry)
 
         if num_exchanged == 0:
-            LOGGER.info('No URLs exchanged in 10320/loc.')
+            LOGGER.debug('No URLs exchanged in 10320/loc.')
         else:
             message = 'The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
             ' times against the new url "'+newurl+'" in 10320/loc.'
             message = message.replace('1 times', 'once')
-            LOGGER.info(message)
+            LOGGER.debug(message)
 
 
     def __remove_URL_from_10320loc(self, url, list_of_entries, handle):
@@ -1618,12 +1618,12 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == url:
-                        LOGGER.info('Removing URL '+url +' from 10320/loc.')
+                        LOGGER.debug('Removing URL '+url +' from 10320/loc.')
                         num_removed += 1
                         xmlroot.remove(element)
                 remaining_URL_elements = xmlroot.findall('location')
                 if len(remaining_URL_elements) == 0:
-                    LOGGER.info("All URLs removed from 10320/loc.")
+                    LOGGER.debug("All URLs removed from 10320/loc.")
                     # TODO FIXME: If we start adapting the Handle Record by
                     # index (instead of overwriting the entire one), be careful
                     # to delete the ones that became empty!
@@ -1633,12 +1633,12 @@ class EUDATHandleClient(object):
                         ' left after removal operation.')
                     list_of_entries.append(entry)
         if num_removed == 0:
-            LOGGER.info('No URLs removed from 10320/loc.')
+            LOGGER.debug('No URLs removed from 10320/loc.')
         else:
             message = 'The URL "'+url+'" was removed '+str(num_removed)+\
             ' times from 10320/loc.'
             message = message.replace('1 times', 'once')
-            LOGGER.info(message)
+            LOGGER.debug(message)
 
     def __add_URL_to_10320loc(self, url, list_of_entries, handle=None, weight=None, http_role=None, **kvpairs):
         '''
@@ -1751,7 +1751,7 @@ class EUDATHandleClient(object):
             weight = float(weight)
             if weight < 0  or weight > 1:
                 default = 1
-                LOGGER.info('Invalid weight ('+str(weight)+\
+                LOGGER.debug('Invalid weight ('+str(weight)+\
                     '), using default value ('+str(default)+') instead.')
                 weight = default
             weight = str(weight)
