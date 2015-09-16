@@ -482,17 +482,11 @@ class EUDATHandleClient(object):
             raise HandleNotFoundException(handle, msg)
         list_of_entries = handlerecord_json['values']
 
-        # HS_ADMIN and 10320/loc:
+        # HS_ADMIN
         if 'HS_ADMIN' in kvpairs.keys() and not self.__can_modify_HS_ADMIN:
             msg = 'You may not modify HS_ADMIN'
             raise IllegalOperationException(
                 msg, 'modifying HS_ADMIN', handle)
-
-        if '10320/loc' in kvpairs.keys():
-            msg = 'For modifying 10320/loc entries, please use the'+\
-                ' methods "add_additional_URL" or "remove_additional_URL".'
-            raise IllegalOperationException(
-                msg, 'modifying 10320/loc', handle)
 
         nothingchanged = True
         new_list_of_entries = []
