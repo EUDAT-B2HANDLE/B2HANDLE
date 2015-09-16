@@ -879,21 +879,27 @@ class EUDATHandleClient(object):
 
         if url is None and len(key_value_pairs) == 0:
             LOGGER.debug('search_handle: No key value pair was specified.')
-            msg = 'Please specify at least one key-value pair to search for.'
-            raise TypeError(msg)
+            msg = 'No search terms have been specified. Please specify'+\
+                ' at least one key-value-pair.'
+            raise ReverseLookupException(msg)
 
         kvpairs = copy.deepcopy(key_value_pairs)
         if url is not None:
             kvpairs['url'] = url
 
-        if url is None and 'URL' in key_value_pairs.keys():
+        if url is None and 'URL' in key_value_pairs:
             val = kvpairs['URL']
             kvpairs['url'] = val
             del kvpairs['URL']
 
+        fulltext_searchterms = []
+        if 'searchterms' in key_value_pairs:
+            fulltext_searchterms = key_value_pairs['searchterms']
+            key_value_pairs.pop('searchterms')'
+
         list_of_handles = []
         LOGGER.debug('search_handle: key-value-pairs: '+str(kvpairs))
-        query = self.create_revlookup_query(**kvpairs)
+        query = self.create_revlookup_query(*fulltext_searchterms, **kvpairs)
 
         if query is None:
             msg = 'No search query was specified'
@@ -1078,7 +1084,7 @@ class EUDATHandleClient(object):
         '''
         Returns index and handle separately, in a tuple.
 
-        :param handle_with_index: THe handle string with an index (e.g.
+        :param handle_with_index: The handle string with an index (e.g.
             500:prefix/suffix)
         :return: index and handle as a tuple.
         '''
@@ -1200,7 +1206,7 @@ class EUDATHandleClient(object):
         for key, value in keyvalue_searchterms.iteritems():
 
             if only_search_for_allowed_keys and key not in allowed_search_keys:
-                msg = 'Cannot search for key "'+key+'". Only searches'+\
+                msg = 'Cannot search for key "'+key+'". Only searches '+\
                     'for keys '+str(allowed_search_keys)+' are implemented.'
                 raise ReverseLookupException(msg)
             else:
@@ -1209,7 +1215,7 @@ class EUDATHandleClient(object):
 
         query = query.replace('?&', '?')
         LOGGER.debug('create_revlookup_query: query: '+query)
-        if counter == 0:
+        if counter == 0: # unreachable?
             msg = 'No valid search terms have been specified.'
             raise ReverseLookupException(msg)
         return query
