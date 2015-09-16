@@ -599,19 +599,25 @@ class EUDATHandleClient(object):
                 indices = indices+indices_onekey
                 keys_done.append(key)
 
-        # delete and process response:
-        resp = self.__send_handle_delete_request(handle, indices)
-        if self.handle_success(resp):
-            LOGGER.debug("Deleted handle values "+str(keys)+"of handle "+handle)
-            pass
-        elif self.values_not_found(resp):
-            pass
-        elif self.not_authenticated(resp):
-            op = 'deleting "'+str(key)+'"'
-            raise HandleAuthentificationError(op, handle, resp)
+        # Important: If key not found, do not continue, as deleting without indices would delete the entire handle!!
+        if not len(indices) > 0:
+            LOGGER.debug('No values for key '+str(keys))
+            return None
         else:
-            op = 'deleting "'+str(keys)+'"'
-            raise GenericHandleError(op, handle, resp)
+
+            # delete and process response:
+            resp = self.__send_handle_delete_request(handle, indices)
+            if self.handle_success(resp):
+                LOGGER.debug("Deleted handle values "+str(keys)+"of handle "+handle)
+                pass
+            elif self.values_not_found(resp):
+                pass
+            elif self.not_authenticated(resp):
+                op = 'deleting "'+str(key)+'"'
+                raise HandleAuthentificationError(op, handle, resp)
+            else:
+                op = 'deleting "'+str(keys)+'"'
+                raise GenericHandleError(op, handle, resp)
 
     def delete_handle(self, handle, *other):
         '''Delete the handle and its handle record.
