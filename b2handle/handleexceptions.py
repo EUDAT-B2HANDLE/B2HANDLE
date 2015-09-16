@@ -30,7 +30,7 @@ class IllegalOperationException(Exception):
     when he wants to create or remove 10320/loc entries using the
     wrong method, ...
     '''
-    def __init__(self, operation=None, handle=None, custom_message=None): # TODO ORDER CHANGED! bef line 605
+    def __init__(self, operation=None, handle=None, custom_message=None):
         self.msg = "Illegal Operation"
         self.handle = handle
         self.custom_message = custom_message
@@ -196,6 +196,8 @@ class HandleAuthentificationError(Exception):
         super(self.__class__, self).__init__(self.msg)
 
 class CredentialsFormatError(Exception):
+    '''
+    To be raised if credentials are ill-formatted or miss essential items.'''
     def __init__(self, custom_message=None):
         self.msg = 'Ill-formatted credentials'
         self.custom_message = custom_message
