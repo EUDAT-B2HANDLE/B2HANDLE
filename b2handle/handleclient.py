@@ -1265,7 +1265,7 @@ class EUDATHandleClient(object):
 
     # Private methods:
 
-    def __getHeaders(self, action):
+    def __get_headers(self, action):
         '''
         Create HTTP headers for different HTTP requests. Content-type and
             Accept are 'application/json', as the library is interacting with
@@ -1283,9 +1283,17 @@ class EUDATHandleClient(object):
         if action is 'GET':
             head = {'Accept': accept}
         elif action is 'PUT':
+            if self.__HS_auth_string is None:
+                raise HandleAuthentificationError(custom_message='Could not '+\
+                    'create header for PUT request, no authentication string '+\
+                    'for Handle System set.')
             head = {'Content-Type': content_type,
                     'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'DELETE':
+            if self.__HS_auth_string is None:
+                raise HandleAuthentificationError(custom_message='Could not '+\
+                    'create header for PUT request, no authentication string '+\
+                    'for Handle System set.')
             head = {'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
@@ -1314,7 +1322,7 @@ class EUDATHandleClient(object):
             LOGGER.debug('Deleting handle '+handle+'.')
         LOGGER.debug('DELETE Request to '+url)
         LOGGER.debug('verify: '+str(self.__http_verify))
-        resp = requests.delete(url, headers=self.__getHeaders('DELETE'),\
+        resp = requests.delete(url, headers=self.__get_headers('DELETE'),\
             verify=self.__http_verify)
         return resp
 
@@ -1353,7 +1361,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('PUT Request to '+url)
         LOGGER.debug('PUT Request payload: '+payload)
         LOGGER.debug('verify: '+str(self.__http_verify))
-        resp = requests.put(url, data=payload, headers=self.__getHeaders('PUT'), verify=self.__http_verify)
+        resp = requests.put(url, data=payload, headers=self.__get_headers('PUT'), verify=self.__http_verify)
         return resp
 
     def __send_handle_get_request(self, handle, indices=None):
@@ -1371,7 +1379,7 @@ class EUDATHandleClient(object):
 
         url = self.make_handle_URL(handle, indices)
         LOGGER.debug('GET Request to '+url)
-        resp = requests.get(url, headers=self.__getHeaders('GET'), verify=self.__http_verify)
+        resp = requests.get(url, headers=self.__get_headers('GET'), verify=self.__http_verify)
         return resp
 
     def __send_revlookup_get_request(self, query):
@@ -1379,7 +1387,7 @@ class EUDATHandleClient(object):
         solrurl = self.__solrbaseurl.rstrip('/')+'/'+self.__solrurlpath.strip('/')
         entirequery = solrurl+'?'+query.lstrip('?')
 
-        hea = self.__getHeaders('SEARCH')
+        hea = self.__get_headers('SEARCH')
         resp = requests.get(entirequery, headers=hea, verify=self.__http_verify)
         return resp
 
