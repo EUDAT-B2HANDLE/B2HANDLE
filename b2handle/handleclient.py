@@ -895,7 +895,7 @@ class EUDATHandleClient(object):
         fulltext_searchterms = []
         if 'searchterms' in key_value_pairs:
             fulltext_searchterms = key_value_pairs['searchterms']
-            key_value_pairs.pop('searchterms')'
+            key_value_pairs.pop('searchterms')
 
         list_of_handles = []
         LOGGER.debug('search_handle: key-value-pairs: '+str(kvpairs))
