@@ -10,10 +10,7 @@ from clientcredentials_test import PIDClientCredentialsTestCase
 from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
 
 # Integration tests:
-from handleclient_readaccess_test import EUDATHandleClientReadaccessTestCase
-from handleclient_searchaccess_test import EUDATHandleClientSearchTestCase
-from handleclient_writeaccess_test import EUDATHandleClientWriteaccessTestCase
-from handleclient_writeaccess_10320_test import EUDATHandleClientWriteaccess10320locTestCase
+# Imports below!
 
 
 if __name__ == '__main__':
@@ -42,10 +39,15 @@ if __name__ == '__main__':
         mocked_access = True
     if 'read' in param.testtype:
         read_access = True
+        from handleclient_readaccess_test import EUDATHandleClientReadaccessTestCase
     if 'write' in param.testtype:
         write_access = True
+        from handleclient_writeaccess_test import EUDATHandleClientWriteaccessTestCase
+        from handleclient_writeaccess_10320_test import EUDATHandleClientWriteaccess10320locTestCase
     if 'search' in param.testtype:
         search_access = True
+        from handleclient_searchaccess_test import EUDATHandleClientSearchTestCase
+
 
     # Collection tests:
     verbosity = 5
@@ -54,6 +56,7 @@ if __name__ == '__main__':
     print '\nCollecting tests:'
     tests_to_run = []
     numtests = 0
+
     if no_access:
 
         noaccess = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientNoaccessTestCase)

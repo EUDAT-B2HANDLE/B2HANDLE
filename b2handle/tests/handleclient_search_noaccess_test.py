@@ -14,27 +14,10 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.testvalues = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
-        #self.url_https = self.testvalues['url_https']
-        #self.password = self.testvalues['password']
-        #self.user = self.testvalues['user']
-        #self.handle = self.testvalues['handle_to_be_modified']
-        #self.handle_withloc = self.testvalues['handle_with_10320loc']
-        #self.handle_withoutloc = self.testvalues['handle_without_10320loc']
-        #self.newhandle = self.testvalues['handle_to_be_created']
-        #self.randompassword = 'some_random_password_dghshsrtsrth'
-        #self.verify = self.testvalues['HTTP_verify']
 
     def setUp(self):
         self.inst = EUDATHandleClient()
-        #self.inst = EUDATHandleClient.instantiate_with_username_and_password(
-            #self.url_https,
-            #self.user,
-            #self.password,
-            #reverselookup_username=self.testvalues['reverselookup_username'],
-            #reverselookup_password=self.testvalues['reverselookup_password'],
-            #HTTP_verify=self.verify
-            #)
+ 
 
     def tearDown(self):
         pass
