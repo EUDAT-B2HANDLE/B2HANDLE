@@ -278,6 +278,8 @@ class EUDATHandleClient(object):
             return None
         elif self.does_handle_exist(response):
             handlerecord_json = json.loads(response.content)
+            if not handlerecord_json['handle'] == handle:
+                raise GenericHandleError(operation='retrieving handle record', handle=handle, response=response, custom_message='The retrieve returned a different handle than was asked for.')
             return handlerecord_json
         elif self.is_handle_empty(response):
             handlerecord_json = json.loads(response.content)
@@ -1027,25 +1029,26 @@ class EUDATHandleClient(object):
         :return: True. If it's not ok, exceptions are raised.
 
         '''
-        arr = string.split('/')
+        expected = 'prefix/suffix'
+
+        try:
+            arr = string.split('/')
+        except AttributeError:
+            raise HandleSyntaxError(custom_message='The provided handle is None.', expected_syntax=expected)
 
         if len(arr) > 2:
             msg = 'Too many slashes'
-            expected = 'prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
         elif len(arr) < 2:
             msg = 'No slash'
-            expected = 'prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
 
         if len(arr[0]) == 0:
             msg = 'Empty prefix'
-            expected = 'prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
 
         if len(arr[1]) == 0:
             msg = 'Empty suffix'
-            expected = 'prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
 
         return True
@@ -1059,21 +1062,22 @@ class EUDATHandleClient(object):
         :raise: HandleSyntaxError
         :return: True. If it's not ok, exceptions are raised.
         '''
+        expected = 'index:prefix/suffix'
+        try:
+            arr = string.split(':')
+        except AttributeError:
+            raise HandleSyntaxError(custom_message='The provided handle is None.', expected_syntax=expected)
 
-        arr = string.split(':')
         if len(arr) > 2:
             msg = 'Too many colons'
-            expected = 'index:prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
         elif len(arr) < 2:
             msg = 'No colon'
-            expected = 'index:prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
         try:
             int(arr[0])
         except ValueError:
             msg = 'Index is not an integer'
-            expected = 'index:prefix/suffix'
             raise HandleSyntaxError(msg, string, expected)
 
         EUDATHandleClient.check_handle_syntax(string)
@@ -1088,8 +1092,11 @@ class EUDATHandleClient(object):
             500:prefix/suffix)
         :return: index and handle as a tuple.
         '''
-        if len(handle_with_index.split(':')) > 1:
-            return handle_with_index.split(':')
+        split = handle_with_index.split(':')
+        if len(split) > 1:
+            return split
+        elif len(split) == 1:
+            return (None, handle_with_index)
 
     def get_handlerecord_indices_for_key(self, key, list_of_entries):
         '''
@@ -1146,6 +1153,9 @@ class EUDATHandleClient(object):
 
         resp = self.__send_handle_get_request(handle)
         if self.does_handle_exist(resp):
+            handlerecord_json = json.loads(resp.content)
+            if not handlerecord_json['handle'] == handle:
+                raise GenericHandleError(operation='Checking if username exists', handle=handle, response=resp, custom_message='The check returned a different handle than was asked for.')
             return True
         elif self.handle_not_found(resp):
             msg = 'The username handle does not exist'
