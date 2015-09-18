@@ -78,6 +78,11 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         self.assertTrue(syntax_checked,
             'The syntax of the handle is not index:prefix/suffix.')
 
+    def test_check_handle_syntax_none(self):
+        """Test check handle syntax where handle is None"""
+        with self.assertRaises(HandleSyntaxError):
+            syntax_checked = self.inst.check_handle_syntax(None)
+
     def test_check_handle_syntax_with_index_nan(self):
         """Handle Syntax: Exception if index not a number."""
         with self.assertRaises(HandleSyntaxError):
