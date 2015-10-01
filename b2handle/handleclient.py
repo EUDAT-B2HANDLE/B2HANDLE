@@ -697,24 +697,27 @@ class EUDATHandleClient(object):
             raise HandleNotFoundException(handle, msg, resp)
         list_of_entries = handlerecord_json['values']
 
-        self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
-
-        resp = self.__send_handle_put_request(
-            handle,
-            list_of_entries,
-            overwrite=True
-        )
-        # TODO FIXME (one day): Implement overwriting by index (less risky),
-        # once HS have fixed the issue with the indices.
-        if self.handle_success(resp):
-            pass
-        elif self.not_authenticated(resp):
-            msg = 'Could not exchange URLs '+str(urls)
-            op = 'exchanging URLs'
-            raise HandleAuthenticationError(op, handle, resp)
+        if not self.is_URL_contained_in_10320LOC(handle, old, handlerecord_json):
+            LOGGER.debug('exchange_additional_URL: No URLs exchanged, as the url was not in the record.')
         else:
-            op = 'exchanging "'+str(urls)+'"'
-            raise GenericHandleError(op, handle, resp)
+            self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
+
+            resp = self.__send_handle_put_request(
+                handle,
+                list_of_entries,
+                overwrite=True
+            )
+            # TODO FIXME (one day): Implement overwriting by index (less risky),
+            # once HS have fixed the issue with the indices.
+            if self.handle_success(resp):
+                pass
+            elif self.not_authenticated(resp):
+                msg = 'Could not exchange URLs '+str(urls)
+                op = 'exchanging URLs'
+                raise HandleAuthenticationError(op, handle, resp)
+            else:
+                op = 'exchanging "'+str(urls)+'"'
+                raise GenericHandleError(op, handle, resp)
 
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
