@@ -963,7 +963,12 @@ class EUDATHandleClient(object):
             raise ReverseLookupException(msg, query, resp)
 
         if resp.status_code == 200:
-            list_of_handles = json.loads(resp.content)
+            try:
+                list_of_handles = json.loads(resp.content)
+            except ValueError:
+                msg = 'The response is not JSON.'
+                raise ReverseLookupException(msg, query, resp)
+
         elif resp.status_code == 401:
             msg = 'Authentication failed.'
             if self.__username is not None:
