@@ -527,8 +527,10 @@ class EUDATHandleClient(object):
                 if list_of_entries[i]['type'] == key:
                     if not changed:
                         list_of_entries[i]['data'] = newval
+                        list_of_entries[i].pop('timestamp') # will be ignored anyway
                         if key == 'HS_ADMIN':
                             newval['permissions'] = self.__default_permissions
+                            list_of_entries[i].pop('timestamp') # will be ignored anyway
                             list_of_entries[i]['data'] = {
                                 'format':'admin',
                                 'value':newval
