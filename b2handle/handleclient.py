@@ -1,7 +1,7 @@
 '''
 Created on 2015-07-02
 Started implementing 2015-07-15
-Last updates 2015-08-26
+Last updates 2015-10-01
 '''
 
 # pylint handleclient_cont.py --method-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --max-line-length=250 --variable-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --attr-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --argument-rgx="[a-z_][a-zA-Z0-9_]{2,30}$"
@@ -49,13 +49,13 @@ class EUDATHandleClient(object):
             reverse lookup of handles, as a list of strings. Defaults to 'url'
             and 'checksum'. If the list is empty, all keys are passed to the
             reverse lookup servlet and exceptions are passed on to the user.
-        :param __10320loc_chooseby: Optional. The value to give to a handle
-            record's 10320/loc entry's 'chooseby' attribute as string (e.g.
+        :param __10320LOC_chooseby: Optional. The value to give to a handle
+            record's 10320/LOC entry's 'chooseby' attribute as string (e.g.
             'locatt,weighted'). Defaults to None (attribute not set).
         :param modify_HS_ADMIN: Optional. Determines whether the HS_ADMIN
             handle record entry can be modified using this library. Defaults to
             False.
-        :param HTTP_verify: Optional. If set to False, the certificate is not
+        :param HTTPS_verify: Optional. If set to False, the certificate is not
             verified in HTTP requests. Defaults to True.
         :param reverselookup_baseuri: Optional. The base URL of the reverse
             lookup service. If not set, the handle server base URL is used.
@@ -70,7 +70,7 @@ class EUDATHandleClient(object):
         self.__handle_server_url = 'https://hdl.handle.net'
         self.__default_permissions = '011111110011' # default from hdl-admintool
         self.__can_modify_HS_ADMIN = False
-        self.__10320loc_chooseby = None
+        self.__10320LOC_chooseby = None
         self.__url_extension_REST_API = '/api/handles/'
         self.__http_verify = True
         self.__allowed_search_keys = ['url', 'checksum']
@@ -91,18 +91,18 @@ class EUDATHandleClient(object):
         if 'REST_API_url_extension' in args.keys():
             self.__url_extension_REST_API = args['REST_API_url_extension']
 
-        if 'HTTP_verify' in args.keys():
+        if 'HTTPS_verify' in args.keys():
             LOGGER.debug('"__init__(): Setting __http_verify to: '+\
-                str(args['HTTP_verify']))
-            self.__http_verify = self.string_to_bool(args['HTTP_verify'])
+                str(args['HTTPS_verify']))
+            self.__http_verify = self.string_to_bool(args['HTTPS_verify'])
 
         # Needed for write access:
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__default_permissions = args['HS_ADMIN_permissions']
 
-        if '10320loc_chooseby' in args.keys():
-            self.__10320loc_chooseby = args['10320loc_chooseby']
+        if '10320LOC_chooseby' in args.keys():
+            self.__10320LOC_chooseby = args['10320LOC_chooseby']
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__can_modify_HS_ADMIN = args['modify_HS_ADMIN']
@@ -348,10 +348,10 @@ class EUDATHandleClient(object):
                  of type "'+key+'". Only the first one is returned.')
             return list_of_entries[indices[0]]['data']['value']
 
-    def is_10320loc_empty(self, handle, handlerecord_json=None):
+    def is_10320LOC_empty(self, handle, handlerecord_json=None):
         '''
-        Checks if there is a 10320/loc entry in the handle record.
-        Note: In the unlikely case that there is a 10320/loc entry, but it does
+        Checks if there is a 10320/LOC entry in the handle record.
+        Note: In the unlikely case that there is a 10320/LOC entry, but it does
             not contain any locations, it is treated as if there was none.
             # TODO QUESTION to Robert: Is this the desired behaviour?
 
@@ -360,7 +360,7 @@ class EUDATHandleClient(object):
             GET request for the handle as a dict. Avoids another GET request.
         :raises: HandleNotFoundException
         :raises: HandleSyntaxError
-        :return: True if the record contains NO 10320/loc entry; False if it
+        :return: True if the record contains NO 10320/LOC entry; False if it
             does contain one.
         '''
 
@@ -372,7 +372,7 @@ class EUDATHandleClient(object):
         num_entries = 0
         num_URL = 0
         for entry in list_of_entries:
-            if entry['type'] == '10320/loc':
+            if entry['type'] == '10320/LOC':
                 num_entries += 1
                 xmlroot = ET.fromstring(entry['data']['value'])
                 list_of_locations = xmlroot.findall('location')
@@ -387,16 +387,16 @@ class EUDATHandleClient(object):
             else:
                 return False
 
-    def is_URL_contained_in_10320loc(self, handle, url, handlerecord_json=None):
+    def is_URL_contained_in_10320LOC(self, handle, url, handlerecord_json=None):
         '''
         Checks if the URL is already present in the handle record's
-            10320/loc entry.
+            10320/LOC entry.
 
         :param handle: The handle.
         :param url: The URL.
         :raises: HandleNotFoundException
         :raises: HandleSyntaxError
-        :return: True if the handle record's 10320/loc entry contains the URL;
+        :return: True if the handle record's 10320/LOC entry contains the URL;
             False otherwise. If the entry is empty or does not exist, False
             is returned.
         '''
@@ -408,7 +408,7 @@ class EUDATHandleClient(object):
         num_entries = 0
         num_URL = 0
         for entry in list_of_entries:
-            if entry['type'] == '10320/loc':
+            if entry['type'] == '10320/LOC':
                 num_entries += 1
                 xmlroot = ET.fromstring(entry['data']['value'])
                 list_of_locations = xmlroot.findall('location')
@@ -436,7 +436,7 @@ class EUDATHandleClient(object):
         :param checksum: Optional. The checksum string.
         :param extratypes: Optional. Additional key value pairs as dict.
         :param additional_URLs: Optional. A list of URLs (as strings) to be
-            added to the handle record as 10320/loc entry.
+            added to the handle record as 10320/LOC entry.
         :raises: HandleAuthentificationError.
         :return: The new handle name.
         '''
@@ -458,7 +458,7 @@ class EUDATHandleClient(object):
 
         Note: We assume that a key exists only once. In case a key exists
             several time, an exception will be raised.
-        Note: To modify 10320/loc, please use "add_additional_URL()" or
+        Note: To modify 10320/LOC, please use "add_additional_URL()" or
             "remove_additional_URL()".
 
         Parameters:
@@ -649,7 +649,7 @@ class EUDATHandleClient(object):
 
     def exchange_additional_URL(self, handle, old, new):
         '''
-        Exchange an URL in the 10320/loc entry against another, keeping the same id
+        Exchange an URL in the 10320/LOC entry against another, keeping the same id
         and other attributes.
 
         :param handle: The handle to modify.
@@ -685,8 +685,8 @@ class EUDATHandleClient(object):
 
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
-        Add a URL entry to the handle record's 10320/loc entry. If 10320/loc
-            does not exist yet, it is created. If the 10320/loc entry already
+        Add a URL entry to the handle record's 10320/LOC entry. If 10320/LOC
+            does not exist yet, it is created. If the 10320/LOC entry already
             contains the URL, it is not added a second time.
 
         :param handle: The handle to add the URL to.
@@ -707,7 +707,7 @@ class EUDATHandleClient(object):
         list_of_entries = handlerecord_json['values']
 
         for url in urls:
-            self.__add_URL_to_10320loc(url, list_of_entries, handle)
+            self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
         resp = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
         # TODO FIXME (one day) Overwrite by index.
@@ -724,7 +724,7 @@ class EUDATHandleClient(object):
 
     def remove_additional_URL(self, handle, *urls):
         '''
-        Remove a URL from the handle record's 10320/loc entry.
+        Remove a URL from the handle record's 10320/LOC entry.
 
         :param handle: The handle to modify.
         :param urls: The URL(s) to be removed. Several URLs may be specified.
@@ -740,7 +740,7 @@ class EUDATHandleClient(object):
         list_of_entries = handlerecord_json['values']
 
         for url in urls:
-            self.__remove_URL_from_10320loc(url, list_of_entries, handle)
+            self.__remove_URL_from_10320LOC(url, list_of_entries, handle)
 
 
         resp = self.__send_handle_put_request(
@@ -772,7 +772,7 @@ class EUDATHandleClient(object):
         :param checksum: Optional. The checksum string.
         :param extratypes: Optional. Additional key value pairs.
         :param additional_URLs: Optional. A list of URLs (as strings) to be
-            added to the handle record as 10320/loc entry.
+            added to the handle record as 10320/LOC entry.
         :param overwrite: Optional. If set to True, an existing handle record
             will be overwritten. Defaults to False.
         :raises: HandleAlreadyExistsException. Only if overwrite is not set or
@@ -826,7 +826,7 @@ class EUDATHandleClient(object):
                 list_of_entries.append(entry)
         if additional_URLs is not None and len(additional_URLs) > 0:
             for url in additional_URLs:
-                self.__add_URL_to_10320loc(url, list_of_entries, handle)
+                self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
         # Create record itself and put to server
         resp = self.__send_handle_put_request(
@@ -1486,7 +1486,7 @@ class EUDATHandleClient(object):
 
         :param entrytype: THe type of entry to create, e.g. 'URL' or
             'checksum' or ... Note: For entries of type 'HS_ADMIN', please
-            use __create_admin_entry(). For type '10320/loc', please use
+            use __create_admin_entry(). For type '10320/LOC', please use
             'add_additional_URL()'
         :param data: The actual value for the entry. Can be a simple string,
             e.g. "example", or a dict {"format":"string", "value":"example"}.
@@ -1562,7 +1562,7 @@ class EUDATHandleClient(object):
 
     def __exchange_URL_in_13020loc(self, oldurl, newurl, list_of_entries, handle):
         '''
-        Exchange every occurrence of oldurl against newurl in a 10320/loc entry.
+        Exchange every occurrence of oldurl against newurl in a 10320/LOC entry.
             This does not change the ids or other xml attributes of the
             <location> element.
 
@@ -1571,12 +1571,12 @@ class EUDATHandleClient(object):
         :param list_of_entries: A list of the existing entries (to find and
             remove the correct one).
         :param handle: Only for the exception message.
-        :raise: GenericHandleError: If several 10320/loc exist (unlikely).
+        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).
         '''
 
-        # Find existing 10320/loc entries
+        # Find existing 10320/LOC entries
         python_indices = self.__get_python_indices_for_key(
-            '10320/loc',
+            '10320/LOC',
             list_of_entries
         )
 
@@ -1584,7 +1584,7 @@ class EUDATHandleClient(object):
         if len(python_indices) > 0:
 
             if len(python_indices) > 1:
-                msg = str(len(python_indices))+' entries of type "10320/loc".'
+                msg = str(len(python_indices))+' entries of type "10320/LOC".'
                 raise BrokenHandleRecordException(handle, msg)
 
             for index in python_indices:
@@ -1593,24 +1593,24 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == oldurl:
-                        LOGGER.debug('Exchanging URL '+oldurl +' from 10320/loc.')
+                        LOGGER.debug('Exchanging URL '+oldurl +' from 10320/LOC.')
                         num_exchanged += 1
                         element.set('href', newurl)
                 entry['data']['value'] = ET.tostring(xmlroot)
                 list_of_entries.append(entry)
 
         if num_exchanged == 0:
-            LOGGER.debug('No URLs exchanged in 10320/loc.')
+            LOGGER.debug('No URLs exchanged in 10320/LOC.')
         else:
             message = 'The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
-            ' times against the new url "'+newurl+'" in 10320/loc.'
+            ' times against the new url "'+newurl+'" in 10320/LOC.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
 
 
-    def __remove_URL_from_10320loc(self, url, list_of_entries, handle):
+    def __remove_URL_from_10320LOC(self, url, list_of_entries, handle):
         '''
-        Remove an URL from the handle record's "10320/loc" entry.
+        Remove an URL from the handle record's "10320/LOC" entry.
         If it exists several times in the entry, all occurences are removed.
         If the URL is not present, nothing happens.
         If after removing, there is no more URLs in the entry, the entry is
@@ -1620,12 +1620,12 @@ class EUDATHandleClient(object):
         :param list_of_entries: A list of the existing entries (to find and
             remove the correct one).
         :param handle: Only for the exception message.
-        :raise: GenericHandleError: If several 10320/loc exist (unlikely).
+        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).
         '''
 
-        # Find existing 10320/loc entries
+        # Find existing 10320/LOC entries
         python_indices = self.__get_python_indices_for_key(
-            '10320/loc',
+            '10320/LOC',
             list_of_entries
         )
 
@@ -1633,7 +1633,7 @@ class EUDATHandleClient(object):
         if len(python_indices) > 0:
 
             if len(python_indices) > 1:
-                msg = str(len(python_indices))+' entries of type "10320/loc".'
+                msg = str(len(python_indices))+' entries of type "10320/LOC".'
                 raise BrokenHandleRecordException(handle, msg)
 
             for index in python_indices:
@@ -1642,12 +1642,12 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == url:
-                        LOGGER.debug('Removing URL '+url +' from 10320/loc.')
+                        LOGGER.debug('Removing URL '+url +' from 10320/LOC.')
                         num_removed += 1
                         xmlroot.remove(element)
                 remaining_URL_elements = xmlroot.findall('location')
                 if len(remaining_URL_elements) == 0:
-                    LOGGER.debug("All URLs removed from 10320/loc.")
+                    LOGGER.debug("All URLs removed from 10320/LOC.")
                     # TODO FIXME: If we start adapting the Handle Record by
                     # index (instead of overwriting the entire one), be careful
                     # to delete the ones that became empty!
@@ -1657,23 +1657,23 @@ class EUDATHandleClient(object):
                         ' left after removal operation.')
                     list_of_entries.append(entry)
         if num_removed == 0:
-            LOGGER.debug('No URLs removed from 10320/loc.')
+            LOGGER.debug('No URLs removed from 10320/LOC.')
         else:
             message = 'The URL "'+url+'" was removed '+str(num_removed)+\
-            ' times from 10320/loc.'
+            ' times from 10320/LOC.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
 
-    def __add_URL_to_10320loc(self, url, list_of_entries, handle=None, weight=None, http_role=None, **kvpairs):
+    def __add_URL_to_10320LOC(self, url, list_of_entries, handle=None, weight=None, http_role=None, **kvpairs):
         '''
-        Add a url to the handle record's "10320/loc" entry.
-            If no 10320/loc entry exists, a new one is created (using the
+        Add a url to the handle record's "10320/LOC" entry.
+            If no 10320/LOC entry exists, a new one is created (using the
             default "chooseby" attribute, if configured).
             If the URL is already present, it is not added again, but
             the attributes (e.g. weight) are updated/added.
-            If the existing 10320/loc entry is mal-formed, an exception will be
+            If the existing 10320/LOC entry is mal-formed, an exception will be
             thrown (xml.etree.ElementTree.ParseError)
-            Note: In the unlikely case that several "10320/loc" entries exist,
+            Note: In the unlikely case that several "10320/LOC" entries exist,
             an exception is raised.
 
         :param url: The URL to be added.
@@ -1688,21 +1688,21 @@ class EUDATHandleClient(object):
         :param handle: Optional. Only for the exception message.
         :param all others: Optional. All other key-value pairs will be set to
             the element. Any value is accepted and transformed to string.
-        :raise: GenericHandleError: If several 10320/loc exist (unlikely).
+        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).
 
         '''
 
-        # Find existing 10320/loc entry or create new
-        indices = self.__get_python_indices_for_key('10320/loc', list_of_entries)
+        # Find existing 10320/LOC entry or create new
+        indices = self.__get_python_indices_for_key('10320/LOC', list_of_entries)
         makenew = False
         entry = None
         if len(indices) == 0:
             index = self.__make_another_index(list_of_entries)
-            entry = self.__create_entry('10320/loc', 'add_later', index)
+            entry = self.__create_entry('10320/LOC', 'add_later', index)
             makenew = True
         else:
             if len(indices) > 1:
-                msg = 'There is '+str(len(indices))+' 10320/loc entries.'
+                msg = 'There is '+str(len(indices))+' 10320/LOC entries.'
                 raise BrokenHandleRecordException(handle, msg)
             ind = indices[0]
             entry = list_of_entries.pop(ind)
@@ -1711,8 +1711,8 @@ class EUDATHandleClient(object):
         xmlroot = None
         if makenew:
             xmlroot = ET.Element('locations')
-            if self.__10320loc_chooseby is not None:
-                xmlroot.set('chooseby', self.__10320loc_chooseby)
+            if self.__10320LOC_chooseby is not None:
+                xmlroot.set('chooseby', self.__10320LOC_chooseby)
         else:
             try:
                 xmlroot = ET.fromstring(entry['data']['value'])
@@ -1744,7 +1744,7 @@ class EUDATHandleClient(object):
             LOGGER.debug("location_element is (2) "+ET.tostring(location_element))
             location_element.set('href', url)
             LOGGER.debug("location_element is (3) "+ET.tostring(location_element))
-        self.__set_or_adapt_10320loc_attributes(location_element, weight, http_role, **kvpairs)
+        self.__set_or_adapt_10320LOC_attributes(location_element, weight, http_role, **kvpairs)
         # FIXME: If we start adapting the Handle Record by index (instead of
         # overwriting the entire one), be careful to add and/or overwrite!
 
@@ -1753,7 +1753,7 @@ class EUDATHandleClient(object):
         entry['data'] = ET.tostring(xmlroot)
         list_of_entries.append(entry)
 
-    def __set_or_adapt_10320loc_attributes(self, locelement, weight=None, http_role=None, **kvpairs):
+    def __set_or_adapt_10320LOC_attributes(self, locelement, weight=None, http_role=None, **kvpairs):
         '''
         Adds or updates attributes of a <location> element. Existing attributes
             are not removed!
