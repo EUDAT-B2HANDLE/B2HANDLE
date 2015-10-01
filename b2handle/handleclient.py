@@ -79,7 +79,7 @@ class EUDATHandleClient(object):
         self.__10320LOC_chooseby = None
         self.__url_extension_REST_API = '/api/handles/'
         self.__http_verify = True
-        self.__allowed_search_keys = ['url', 'checksum']
+        self.__allowed_search_keys = ['URL', 'CHECKSUM']
         self.__solrbaseurl = None
         self.__solrurlpath = '/hrls/handles/'
         self.__revlookup_auth_string = None
@@ -883,7 +883,7 @@ class EUDATHandleClient(object):
 
     # No HS access:
 
-    def search_handle(self, url=None, prefix=None, **key_value_pairs):
+    def search_handle(self, URL=None, prefix=None, **key_value_pairs):
         '''
         Search for handles containing the specified key with the specified
             value. The search terms are passed on to the reverse lookup servlet
@@ -897,16 +897,16 @@ class EUDATHandleClient(object):
         Example calls:
         list_of_handles = search_handle('http://www.foo.com')
         list_of_handles = search_handle('http://www.foo.com', checksum=99999)
-        list_of_handles = search_handle(url='http://www.foo.com', checksum=99999)
+        list_of_handles = search_handle(URL='http://www.foo.com', checksum=99999)
 
-        :param url: Optional. The URL to search for (reverse lookup). [This is
+        :param URL: Optional. The URL to search for (reverse lookup). [This is
             NOT the URL of the search servlet!]
         :param prefix: Optional. The Handle prefix to which the search should
             be limited to. If unspecified, the method will search across all
             prefixes present at the server given to the constructor.
         :param key_value_pairs: Optional. Several search fields and values can
             be specified as key-value-pairs,
-            e.g. checksum=123456, url=www.foo.com
+            e.g. checksum=123456, URL=www.foo.com
         :raise: ReverseLookupException: If a search field is specified that
             can not be used, or if something else goes wrong.
         :return: A list of all Handles (strings) that bear the given key with
@@ -915,20 +915,15 @@ class EUDATHandleClient(object):
         '''
         LOGGER.debug('search_handle...')
 
-        if url is None and len(key_value_pairs) == 0:
+        if URL is None and len(key_value_pairs) == 0:
             LOGGER.debug('search_handle: No key value pair was specified.')
             msg = 'No search terms have been specified. Please specify'+\
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg)
 
         kvpairs = copy.deepcopy(key_value_pairs)
-        if url is not None:
-            kvpairs['url'] = url
-
-        if url is None and 'URL' in key_value_pairs:
-            val = kvpairs['URL']
-            kvpairs['url'] = val
-            del kvpairs['URL']
+        if URL is not None:
+            kvpairs['URL'] = URL
 
         fulltext_searchterms = []
         if 'searchterms' in key_value_pairs:
@@ -947,7 +942,7 @@ class EUDATHandleClient(object):
 
         # Check for undefined fields
         rx = 'RemoteSolrException: Error from server at .+: undefined field .+'
-        match = re.compile(rx).search(resp.content)
+        match = re.compile(rx).search(str(resp.content))
         if match is not None:
             undefined_field = resp.content.split('undefined field ')[1]
             msg = 'Tried to search in undefined field "'+undefined_field+'"..'
@@ -968,7 +963,7 @@ class EUDATHandleClient(object):
         elif resp.status_code == 404:
             msg = 'Wrong search servlet URL ('+resp.request.url+')'
             rx = 'The handle you requested.+cannot be found'
-            match = re.compile(rx, re.DOTALL).search(resp.content)
+            match = re.compile(rx, re.DOTALL).search(str(resp.content))
             if match is not None:
                 msg += '. It seems you reached a Handle Server'
             raise ReverseLookupException(msg, query, resp)
