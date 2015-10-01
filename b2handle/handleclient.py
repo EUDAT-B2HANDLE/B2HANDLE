@@ -16,9 +16,12 @@ import base64
 import uuid
 import logging
 import re
+import time
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
+REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
+REQUESTLOGGER.addHandler(logging.NullHandler())
 
 class EUDATHandleClient(object):
     '''
@@ -49,7 +52,7 @@ class EUDATHandleClient(object):
             reverse lookup of handles, as a list of strings. Defaults to 'url'
             and 'checksum'. If the list is empty, all keys are passed to the
             reverse lookup servlet and exceptions are passed on to the user.
-        :param __10320LOC_chooseby: Optional. The value to give to a handle
+        :param 10320LOC_chooseby: Optional. The value to give to a handle
             record's 10320/LOC entry's 'chooseby' attribute as string (e.g.
             'locatt,weighted'). Defaults to None (attribute not set).
         :param modify_HS_ADMIN: Optional. Determines whether the HS_ADMIN
@@ -1331,9 +1334,11 @@ class EUDATHandleClient(object):
         else:
             LOGGER.debug('Deleting handle '+handle+'.')
         LOGGER.debug('DELETE Request to '+url)
-        LOGGER.debug('verify: '+str(self.__http_verify))
-        resp = requests.delete(url, headers=self.__get_headers('DELETE'),\
-            verify=self.__http_verify)
+        head = self.__get_headers('DELETE')
+ 
+        veri = self.__http_verify
+        resp = requests.delete(url, headers=head, verify=veri)
+        self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
         return resp
 
     def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
@@ -1370,8 +1375,10 @@ class EUDATHandleClient(object):
         url = self.make_handle_URL(handle, overwrite=overwrite)
         LOGGER.debug('PUT Request to '+url)
         LOGGER.debug('PUT Request payload: '+payload)
-        LOGGER.debug('verify: '+str(self.__http_verify))
-        resp = requests.put(url, data=payload, headers=self.__get_headers('PUT'), verify=self.__http_verify)
+        head = self.__get_headers('PUT')
+        veri = self.__http_verify
+        resp = requests.put(url, data=payload, headers=head, verify=veri)
+        self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
         return resp
 
     def __send_handle_get_request(self, handle, indices=None):
@@ -1389,16 +1396,20 @@ class EUDATHandleClient(object):
 
         url = self.make_handle_URL(handle, indices)
         LOGGER.debug('GET Request to '+url)
-        resp = requests.get(url, headers=self.__get_headers('GET'), verify=self.__http_verify)
-        return resp
+        head = self.__get_headers('GET')
+        veri = self.__http_verify
+        resp = requests.get(url, headers=head, verify=veri)
+        self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
 
     def __send_revlookup_get_request(self, query):
 
         solrurl = self.__solrbaseurl.rstrip('/')+'/'+self.__solrurlpath.strip('/')
         entirequery = solrurl+'?'+query.lstrip('?')
 
-        hea = self.__get_headers('SEARCH')
-        resp = requests.get(entirequery, headers=hea, verify=self.__http_verify)
+        head = self.__get_headers('SEARCH')
+        veri = self.__http_verify
+        resp = requests.get(entirequery, headers=head, verify=veri)
+        self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
 
     def __set_HS_auth_string(self, username, password):
@@ -1786,6 +1797,21 @@ class EUDATHandleClient(object):
 
         for key, value in kvpairs.iteritems():
             locelement.set(key, str(value))
+
+    def __log_request_response_to_file(self, op, handle, url, head, veri, resp, payload=None):
+ 
+        space = '\n   '
+        message = ''
+        message += '\n'+op+' '+handle
+        message += space+'URL:          '+url
+        message += space+'HEADERS:      '+str(head)
+        message += space+'VERIFY:       '+str(veri)
+        if payload is not None:
+            message += space+'PAYLOAD:'+space+str(payload)
+        message += space+'RESPONSECODE: '+str(resp.status_code)
+        message += space+'RESPONSE:'+space+str(resp.content)
+        REQUESTLOGGER.info(message)
+
 
     def string_to_bool(self, string):
         dic = {'false':False, 'true':True}
