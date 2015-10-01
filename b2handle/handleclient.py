@@ -1099,10 +1099,13 @@ class EUDATHandleClient(object):
             msg = 'Empty suffix'
             raise HandleSyntaxError(msg, string, expected)
 
+        if ':' in string:
+            EUDATHandleClient.check_handle_syntax_with_index(string, base_already_checked=True)
+
         return True
 
     @staticmethod
-    def check_handle_syntax_with_index(string):
+    def check_handle_syntax_with_index(string, base_already_checked=False):
         '''
         Checks the syntax of a handle with an index (is index there, is it an
             integer), and of the handle itself.
@@ -1131,7 +1134,8 @@ class EUDATHandleClient(object):
             msg = 'Index is not an integer'
             raise HandleSyntaxError(msg, string, expected)
 
-        EUDATHandleClient.check_handle_syntax(string)
+        if not base_already_checked:
+            EUDATHandleClient.check_handle_syntax(string)
         return True
 
     @staticmethod
