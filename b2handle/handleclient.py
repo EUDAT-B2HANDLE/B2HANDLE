@@ -1151,10 +1151,15 @@ class EUDATHandleClient(object):
         LOGGER.debug('remove_index...')
 
         split = handle_with_index.split(':')
-        if len(split) > 1:
+        if len(split) == 2:
             return split
         elif len(split) == 1:
             return (None, handle_with_index)
+        elif len(split) > 2:
+            raise HandleSyntaxError(
+                custom_message='Too many colons',
+                handle=handle_with_index,
+                expected_syntax='index:prefix/suffix')
 
     def get_handlerecord_indices_for_key(self, key, list_of_entries):
         '''
