@@ -743,21 +743,30 @@ class EUDATHandleClient(object):
             raise HandleNotFoundException(handle, msg)
         list_of_entries = handlerecord_json['values']
 
+        is_new = False
         for url in urls:
-            self.__add_URL_to_10320LOC(url, list_of_entries, handle)
-
-        resp = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
-        # TODO FIXME (one day) Overwrite by index.
-
-        if self.handle_success(resp):
-            pass
-        elif self.not_authenticated(resp):
-            msg = 'Could not add URLs '+str(urls)
-            op = 'adding URLs'
-            raise HandleAuthenticationError(op, handle, resp)
+            if not self.is_URL_contained_in_10320LOC(handle, url, handlerecord_json):
+                is_new = True
+ 
+        if not is_new:
+            LOGGER.debug("add_additional_URL: No new URL to be added (so no URL is added at all).")
         else:
-            op = 'adding "'+str(urls)+'"'
-            raise GenericHandleError(op, handle, resp)
+
+            for url in urls:
+                self.__add_URL_to_10320LOC(url, list_of_entries, handle)
+
+            resp = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
+            # TODO FIXME (one day) Overwrite by index.
+
+            if self.handle_success(resp):
+                pass
+            elif self.not_authenticated(resp):
+                msg = 'Could not add URLs '+str(urls)
+                op = 'adding URLs'
+                raise HandleAuthenticationError(op, handle, resp)
+            else:
+                op = 'adding "'+str(urls)+'"'
+                raise GenericHandleError(op, handle, resp)
 
     def remove_additional_URL(self, handle, *urls):
         '''
