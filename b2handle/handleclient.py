@@ -1468,6 +1468,7 @@ class EUDATHandleClient(object):
         veri = self.__http_verify
         resp = requests.get(url, headers=head, verify=veri)
         self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
+        return resp
 
     def __send_revlookup_get_request(self, query):
 
