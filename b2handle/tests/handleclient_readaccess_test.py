@@ -55,9 +55,65 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
             handle_server_url=self.url,
             url_extension_REST_API=self.path_to_api)
 
+        # Before being able to run these tests without write access,
+        # the handle that we use for testing must exist. With this code,
+        # you can create it. You only need to create it once and leave it
+        # on the server, it will not be modified and can be used eternally.
+        if False:
+            # This should always be false!!! Except for creating the
+            # required handle once! 
+            self.create_required_test_handles()
+
     def tearDown(self):
         pass
         pass
+
+    def create_required_test_handles(self):
+
+        # Creating an instance that knows how to write:
+        pw = self.testvalues['password']
+        inst = EUDATHandleClient.instantiate_with_username_and_password(
+            self.testvalues['handle_server_url_write'],
+            self.user,
+            pw,
+            HTTPS_verify=self.https_verify)
+
+        authstring = self.inst.create_authentication_string(self.user, pw)
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic '+authstring
+        }
+
+        list_of_all_entries = [
+            {
+                "index":111,
+                "type":"test1",
+                "data":"val1"
+            },
+            {
+                "index":2222,
+                "type":"test2",
+                "data":"val2"
+            },
+            {
+                "index":333,
+                "type":"test3",
+                "data":"val3"
+            },
+            {
+                "index":4,
+                "type":"test4",
+                "data":"val4"
+            }
+        ]
+
+        testhandle = self.handle
+        url = inst.make_handle_URL(testhandle)
+        veri = self.https_verify
+        head = headers
+        data = json.dumps({'values':list_of_all_entries})
+        resp = requests.put(url, data=data, headers=head, verify=veri)
+
 
     # retrieve_handle_record_json
 
