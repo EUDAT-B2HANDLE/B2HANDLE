@@ -57,6 +57,16 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
             'The query is: '+query)
 
     def test_create_revlookup_query_normal(self):
-        query = self.inst.create_revlookup_query(url='foo')
-        self.assertEqual(query, '?url=foo',
+        query = self.inst.create_revlookup_query(URL='foo')
+        self.assertEqual(query, '?URL=foo',
             'The query is: '+query)
+
+    def test_instantiate_wrong_search_url(self):
+
+        inst = EUDATHandleClient.instantiate_for_read_and_search(
+            'someurl',
+            'someuser',
+            'somepassword',
+            reverselookup_baseuri='http://something_random_foo_bar')
+
+        self.assertIsInstance(inst, EUDATHandleClient)

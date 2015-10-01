@@ -1,16 +1,30 @@
 import unittest
 import argparse
+import logging
+import time
 
 # Unit tests:
 from handleclient_noaccess_test import EUDATHandleClientNoaccessTestCase
 from handleclient_readaccess_faked_test import EUDATHandleClientReadaccessFakedTestCase
-from handleclient_readaccess_patched import EUDATHandleClientReadaccessPatchedTestCase
-from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccessFaked10320locTestCase
+from handleclient_readaccess_patched_test import EUDATHandleClientReadaccessPatchedTestCase
+from handleclient_writeaccess_patched_test import EUDATHandleClientWriteaccessPatchedTestCase
+from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccessFaked10320LOCTestCase
 from clientcredentials_test import PIDClientCredentialsTestCase
 from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
 
 # Integration tests:
 # Imports below!
+
+# Logging:
+log_b2handle = True
+if log_b2handle == True:
+    LOGGER = logging.getLogger('b2handle.handleclient')
+    LOGGER.setLevel("DEBUG")
+    LOGGER.addHandler(
+        logging.FileHandler(
+            'logs_b2handle'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+'
+        )
+    )
 
 
 if __name__ == '__main__':
@@ -42,8 +56,17 @@ if __name__ == '__main__':
         from handleclient_readaccess_test import EUDATHandleClientReadaccessTestCase
     if 'write' in param.testtype:
         write_access = True
+        import logging
+        import time
+        REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
+        REQUESTLOGGER.setLevel("INFO")
+        REQUESTLOGGER.addHandler(
+            logging.FileHandler(
+                'logged_http_requests_'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+'
+            )
+        )
         from handleclient_writeaccess_test import EUDATHandleClientWriteaccessTestCase
-        from handleclient_writeaccess_10320_test import EUDATHandleClientWriteaccess10320locTestCase
+        from handleclient_writeaccess_10320_test import EUDATHandleClientWriteaccess10320LOCTestCase
     if 'search' in param.testtype:
         search_access = True
         from handleclient_searchaccess_test import EUDATHandleClientSearchTestCase
@@ -85,17 +108,23 @@ if __name__ == '__main__':
         numtests += n
         print 'Number of tests for client (faked read access):\t\t\t\t\t'+str(n)
 
-        mocked_read_10320loc = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientReadaccessFaked10320locTestCase)
-        tests_to_run.append(mocked_read_10320loc)
-        n = mocked_read_10320loc.countTestCases()
+        mocked_read_10320LOC = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientReadaccessFaked10320LOCTestCase)
+        tests_to_run.append(mocked_read_10320LOC)
+        n = mocked_read_10320LOC.countTestCases()
         numtests += n
-        print 'Number of tests for client\'s 10320/loc (faked read access):\t\t\t'+str(n)
+        print 'Number of tests for client\'s 10320/LOC (faked read access):\t\t\t'+str(n)
 
-        mocky = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientReadaccessPatchedTestCase)
-        tests_to_run.append(mocky)
-        n=mocky.countTestCases()
-        numtests += no_access
-        print 'Number of tests for MOCK:\t\t\t\t\t'+str(n)
+        patched_read = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientReadaccessPatchedTestCase)
+        tests_to_run.append(patched_read)
+        n=patched_read.countTestCases()
+        numtests += n
+        print 'Number of tests for patched read access:\t\t\t\t\t'+str(n)
+
+        patched_write = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientWriteaccessPatchedTestCase)
+        tests_to_run.append(patched_write)
+        n=patched_write.countTestCases()
+        numtests += n
+        print 'Number of tests for patched write access:\t\t\t\t\t'+str(n)
 
 
     if read_access:
@@ -114,11 +143,11 @@ if __name__ == '__main__':
         numtests += n
         print 'Number of integration tests for client (write access required):\t\t\t'+str(n)
         
-        write_10320loc = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientWriteaccess10320locTestCase)
-        tests_to_run.append(write_10320loc)
-        n = write_10320loc.countTestCases()
+        write_10320LOC = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientWriteaccess10320LOCTestCase)
+        tests_to_run.append(write_10320LOC)
+        n = write_10320LOC.countTestCases()
         numtests += n
-        print 'Number of integration tests for 10320/loc (write access required):\t\t'+str(n)
+        print 'Number of integration tests for 10320/LOC (write access required):\t\t'+str(n)
 
     if search_access:
 
