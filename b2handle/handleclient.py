@@ -437,7 +437,7 @@ class EUDATHandleClient(object):
         :param extratypes: Optional. Additional key value pairs as dict.
         :param additional_URLs: Optional. A list of URLs (as strings) to be
             added to the handle record as 10320/LOC entry.
-        :raises: HandleAuthentificationError.
+        :raises: HandleAuthenticationError.
         :return: The new handle name.
         '''
         handle = self.generate_PID_name(prefix)
@@ -472,7 +472,7 @@ class EUDATHandleClient(object):
             key is 'HS_ADMIN', the new value needs to be of the form
             {'handle':'xyz', 'index':xyz}. The permissions will be set to the
             default permissions.
-        :raises: HandleAuthentificationError.
+        :raises: HandleAuthenticationError.
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
@@ -549,7 +549,7 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'modifying handle values'
-                raise HandleAuthentificationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp)
             else:
                 op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
@@ -562,7 +562,7 @@ class EUDATHandleClient(object):
 
         :param handle: Handle from whose record the entry should be deleted.
         :param key: Key to be deleted. Also accepts a list of keys.
-        :raises: HandleAuthentificationError.
+        :raises: HandleAuthenticationError.
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
@@ -610,7 +610,7 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'deleting "'+str(key)+'"'
-                raise HandleAuthentificationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp)
             else:
                 op = 'deleting "'+str(keys)+'"'
                 raise GenericHandleError(op, handle, resp)
@@ -621,7 +621,7 @@ class EUDATHandleClient(object):
         :param handle: Handle to be deleted.
         :param other: Deprecated. This only exists to catch wrong method usage
             by users who are used to delete handle VALUES with the method.
-        :raises: HandleAuthentificationError.
+        :raises: HandleAuthenticationError.
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
@@ -678,7 +678,7 @@ class EUDATHandleClient(object):
         elif self.not_authenticated(resp):
             msg = 'Could not exchange URLs '+str(urls)
             op = 'exchanging URLs'
-            raise HandleAuthentificationError(op, handle, resp)
+            raise HandleAuthenticationError(op, handle, resp)
         else:
             op = 'exchanging "'+str(urls)+'"'
             raise GenericHandleError(op, handle, resp)
@@ -697,7 +697,7 @@ class EUDATHandleClient(object):
             attributes are different, they are updated!
         :raises: HandleNotFoundException
         :raises: HandleSyntaxError
-        :raises: HandleAuthentificationError
+        :raises: HandleAuthenticationError
         '''
 
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -717,7 +717,7 @@ class EUDATHandleClient(object):
         elif self.not_authenticated(resp):
             msg = 'Could not add URLs '+str(urls)
             op = 'adding URLs'
-            raise HandleAuthentificationError(op, handle, resp)
+            raise HandleAuthenticationError(op, handle, resp)
         else:
             op = 'adding "'+str(urls)+'"'
             raise GenericHandleError(op, handle, resp)
@@ -730,7 +730,7 @@ class EUDATHandleClient(object):
         :param urls: The URL(s) to be removed. Several URLs may be specified.
         :raises: HandleNotFoundException
         :raises: HandleSyntaxError
-        :raises: HandleAuthentificationError
+        :raises: HandleAuthenticationError
         '''
 
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -755,7 +755,7 @@ class EUDATHandleClient(object):
         elif self.not_authenticated(resp):
             msg = 'Could not remove URLs '+str(urls)
             op = 'removing URLs'
-            raise HandleAuthentificationError(op, handle, resp)
+            raise HandleAuthenticationError(op, handle, resp)
         else:
             op = 'removing "'+str(urls)+'"'
             raise GenericHandleError(op, handle, resp)
@@ -777,7 +777,7 @@ class EUDATHandleClient(object):
             will be overwritten. Defaults to False.
         :raises: HandleAlreadyExistsException. Only if overwrite is not set or
             set to False.
-        :raises: HandleAuthentificationError.
+        :raises: HandleAuthenticationError.
         :raises: HandleSyntaxError.
         :return: The handle name.
         '''
@@ -841,7 +841,7 @@ class EUDATHandleClient(object):
         else:
             if self.not_authenticated(resp):
                 op = 'registering handle'
-                raise HandleAuthentificationError(op, handle)
+                raise HandleAuthenticationError(op, handle)
             else:
                 op = 'registering handle'
                 raise GenericHandleError(op, handle, resp)
@@ -1294,14 +1294,14 @@ class EUDATHandleClient(object):
             head = {'Accept': accept}
         elif action is 'PUT':
             if self.__HS_auth_string is None:
-                raise HandleAuthentificationError(custom_message='Could not '+\
+                raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
                     'for Handle System set.')
             head = {'Content-Type': content_type,
                     'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'DELETE':
             if self.__HS_auth_string is None:
-                raise HandleAuthentificationError(custom_message='Could not '+\
+                raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
                     'for Handle System set.')
             head = {'Authorization': 'Basic ' + self.__HS_auth_string}
