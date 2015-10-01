@@ -784,7 +784,7 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot remove URLs from unexisting handle'
-            raise HandleNotFoundException(handle, msg, resp)
+            raise HandleNotFoundException(handle, msg)
         list_of_entries = handlerecord_json['values']
 
         for url in urls:
