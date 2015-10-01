@@ -136,7 +136,7 @@ class HandleSyntaxError(Exception):
         self.expected_syntax = expected_syntax
 
         if self.handle is not None:
-            self.msg = self.msg.replace('andle', 'self.handle '+self.handle)
+            self.msg = self.msg.replace('andle', 'andle '+self.handle)
 
         if self.custom_message is not None:
             self.msg += ': '+self.custom_message
@@ -165,7 +165,7 @@ class HandleAlreadyExistsException(Exception):
 
         super(self.__class__, self).__init__(self.msg)
 
-class HandleAuthentificationError(Exception):
+class HandleAuthenticationError(Exception):
     '''
     To be raised if authentication failed, if there was no
     write permission for creating, modifying, deleting.
