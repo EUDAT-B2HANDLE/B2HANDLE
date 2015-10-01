@@ -67,6 +67,9 @@ class EUDATHandleClient(object):
             Defaults to '/hrls/handles/'
         '''
 
+        LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
+            '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
+
         # All used attributes (some will be overwritten below)
         self.__username = None
         self.__password = None
@@ -81,34 +84,35 @@ class EUDATHandleClient(object):
         self.__solrurlpath = '/hrls/handles/'
         self.__revlookup_auth_string = None
         self.__HS_auth_string = None
-        LOGGER.debug('"__init__()": Passed keys: '+', '.join(args.keys()))
-
 
         # Needed for read and or write access:
 
         if handle_server_url is not None:
-            LOGGER.debug('Handle server URL set to '+handle_server_url)
             self.__handle_server_url = handle_server_url
             self.__solrbaseurl = handle_server_url
+            LOGGER.debug(' - handle_server_url and solrbaseurl set to '+handle_server_url)
 
         if 'REST_API_url_extension' in args.keys():
             self.__url_extension_REST_API = args['REST_API_url_extension']
+            LOGGER.debug(' - url_extension_REST_API set to '+self.__url_extension_REST_API)
 
         if 'HTTPS_verify' in args.keys():
-            LOGGER.debug('"__init__(): Setting __http_verify to: '+\
-                str(args['HTTPS_verify']))
             self.__http_verify = self.string_to_bool(args['HTTPS_verify'])
+            LOGGER.debug(' - http_verify set to: '+str(self.__http_verify))
 
         # Needed for write access:
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__default_permissions = args['HS_ADMIN_permissions']
+            LOGGER.debug(' - default_permissions set to: '+self.__default_permissions)
 
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
+            LOGGER.debug(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__can_modify_HS_ADMIN = args['modify_HS_ADMIN']
+            LOGGER.debug(' - can_modify_HS_ADMIN set to: '+str(self.__can_modify_HS_ADMIN))
 
         # For write access, username AND pw AND server url must be given!
 
@@ -128,9 +132,9 @@ class EUDATHandleClient(object):
             self.check_handle_syntax_with_index(args['username'])
             self.check_if_username_exists(args['username'])
             self.__password = args['password']
+            LOGGER.debug(' - password set.')
             self.__username = args['username']
-            LOGGER.debug('__init__(): Username set to: '+str(self.__username))
-            LOGGER.debug('__init__(): Password set to: '+str(self.__password))
+            LOGGER.debug(' - username set to: '+self.__username)
             self.__set_HS_auth_string(self.__username, self.__password)
 
 
@@ -138,12 +142,15 @@ class EUDATHandleClient(object):
 
         if 'allowed_search_keys' in args.keys():
             self.__allowed_search_keys = args['allowed_search_keys']
+            LOGGER.debug(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
 
         if 'reverselookup_baseuri' in args.keys():
             self.__solrbaseurl = args['reverselookup_baseuri']
+            LOGGER.debug(' - solrbaseurl set to: '+self.__solrbaseurl)
 
         if 'reverselookup_url_extension' in args.keys():
             self.__solrurlpath = args['reverselookup_url_extension']
+            LOGGER.debug(' - solrurlpath set to: '+self.__solrurlpath)
 
         # Authentication reverse lookup:
         #   If specified, use it.
@@ -153,17 +160,23 @@ class EUDATHandleClient(object):
         revlookup_user = None
         if 'reverselookup_username' in args.keys():
             revlookup_user = args['reverselookup_username']
+            LOGGER.debug('" - revlookup_user set to: '+revlookup_user)
         elif self.__username is not None:
             revlookup_user = self.__username
+            LOGGER.debug(' - revlookup_user set to handle server username: '+revlookup_user)
 
         revlookup_pw = None
         if 'reverselookup_password' in args.keys():
             revlookup_pw = args['reverselookup_password']
+            LOGGER.debug(' - revlookup_pw set.')
         elif self.__password is not None:
             revlookup_pw = self.__password
+            LOGGER.debug(' - revlookup_pw set to handle server password.')
 
         if revlookup_user is not None and revlookup_pw is not None:
             self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
+
+        LOGGER.debug(' - (end of initialisation)')
 
     @staticmethod
     def instantiate_for_read_access(handle_server_url=None, **config):
@@ -274,6 +287,7 @@ class EUDATHandleClient(object):
         :return: The handle record as a nested dict. If the handle does not
             exist, returns None.
         '''
+        LOGGER.debug('retrieve_handle_record_json...')
 
         self.check_handle_syntax(handle)
         response = self.__send_handle_get_request(handle)
@@ -306,6 +320,7 @@ class EUDATHandleClient(object):
             None if the Handle does not exist.
         :raises: HandleSyntaxError.
         '''
+        LOGGER.debug('retrieve_handle_record...')
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
@@ -332,6 +347,7 @@ class EUDATHandleClient(object):
         :raises: HandleSyntaxError.
         :raises: HandleNotFoundException.
         '''
+        LOGGER.debug('get_value_from_handle...')
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
@@ -347,8 +363,9 @@ class EUDATHandleClient(object):
             return None
         else:
             if len(indices) > 1:
-                LOGGER.debug('The handle '+handle+' contains several entries\
-                 of type "'+key+'". Only the first one is returned.')
+                LOGGER.debug('get_value_from_handle: The handle '+handle+\
+                    ' contains several entries of type "'+key+\
+                    '". Only the first one is returned.')
             return list_of_entries[indices[0]]['data']['value']
 
     def is_10320LOC_empty(self, handle, handlerecord_json=None):
@@ -366,6 +383,7 @@ class EUDATHandleClient(object):
         :return: True if the record contains NO 10320/LOC entry; False if it
             does contain one.
         '''
+        LOGGER.debug('is_10320LOC_empty...')
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
@@ -403,6 +421,8 @@ class EUDATHandleClient(object):
             False otherwise. If the entry is empty or does not exist, False
             is returned.
         '''
+        LOGGER.debug('is_URL_contained_in_10320LOC...')
+
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
             raise HandleNotFoundException(handle)
@@ -443,6 +463,9 @@ class EUDATHandleClient(object):
         :raises: HandleAuthenticationError.
         :return: The new handle name.
         '''
+
+        LOGGER.debug('generate_and_register_handle...')
+
         handle = self.generate_PID_name(prefix)
         handle = self.register_handle(
             handle,
@@ -479,6 +502,7 @@ class EUDATHandleClient(object):
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
+        LOGGER.debug('modify_handle_value...')
 
         # Read handle record:
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -569,6 +593,7 @@ class EUDATHandleClient(object):
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
+        LOGGER.debug('delete_handle_value...')
 
         # read handle record:
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -600,14 +625,14 @@ class EUDATHandleClient(object):
 
         # Important: If key not found, do not continue, as deleting without indices would delete the entire handle!!
         if not len(indices) > 0:
-            LOGGER.debug('No values for key '+str(keys))
+            LOGGER.debug('delete_handle_value: No values for key '+str(keys))
             return None
         else:
 
             # delete and process response:
             resp = self.__send_handle_delete_request(handle, indices)
             if self.handle_success(resp):
-                LOGGER.debug("Deleted handle values "+str(keys)+"of handle "+handle)
+                LOGGER.debug("delete_handle_value: Deleted handle values "+str(keys)+"of handle "+handle)
                 pass
             elif self.values_not_found(resp):
                 pass
@@ -628,6 +653,9 @@ class EUDATHandleClient(object):
         :raises: HandleNotFoundException.
         :raises: HandleSyntaxError.
         '''
+
+        LOGGER.debug('delete_handle...')
+
         EUDATHandleClient.check_handle_syntax(handle)
 
         # Safety check. In old epic client, the method could be used for
@@ -659,7 +687,7 @@ class EUDATHandleClient(object):
         :param old: The URL to replace.
         :param new: The URL to set as new URL.
         '''
-        LOGGER.debug('Method "exchange_additional_URL"')
+        LOGGER.debug('exchange_additional_URL...')
 
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
@@ -702,6 +730,7 @@ class EUDATHandleClient(object):
         :raises: HandleSyntaxError
         :raises: HandleAuthenticationError
         '''
+        LOGGER.debug('add_additional_URL...')
 
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
@@ -735,6 +764,8 @@ class EUDATHandleClient(object):
         :raises: HandleSyntaxError
         :raises: HandleAuthenticationError
         '''
+
+        LOGGER.debug('remove_additional_URL...')
 
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
@@ -784,6 +815,7 @@ class EUDATHandleClient(object):
         :raises: HandleSyntaxError.
         :return: The handle name.
         '''
+        LOGGER.debug('register_handle...')
 
         # If already exists and can't be overwritten:
         handlerecord_json = self.retrieve_handle_record_json(handle)
@@ -881,6 +913,7 @@ class EUDATHandleClient(object):
             given value of given prefix or server. The list may be empty and
             may also contain more than one element.
         '''
+        LOGGER.debug('search_handle...')
 
         if url is None and len(key_value_pairs) == 0:
             LOGGER.debug('search_handle: No key value pair was specified.')
@@ -946,7 +979,7 @@ class EUDATHandleClient(object):
         # Filter prefixes:
         # TODO QUESTION to Robert: Is this the desired behaviour?
         if prefix is not None:
-            LOGGER.debug('Restricting search to prefix '+prefix)
+            LOGGER.debug('search_handle: Restricting search to prefix '+prefix)
             filteredlist_of_handles = []
             for i in xrange(len(list_of_handles)):
                 if list_of_handles[i].split('/')[0] == prefix:
@@ -966,6 +999,9 @@ class EUDATHandleClient(object):
         :return: The handle name in the form <prefix>/<generatedsuffix> or
             <generatedsuffix>.
         '''
+
+        LOGGER.debug('generate_PID_name...')
+
         randomuuid = uuid.uuid4()
         if prefix is not None:
             return prefix+'/'+str(randomuuid)
@@ -993,14 +1029,11 @@ class EUDATHandleClient(object):
         :return: The complete URL, e.g.
          'http://some.handle.server/api/handles/prefix/suffix?index=2&index=6&overwrite=false
         '''
+        LOGGER.debug('make_handle_URL...')
 
         if other_url is not None:
             url = other_url
         else:
-            LOGGER.debug('"make_handle_value()": Server URL: '+\
-                str(self.__handle_server_url))
-            LOGGER.debug('"make_handle_value()": path to REST API: '+\
-                str(self.__url_extension_REST_API))
             url = self.__handle_server_url.strip('/') +'/'+\
                 self.__url_extension_REST_API.strip('/')
         url = url.strip('/')+'/'+ handle
@@ -1032,6 +1065,9 @@ class EUDATHandleClient(object):
         :return: True. If it's not ok, exceptions are raised.
 
         '''
+
+        LOGGER.debug('check_handle_syntax...')
+
         expected = 'prefix/suffix'
 
         try:
@@ -1065,6 +1101,9 @@ class EUDATHandleClient(object):
         :raise: HandleSyntaxError
         :return: True. If it's not ok, exceptions are raised.
         '''
+
+        LOGGER.debug('check_handle_syntax_with_index...')
+
         expected = 'index:prefix/suffix'
         try:
             arr = string.split(':')
@@ -1095,6 +1134,9 @@ class EUDATHandleClient(object):
             500:prefix/suffix)
         :return: index and handle as a tuple.
         '''
+
+        LOGGER.debug('remove_index...')
+
         split = handle_with_index.split(':')
         if len(split) > 1:
             return split
@@ -1114,6 +1156,9 @@ class EUDATHandleClient(object):
         :return: A list of strings, the indices of the entries of type "key" in
             the given handle record.
         '''
+
+        LOGGER.debug('get_handlerecord_indices_for_key...')
+
         indices = []
         for entry in list_of_entries:
             if entry['type'] == key:
@@ -1129,6 +1174,9 @@ class EUDATHandleClient(object):
         :param password: Password.
         :return: The encoded string.
         '''
+
+        LOGGER.debug('create_authentication_string...')
+
         username_utf8 = username.encode('utf-8')
         userpw_utf8 = password.encode('utf-8')
         username_perc = urllib.quote(username_utf8)
@@ -1152,6 +1200,8 @@ class EUDATHandleClient(object):
             a key are hidden anyway.
 
         '''
+        LOGGER.debug('check_if_username_exists...')
+
         _, handle = self.remove_index(username)
 
         resp = self.__send_handle_get_request(handle)
@@ -1185,6 +1235,7 @@ class EUDATHandleClient(object):
         :return: The query string, after the "?". If no valid search terms were
             specified, None is returned.
         '''
+        LOGGER.debug('create_revlookup_query...')
 
         allowed_search_keys = self.__allowed_search_keys
         only_search_for_allowed_keys = False
@@ -1311,8 +1362,7 @@ class EUDATHandleClient(object):
         elif action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
         else:
-            LOGGER.debug('"_getHeader()": ACTION is unknown ('+action+')')
-
+            LOGGER.debug('__getHeader: ACTION is unknown ('+action+')')
         return head
 
     def __send_handle_delete_request(self, handle, indices=None):
@@ -1330,9 +1380,9 @@ class EUDATHandleClient(object):
 
         url = self.make_handle_URL(handle, indices)
         if indices is not None and len(indices) > 0:
-            LOGGER.debug('DELETE Request for values '+str(indices))
+            LOGGER.debug('__send_handle_delete_request: Deleting values '+str(indices)+' from handle '+handle+'.')
         else:
-            LOGGER.debug('Deleting handle '+handle+'.')
+            LOGGER.debug('__send_handle_delete_request: Deleting handle '+handle+'.')
         LOGGER.debug('DELETE Request to '+url)
         head = self.__get_headers('DELETE')
  
@@ -1342,7 +1392,7 @@ class EUDATHandleClient(object):
         return resp
 
     def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
-        '''ebug
+        '''
         Send a HTTP PUT request to the handle server to write either an entire
             handle or to some specified values to an handle record, using the
             requests module.
@@ -1604,16 +1654,16 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == oldurl:
-                        LOGGER.debug('Exchanging URL '+oldurl +' from 10320/LOC.')
+                        LOGGER.debug('__exchange_URL_in_13020loc: Exchanging URL '+oldurl +' from 10320/LOC.')
                         num_exchanged += 1
                         element.set('href', newurl)
                 entry['data']['value'] = ET.tostring(xmlroot)
                 list_of_entries.append(entry)
 
         if num_exchanged == 0:
-            LOGGER.debug('No URLs exchanged in 10320/LOC.')
+            LOGGER.debug('__exchange_URL_in_13020loc: No URLs exchanged.')
         else:
-            message = 'The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
+            message = '__exchange_URL_in_13020loc: The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
             ' times against the new url "'+newurl+'" in 10320/LOC.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
@@ -1653,25 +1703,25 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == url:
-                        LOGGER.debug('Removing URL '+url +' from 10320/LOC.')
+                        LOGGER.debug('__remove_URL_from_10320LOC: Removing URL '+url+'.')
                         num_removed += 1
                         xmlroot.remove(element)
                 remaining_URL_elements = xmlroot.findall('location')
                 if len(remaining_URL_elements) == 0:
-                    LOGGER.debug("All URLs removed from 10320/LOC.")
+                    LOGGER.debug("__remove_URL_from_10320LOC: All URLs removed.")
                     # TODO FIXME: If we start adapting the Handle Record by
                     # index (instead of overwriting the entire one), be careful
                     # to delete the ones that became empty!
                 else:
                     entry['data']['value'] = ET.tostring(xmlroot)
-                    LOGGER.debug(str(len(remaining_URL_elements))+' URLs'+\
+                    LOGGER.debug('__remove_URL_from_10320LOC: '+str(len(remaining_URL_elements))+' URLs'+\
                         ' left after removal operation.')
                     list_of_entries.append(entry)
         if num_removed == 0:
-            LOGGER.debug('No URLs removed from 10320/LOC.')
+            LOGGER.debug('__remove_URL_from_10320LOC: No URLs removed.')
         else:
-            message = 'The URL "'+url+'" was removed '+str(num_removed)+\
-            ' times from 10320/LOC.'
+            message = '__remove_URL_from_10320LOC: The URL "'+url+'" was removed '\
+            +str(num_removed)+' times.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
 
@@ -1729,9 +1779,9 @@ class EUDATHandleClient(object):
                 xmlroot = ET.fromstring(entry['data']['value'])
             except TypeError:
                 xmlroot = ET.fromstring(entry['data'])
-        LOGGER.debug("xmlroot is (1) "+ET.tostring(xmlroot))
+        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (1) "+ET.tostring(xmlroot))
 
-        # Check if URL already there, if not, add it!
+        # Check if URL already there...
         location_element = None
         existing_location_ids = []
         if not makenew:
@@ -1744,23 +1794,24 @@ class EUDATHandleClient(object):
                 if item.get('href') == url:
                     location_element = item
             existing_location_ids.sort()
+        # ... if not, add it!
         if location_element is None:
             location_id = 0
             for existing_id in existing_location_ids:
                 if location_id == existing_id:
                     location_id += 1
             location_element = ET.SubElement(xmlroot, 'location')
-            LOGGER.debug("location_element is (1) "+ET.tostring(location_element))
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (1) "+ET.tostring(location_element)+', now add id '+str(location_id))
             location_element.set('id', str(location_id))
-            LOGGER.debug("location_element is (2) "+ET.tostring(location_element))
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (2) "+ET.tostring(location_element)+', now add url '+str(url))
             location_element.set('href', url)
-            LOGGER.debug("location_element is (3) "+ET.tostring(location_element))
-        self.__set_or_adapt_10320LOC_attributes(location_element, weight, http_role, **kvpairs)
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (3) "+ET.tostring(location_element))
+            self.__set_or_adapt_10320LOC_attributes(location_element, weight, http_role, **kvpairs)
         # FIXME: If we start adapting the Handle Record by index (instead of
         # overwriting the entire one), be careful to add and/or overwrite!
 
         # (Re-)Add entire 10320 to entry, add entry to list of entries:
-        LOGGER.debug("xmlroot is (2) "+ET.tostring(xmlroot))
+        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (2) "+ET.tostring(xmlroot))
         entry['data'] = ET.tostring(xmlroot)
         list_of_entries.append(entry)
 
@@ -1782,11 +1833,11 @@ class EUDATHandleClient(object):
         '''
 
         if weight is not None:
-            LOGGER.debug('weight ('+str(type(weight))+'): '+str(weight))
+            LOGGER.debug('__set_or_adapt_10320LOC_attributes: weight ('+str(type(weight))+'): '+str(weight))
             weight = float(weight)
             if weight < 0  or weight > 1:
                 default = 1
-                LOGGER.debug('Invalid weight ('+str(weight)+\
+                LOGGER.debug('__set_or_adapt_10320LOC_attributes: Invalid weight ('+str(weight)+\
                     '), using default value ('+str(default)+') instead.')
                 weight = default
             weight = str(weight)
