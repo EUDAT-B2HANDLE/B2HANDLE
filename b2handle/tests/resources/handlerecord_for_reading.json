@@ -1,0 +1,41 @@
+{
+    "responseCode":1,
+    "handle":"someprefix/somesuffix",
+    "values":
+    [{
+        "index": 100,
+        "type": "HS_ADMIN",
+        "data": 
+        {
+            "format": "admin",
+            "value":
+            {
+                "handle": "123456/abcdef",
+                "index": 200,
+                "permissions": "011111110011"
+            }
+        },
+        "ttl": 86400,
+        "timestamp": "2015-06-09T12:34:06Z"
+    },
+    {
+        "index":3,
+        "type":"test1",
+        "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
+    },
+    {
+        "index":4,
+        "type":"test2",
+        "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
+    },
+    {
+        "index":5,
+        "type":"testdup",
+        "data":{"format":"string", "value":"dup1"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
+    },
+    {
+        "index":6,
+        "type":"testdup",
+        "data":{"format":"string", "value":"dup2"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
+    }]
+}

@@ -1,0 +1,21 @@
+{
+    "user": "",
+    "password": "",
+    "handle_server_url_read": "",
+    "handle_server_url_write": "",
+    "url_extension_REST_API":"",
+    "reverselookup_username": "",
+    "reverselookup_password": "",
+    "reverselookup_baseuri" : "",
+    "reverselookup_baseuri_wrong" : "",
+    "reverselookup_url_extension": "",
+    "handle_for_read_tests": "",
+    "handle_for_read_tests_with_10320LOC": "",
+    "handle_for_read_tests_without_10320LOC": "",
+    "handle_globally_resolvable": "",
+    "handle_to_be_created": "",
+    "handle_to_be_modified": "",
+    "handle_to_be_modified_with_10320LOC": "",
+    "handle_to_be_modified_without_10320LOC": "",
+    "HTTPS_verify":true
+}
