@@ -5,3 +5,6 @@
 /.pydevproject
 /.settings
 /dist/
+*IGNORE*
+log*
+.coverage
