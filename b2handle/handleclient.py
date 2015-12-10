@@ -34,8 +34,8 @@ class EUDATHandleClient(object):
     def __init__(self, handle_server_url=None, **args):
         '''
         Initialize the client in read-only mode. Access is anonymous,
-            thus no credentials are required.
-            Note: With read-only access, searching for handles is not possible.
+        thus no credentials are required.
+        Note: With read-only access, searching for handles is not possible.
 
         :param handle_server_url: Optional. The URL of the Handle System
             server to read from. Defaults to 'https://hdl.handle.net'
@@ -182,7 +182,7 @@ class EUDATHandleClient(object):
     def instantiate_for_read_access(handle_server_url=None, **config):
         '''
         Initialize the client in read-only mode. Access is anonymous,
-         thus no credentials are required.
+        thus no credentials are required.
 
         :param handle_server_url: Optional. The URL of the Handle System
             server to read from. Defaults to 'https://hdl.handle.net'
@@ -224,9 +224,10 @@ class EUDATHandleClient(object):
     def instantiate_with_username_and_password(handle_server_url, username, password, **config):
         '''
         Initialize client against an HSv8 instance with full read/write access.
-            The method will throw an exception upon bad syntax or non-existing
-            Handle. The existence or validity of the password in the handle is
-            not checked at this moment.
+        
+        The method will throw an exception upon bad syntax or non-existing
+        Handle. The existence or validity of the password in the handle is
+        not checked at this moment.
 
         :param handle_server_url: The URL of the Handle System server.
         :param username: This must be a handle value reference in the format
@@ -235,8 +236,8 @@ class EUDATHandleClient(object):
             actual Handle value the username points to.
         :param **config: More key-value pairs may be passed that will be passed
             on to the constructor as config.
-        :raises: HandleNotFoundException: If the username handle is not found.
-        :raises: HandleSyntaxError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: An instance of the client.
         '''
 
@@ -254,7 +255,7 @@ class EUDATHandleClient(object):
         :param **config: More key-value pairs may be passed that will be passed
             on to the constructor as config. Config options from the
             credentials object are overwritten by this.
-        :raises: HandleNotFoundException: If the username handle is not found.
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
         :return: An instance of the client.
         '''
         user = credentials.get_username()
@@ -278,12 +279,13 @@ class EUDATHandleClient(object):
     def retrieve_handle_record_json(self, handle):
         '''
         Retrieve a handle record from the Handle server as a complete nested
-            dict (including index, ttl, timestamp, ...) for later use.
+        dict (including index, ttl, timestamp, ...) for later use.
+        
         Note: For retrieving a simple dict with only the keys and values,
-            please use "retrieve_handle_record()".
+        please use :meth:`~b2handle.handleclient.EUDATHandleClient.retrieve_handle_record`.
 
-        :param handle whose record to retrieve.
-        :raises: HandleSyntaxError.
+        :param handle: The Handle whose record to retrieve.
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: The handle record as a nested dict. If the handle does not
             exist, returns None.
         '''
@@ -308,9 +310,9 @@ class EUDATHandleClient(object):
     def retrieve_handle_record(self, handle, handlerecord_json=None):
         '''
         Retrieve a handle record from the Handle server as a dict. If there
-            is several entries of the same type, only the first one is
-            returned. Values of complex types (such as HS_ADMIN) are
-            transformed to strings.
+        is several entries of the same type, only the first one is
+        returned. Values of complex types (such as HS_ADMIN) are
+        transformed to strings.
 
         :param handle: The handle whose record to retrieve.
         :param handlerecord_json: Optional. If the handlerecord has already
@@ -318,7 +320,7 @@ class EUDATHandleClient(object):
         :return: A dict where the keys are keys from the Handle record (except
             for hidden entries) and every value is a string. The result will be
             None if the Handle does not exist.
-        :raises: HandleSyntaxError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
         LOGGER.debug('retrieve_handle_record...')
 
@@ -337,15 +339,15 @@ class EUDATHandleClient(object):
     def get_value_from_handle(self, handle, key, handlerecord_json=None):
         '''
         Retrieve a single value from a single Handle. If several entries with
-            this key exist, the methods returns the first one. If the handle
-            does not exist, the method will raise a HandleNotFoundException.
+        this key exist, the methods returns the first one. If the handle
+        does not exist, the method will raise a HandleNotFoundException.
 
         :param handle: The handle to take the value from.
         :param key: The key.
         :return: A string containing the value or None if the Handle record
          does not contain the key.
-        :raises: HandleSyntaxError.
-        :raises: HandleNotFoundException.
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
         '''
         LOGGER.debug('get_value_from_handle...')
 
@@ -371,15 +373,15 @@ class EUDATHandleClient(object):
     def is_10320LOC_empty(self, handle, handlerecord_json=None):
         '''
         Checks if there is a 10320/LOC entry in the handle record.
-        Note: In the unlikely case that there is a 10320/LOC entry, but it does
-            not contain any locations, it is treated as if there was none.
-            # TODO QUESTION to Robert: Is this the desired behaviour?
+        *Note:* In the unlikely case that there is a 10320/LOC entry, but it does
+        not contain any locations, it is treated as if there was none.
+        # TODO QUESTION to Robert: Is this the desired behaviour?
 
         :param handle: The handle.
         :param handlerecord_json: Optional. The content of the response of a
             GET request for the handle as a dict. Avoids another GET request.
-        :raises: HandleNotFoundException
-        :raises: HandleSyntaxError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: True if the record contains NO 10320/LOC entry; False if it
             does contain one.
         '''
@@ -411,12 +413,12 @@ class EUDATHandleClient(object):
     def is_URL_contained_in_10320LOC(self, handle, url, handlerecord_json=None):
         '''
         Checks if the URL is already present in the handle record's
-            10320/LOC entry.
+        10320/LOC entry.
 
         :param handle: The handle.
         :param url: The URL.
-        :raises: HandleNotFoundException
-        :raises: HandleSyntaxError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: True if the handle record's 10320/LOC entry contains the URL;
             False otherwise. If the entry is empty or does not exist, False
             is returned.
@@ -460,7 +462,7 @@ class EUDATHandleClient(object):
         :param extratypes: Optional. Additional key value pairs as dict.
         :param additional_URLs: Optional. A list of URLs (as strings) to be
             added to the handle record as 10320/LOC entry.
-        :raises: HandleAuthenticationError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
         :return: The new handle name.
         '''
 
@@ -480,14 +482,14 @@ class EUDATHandleClient(object):
     def modify_handle_value(self, handle, ttl=None, add_if_not_exist=True, **kvpairs):
         '''
         Modify entries (key-value-pairs) in a handle record. If the key
-            does not exist yet, it is created.
+        does not exist yet, it is created.
 
-        Note: We assume that a key exists only once. In case a key exists
-            several time, an exception will be raised.
-        Note: To modify 10320/LOC, please use "add_additional_URL()" or
-            "remove_additional_URL()".
+        *Note:* We assume that a key exists only once. In case a key exists
+        several time, an exception will be raised.
+        
+        *Note:* To modify 10320/LOC, please use :meth:`~b2handle.handleclient.EUDATHandleClient.add_additional_URL` or
+        :meth:`~b2handle.handleclient.EUDATHandleClient.remove_additional_URL`.
 
-        Parameters:
         :param handle: Handle whose record is to be modified
         :param ttl: Optional. Integer value. If ttl should be set to a
             non-default value.
@@ -498,9 +500,9 @@ class EUDATHandleClient(object):
             key is 'HS_ADMIN', the new value needs to be of the form
             {'handle':'xyz', 'index':xyz}. The permissions will be set to the
             default permissions.
-        :raises: HandleAuthenticationError.
-        :raises: HandleNotFoundException.
-        :raises: HandleSyntaxError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
         LOGGER.debug('modify_handle_value...')
 
@@ -587,13 +589,13 @@ class EUDATHandleClient(object):
     def delete_handle_value(self, handle, key):
         '''
         Delete a key-value pair from a handle record. If the key exists more
-            than once, all key-value pairs with this key are deleted.
+        than once, all key-value pairs with this key are deleted.
 
         :param handle: Handle from whose record the entry should be deleted.
         :param key: Key to be deleted. Also accepts a list of keys.
-        :raises: HandleAuthenticationError.
-        :raises: HandleNotFoundException.
-        :raises: HandleSyntaxError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
         LOGGER.debug('delete_handle_value...')
 
@@ -651,9 +653,9 @@ class EUDATHandleClient(object):
         :param handle: Handle to be deleted.
         :param other: Deprecated. This only exists to catch wrong method usage
             by users who are used to delete handle VALUES with the method.
-        :raises: HandleAuthenticationError.
-        :raises: HandleNotFoundException.
-        :raises: HandleSyntaxError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
 
         LOGGER.debug('delete_handle...')
@@ -722,8 +724,8 @@ class EUDATHandleClient(object):
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
         Add a URL entry to the handle record's 10320/LOC entry. If 10320/LOC
-            does not exist yet, it is created. If the 10320/LOC entry already
-            contains the URL, it is not added a second time.
+        does not exist yet, it is created. If the 10320/LOC entry already
+        contains the URL, it is not added a second time.
 
         :param handle: The handle to add the URL to.
         :param urls: The URL(s) to be added. Several URLs may be specified.
@@ -731,9 +733,9 @@ class EUDATHandleClient(object):
             attributes to the <location> elements, e.g. weight, http_role or
             custom attributes. Note: If the URL already exists but the
             attributes are different, they are updated!
-        :raises: HandleNotFoundException
-        :raises: HandleSyntaxError
-        :raises: HandleAuthenticationError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
         '''
         LOGGER.debug('add_additional_URL...')
 
@@ -774,9 +776,9 @@ class EUDATHandleClient(object):
 
         :param handle: The handle to modify.
         :param urls: The URL(s) to be removed. Several URLs may be specified.
-        :raises: HandleNotFoundException
-        :raises: HandleSyntaxError
-        :raises: HandleAuthenticationError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
         '''
 
         LOGGER.debug('remove_additional_URL...')
@@ -811,8 +813,8 @@ class EUDATHandleClient(object):
     def register_handle(self, handle, location, checksum=None, additional_URLs=None, overwrite=False, **extratypes):
         '''
         Registers a new Handle with given name. If the handle already exists
-            and overwrite is not set to True, the method will throw an
-            exception.
+        and overwrite is not set to True, the method will throw an
+        exception.
 
         :param handle: The full name of the handle to be registered (prefix
             and suffix)
@@ -823,10 +825,10 @@ class EUDATHandleClient(object):
             added to the handle record as 10320/LOC entry.
         :param overwrite: Optional. If set to True, an existing handle record
             will be overwritten. Defaults to False.
-        :raises: HandleAlreadyExistsException. Only if overwrite is not set or
+        :raises: :exc:`~b2handle.handleexceptions.HandleAlreadyExistsException` Only if overwrite is not set or
             set to False.
-        :raises: HandleAuthenticationError.
-        :raises: HandleSyntaxError.
+        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: The handle name.
         '''
         LOGGER.debug('register_handle...')
@@ -900,19 +902,20 @@ class EUDATHandleClient(object):
     def search_handle(self, URL=None, prefix=None, **key_value_pairs):
         '''
         Search for handles containing the specified key with the specified
-            value. The search terms are passed on to the reverse lookup servlet
-            as-is. The servlet is supposed to be case-insensitive, but if it
-            isn't, the wrong case will cause a ReverseLookupException.
-        Note: If allowed search keys are configured, only these are used. If
-            no allowed search keys are specified, all key-value pairs are
-            passed on to the reverse lookup servlet, possibly causing a
-            ReverseLookupException.
+        value. The search terms are passed on to the reverse lookup servlet
+        as-is. The servlet is supposed to be case-insensitive, but if it
+        isn't, the wrong case will cause a :exc:`~b2handle.handleexceptions.ReverseLookupException`.
+        
+        *Note:* If allowed search keys are configured, only these are used. If
+        no allowed search keys are specified, all key-value pairs are
+        passed on to the reverse lookup servlet, possibly causing a
+        :exc:`~b2handle.handleexceptions.ReverseLookupException`.
 
         Example calls:
-        list_of_handles = search_handle('http://www.foo.com')
-        list_of_handles = search_handle('http://www.foo.com', checksum=99999)
-        list_of_handles = search_handle(URL='http://www.foo.com', checksum=99999)
-
+          * list_of_handles = search_handle('http://www.foo.com')
+          * list_of_handles = search_handle('http://www.foo.com', checksum=99999)
+          * list_of_handles = search_handle(URL='http://www.foo.com', checksum=99999)
+          
         :param URL: Optional. The URL to search for (reverse lookup). [This is
             NOT the URL of the search servlet!]
         :param prefix: Optional. The Handle prefix to which the search should
@@ -921,8 +924,8 @@ class EUDATHandleClient(object):
         :param key_value_pairs: Optional. Several search fields and values can
             be specified as key-value-pairs,
             e.g. checksum=123456, URL=www.foo.com
-        :raise: ReverseLookupException: If a search field is specified that
-            can not be used, or if something else goes wrong.
+        :raise: :exc:`~b2handle.handleexceptions.ReverseLookupException`: If a search field is specified that
+            cannot be used, or if something else goes wrong.
         :return: A list of all Handles (strings) that bear the given key with
             given value of given prefix or server. The list may be empty and
             may also contain more than one element.
@@ -1005,9 +1008,9 @@ class EUDATHandleClient(object):
     def generate_PID_name(self, prefix=None):
         '''
         Generate a unique random Handle name (random UUID). The Handle is not
-            registered. If a prefix is specified, the PID name has the syntax
-            <prefix>/<generatedname>, otherwise it just returns the generated
-            random name (suffix for the Handle).
+        registered. If a prefix is specified, the PID name has the syntax
+        <prefix>/<generatedname>, otherwise it just returns the generated
+        random name (suffix for the Handle).
 
         :param prefix: Optional. The prefix to be used for the Handle name.
         :return: The handle name in the form <prefix>/<generatedsuffix> or
@@ -1027,7 +1030,7 @@ class EUDATHandleClient(object):
     def make_handle_URL(self, handle, indices=None, overwrite=None, other_url=None):
         '''
         Create the URL for a HTTP request (URL + query string) to request
-         a specific handle from the Handle Server.
+        a specific handle from the Handle Server.
 
         :param handle: The handle to access.
         :param indices: Optional. A list of integers or strings. Indices of
@@ -1072,10 +1075,10 @@ class EUDATHandleClient(object):
     def check_handle_syntax(string):
         '''
         Checks the syntax of a handle without an index (are prefix and suffix
-            there, are there too many slashes).
+        there, are there too many slashes).
 
         :string: The handle without index, as string prefix/suffix.
-        :raise: HandleSyntaxError
+        :raise: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: True. If it's not ok, exceptions are raised.
 
         '''
@@ -1113,9 +1116,10 @@ class EUDATHandleClient(object):
     def check_handle_syntax_with_index(string, base_already_checked=False):
         '''
         Checks the syntax of a handle with an index (is index there, is it an
-            integer), and of the handle itself.
+        integer), and of the handle itself.
+        
         :string: The handle with index, as string index:prefix/suffix.
-        :raise: HandleSyntaxError
+        :raise: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: True. If it's not ok, exceptions are raised.
         '''
 
@@ -1169,9 +1173,11 @@ class EUDATHandleClient(object):
     def get_handlerecord_indices_for_key(self, key, list_of_entries):
         '''
         Finds the Handle entry indices of all entries that have a specific
-            type. Important: It finds the Handle System indices! These are not
-            the python indices of the list, so they can not be used for
-            iteration.
+        type. 
+        
+        *Important:* It finds the Handle System indices! These are not
+        the python indices of the list, so they can not be used for
+        iteration.
 
         :param key: The key (Handle Record type)
         :param list_of_entries: A list of the existing entries in which to find
@@ -1214,14 +1220,13 @@ class EUDATHandleClient(object):
         Check if the username handles exists.
 
         :param username: The username, in the form index:prefix/suffix
-        :raises: HandleNotFoundException
-        :raises: GenericHandleError
+        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
+        :raises: :exc:`~b2handle.handleexceptions.GenericHandleError`
         :return: True. If it does not exist, an exception is raised.
 
-        Note: Only the existence of the handle is verified. The existence or
-            validity of the index is not checked, because entries containing
-            a key are hidden anyway.
-
+        *Note:* Only the existence of the handle is verified. The existence or
+        validity of the index is not checked, because entries containing
+        a key are hidden anyway.
         '''
         LOGGER.debug('check_if_username_exists...')
 
@@ -1244,10 +1249,10 @@ class EUDATHandleClient(object):
     def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
         '''
         Create the part of the solr request that comes after the question mark,
-            e.g. ?url=*dkrz*&checksum=*abc*. If allowed search keys are
-            configured, only these are used. If no'allowed search keys are
-            specified, all key-value pairs are passed on to the reverse lookup
-            servlet.
+        e.g. ?url=*dkrz*&checksum=*abc*. If allowed search keys are
+        configured, only these are used. If no'allowed search keys are
+        specified, all key-value pairs are passed on to the reverse lookup
+        servlet.
 
         :param fulltext_searchterms: Optional. Any term specified will be used
             as search term. Not implemented yet, so will be ignored.

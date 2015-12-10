@@ -1,10 +1,7 @@
-"""
-This module contains the exceptions that may occur in libraries interacting with the Handle System.
-
-Merret Buurman (DKRZ), 2015-07-14
-Last updated: 2015-08-26
-
-"""
+# This module contains the exceptions that may occur in libraries interacting with the Handle System.
+# 
+# Merret Buurman (DKRZ), 2015-07-14
+# Last updated: 2015-08-26
 import json
 
 class BrokenHandleRecordException(Exception):
