@@ -18,7 +18,8 @@ this interface will replace the current epic api""",
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'nose'
+          'nose',
+          'requests'
       ],
       entry_points="""
       # -*- Entry points: -*-
