@@ -22,10 +22,16 @@ import time
 #LOG_FILENAME = 'example.log'
 #logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+h = NullHandler()
+
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+LOGGER.addHandler(h)
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
-REQUESTLOGGER.addHandler(logging.NullHandler())
+REQUESTLOGGER.addHandler(h)
 
 class EUDATHandleClient(object):
     '''
