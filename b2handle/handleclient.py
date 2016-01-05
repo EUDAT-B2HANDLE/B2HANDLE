@@ -18,6 +18,10 @@ import logging
 import re
 import time
 
+# parameters for debugging
+#LOG_FILENAME = 'example.log'
+#logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
