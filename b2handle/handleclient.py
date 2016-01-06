@@ -18,10 +18,20 @@ import logging
 import re
 import time
 
+# parameters for debugging
+#LOG_FILENAME = 'example.log'
+#logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+h = NullHandler()
+
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+LOGGER.addHandler(h)
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
-REQUESTLOGGER.addHandler(logging.NullHandler())
+REQUESTLOGGER.addHandler(h)
 
 class EUDATHandleClient(object):
     '''
@@ -862,7 +872,7 @@ class EUDATHandleClient(object):
         list_of_entries.append(entry_URL)
         if checksum is not None:
             entryChecksum = self.__create_entry(
-                'checksum',
+                'CHECKSUM',
                 checksum,
                 self.__make_another_index(list_of_entries)
             )
@@ -913,8 +923,8 @@ class EUDATHandleClient(object):
 
         Example calls:
           * list_of_handles = search_handle('http://www.foo.com')
-          * list_of_handles = search_handle('http://www.foo.com', checksum=99999)
-          * list_of_handles = search_handle(URL='http://www.foo.com', checksum=99999)
+          * list_of_handles = search_handle('http://www.foo.com', CHECKSUM=99999)
+          * list_of_handles = search_handle(URL='http://www.foo.com', CHECKSUM=99999)
           
         :param URL: Optional. The URL to search for (reverse lookup). [This is
             NOT the URL of the search servlet!]
@@ -923,7 +933,7 @@ class EUDATHandleClient(object):
             prefixes present at the server given to the constructor.
         :param key_value_pairs: Optional. Several search fields and values can
             be specified as key-value-pairs,
-            e.g. checksum=123456, URL=www.foo.com
+            e.g. CHECKSUM=123456, URL=www.foo.com
         :raise: :exc:`~b2handle.handleexceptions.ReverseLookupException`: If a search field is specified that
             cannot be used, or if something else goes wrong.
         :return: A list of all Handles (strings) that bear the given key with
@@ -1249,7 +1259,7 @@ class EUDATHandleClient(object):
     def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
         '''
         Create the part of the solr request that comes after the question mark,
-        e.g. ?url=*dkrz*&checksum=*abc*. If allowed search keys are
+        e.g. ?URL=*dkrz*&CHECKSUM=*abc*. If allowed search keys are
         configured, only these are used. If no'allowed search keys are
         specified, all key-value pairs are passed on to the reverse lookup
         servlet.
