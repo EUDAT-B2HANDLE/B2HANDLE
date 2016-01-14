@@ -76,7 +76,7 @@ class EUDATHandleClient(object):
             the reverse lookup base URL to reach the reverse lookup service.
             Defaults to '/hrls/handles/'
         '''
-        
+
         LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
             '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
 
@@ -94,7 +94,6 @@ class EUDATHandleClient(object):
         self.__solrurlpath = '/hrls/handles/'
         self.__revlookup_auth_string = None
         self.__HS_auth_string = None
-        self.__session = requests.Session()
 
         # Needed for read and or write access:
 
@@ -186,7 +185,7 @@ class EUDATHandleClient(object):
 
         if revlookup_user is not None and revlookup_pw is not None:
             self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
-            
+
         LOGGER.debug(' - (end of initialisation)')
 
     @staticmethod
@@ -845,11 +844,10 @@ class EUDATHandleClient(object):
         LOGGER.debug('register_handle...')
 
         # If already exists and can't be overwritten:
-        if overwrite == False:
-            handlerecord_json = self.retrieve_handle_record_json(handle)
-            if handlerecord_json is not None:
-                msg = 'Could not register handle'
-                raise HandleAlreadyExistsException(handle, msg)
+        handlerecord_json = self.retrieve_handle_record_json(handle)
+        if handlerecord_json is not None and overwrite == False:
+            msg = 'Could not register handle'
+            raise HandleAlreadyExistsException(handle, msg)
 
         # Create admin entry
         list_of_entries = []
@@ -1427,7 +1425,7 @@ class EUDATHandleClient(object):
         head = self.__get_headers('DELETE')
  
         veri = self.__http_verify
-        resp = self.__session.delete(url, headers=head, verify=veri)
+        resp = requests.delete(url, headers=head, verify=veri)
         self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
         return resp
 
@@ -1467,7 +1465,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
         veri = self.__http_verify
-        resp = self.__session.put(url, data=payload, headers=head, verify=veri)
+        resp = requests.put(url, data=payload, headers=head, verify=veri)
         self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
         return resp
 
@@ -1488,7 +1486,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('GET Request to '+url)
         head = self.__get_headers('GET')
         veri = self.__http_verify
-        resp = self.__session.get(url, headers=head, verify=veri)
+        resp = requests.get(url, headers=head, verify=veri)
         self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
         return resp
 
@@ -1499,7 +1497,7 @@ class EUDATHandleClient(object):
 
         head = self.__get_headers('SEARCH')
         veri = self.__http_verify
-        resp = self.__session.get(entirequery, headers=head, verify=veri)
+        resp = requests.get(entirequery, headers=head, verify=veri)
         self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
 
