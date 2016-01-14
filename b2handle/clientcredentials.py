@@ -32,6 +32,7 @@ class PIDClientCredentials(object):
                 "username": "index:prefix/suffix",
                 "password": "ZZZZZZZ"
             }
+            prefix is an optional parameter and set to None or the prefix
             Any additional key-value-pairs are stored in the instance as
             config.
         :raises: CredentialsFormatError
@@ -45,10 +46,14 @@ class PIDClientCredentials(object):
         baseuri = jsonfilecontent.pop('baseuri')
         username = jsonfilecontent.pop('username')
         password = jsonfilecontent.pop('password')
+        prefix = None
+        if 'prefix' in jsonfilecontent:
+            prefix = jsonfilecontent.pop('prefix')
         instance = PIDClientCredentials(
             baseuri,
             username,
             password,
+            prefix,
             **jsonfilecontent
         )
         return instance
@@ -74,7 +79,7 @@ class PIDClientCredentials(object):
                 ' provided credentials file: '+str(missing)
             raise CredentialsFormatError(msg)
 
-    def __init__(self, handle_server_url, username, password, **config):
+    def __init__(self, handle_server_url, username, password, prefix, **config):
         '''
         Initialize client credentials instance with Handle server url,
             username and password.
@@ -82,6 +87,7 @@ class PIDClientCredentials(object):
         :param handle_server_url: URL to your handle server
         :param username: User information in the format "index:prefix/suffix"
         :param password: Password.
+        :param prefix: Prefix.
         :param config: Any key-value pairs added are stored as config.
         :raises: HandleSyntaxError
         '''
@@ -89,6 +95,7 @@ class PIDClientCredentials(object):
         self.__handle_server_url = handle_server_url
         self.__username = username
         self.__password = password
+        self.__prefix = prefix
         self.__config = None
         if len(config) > 0:
             self.__config = config
@@ -104,6 +111,10 @@ class PIDClientCredentials(object):
     def get_server_URL(self):
         # pylint: disable=missing-docstring
         return self.__handle_server_url
+
+    def get_prefix(self):
+        # pylint: disable=missing-docstring
+        return self.__prefix
 
     def get_config(self):
         # pylint: disable=missing-docstring
