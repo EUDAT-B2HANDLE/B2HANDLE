@@ -2,8 +2,7 @@
 set -e
 
 if [ "$1" = 'coverage' ]; then
-  python -m coverage run main_test_script.py
-  python -m coverage xml --include="*/b2handle/*" --omit="*/tests/*"
+  nosetests --with-xunit --xunit-testsuite-name=b2handle --cover-erase --cover-tests --cover-inclusive --cover-xml main_test_script.py
 else
   exec "$@"
 fi
