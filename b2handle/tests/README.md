@@ -1,6 +1,34 @@
 # B2HANDLE Testing
 
-## Docker
+## Testing with plain unittest/unittest2
+
+Simply run:
+
+    python main_test_script.py
+
+
+## Testing with nose and/or coverage
+
+If you have installed the B2HANDLE module running `python setup.py install`, [nose](https://pypi.python.org/pypi/nose/) should already be available. Otherwise you can install it using your distribution's package manager or `pip` (recommended) as follows:
+
+    pip install nose
+
+Then run:
+
+    nosetests --with-xunit --xunit-testsuite-name=b2handle --cover-erase --cover-branches --cover-inclusive --cover-xml main_test_script.py
+
+The above will generate test results in the standard XUnit XML format and also provide an XML-formatted coverage report using Ned Batchelder's [Coverage.py](https://pypi.python.org/pypi/coverage). The latter can be installed using `pip` (recommended) as follows:
+
+    pip install coverage
+
+To generate test coverage reports without `nose`, run:
+
+    coverage erase
+    coverage run --branch main_test_script.py
+    coverage xml -i
+
+
+## Testing with Docker
 
 The [Dockerfile](Dockerfile) contains instructions for building a [Docker](https://www.docker.com/) image for running the B2HANDLE test suites.
 
@@ -19,7 +47,7 @@ The [Dockerfile](Dockerfile) contains instructions for building a [Docker](https
 3. Build an image from this Dockerfile: `cd /path/to/B2HANDLE/b2handle/tests && docker build -t eudat-b2handle-tests .`
 
 
-#### Usage
+### Usage
 
 This will run all B2HANDLE unit & integration tests and create an xml-formatted coverage report suitable for Jenkins/SonarQube:
 
