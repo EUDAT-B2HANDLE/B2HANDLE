@@ -1,8 +1,11 @@
 """Tests for the PIDClientCredentials class. No access to any server/servlet/service needed."""
 
-import unittest
-import json
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+import json
 sys.path.append("../..")
 from b2handle.clientcredentials import PIDClientCredentials
 from b2handle.handleexceptions import HandleSyntaxError

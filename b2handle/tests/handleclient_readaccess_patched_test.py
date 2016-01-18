@@ -1,11 +1,14 @@
 """Testing methods that normally need Handle server read access,
 by patching the get request to replace read access."""
 
-import unittest
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 import mock
 from mock import patch
 import json
-import sys
 sys.path.append("../..")
 import b2handle.clientcredentials
 from b2handle.handleclient import EUDATHandleClient

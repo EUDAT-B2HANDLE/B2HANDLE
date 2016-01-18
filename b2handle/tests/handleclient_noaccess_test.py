@@ -1,8 +1,11 @@
 """Testing methods that need no server access."""
 
-import unittest
-import json
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+import json
 sys.path.append("../..")
 import b2handle.handleclient as b2handle
 from b2handle.handleexceptions import HandleSyntaxError
