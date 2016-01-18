@@ -28,6 +28,19 @@ To generate test coverage reports without `nose`, run:
     coverage xml -i
 
 
+### Notes for older versions of nose and coverage
+
+* Support for branch coverage (`--branch` switch) is only available for Coverage.py version 3.2b1 and above.
+* Sub-command syntax and generating reports in Cobertura-compatible XML format became available in Coverage.py version 3.1b1. With older versions run:
+
+        coverage -e
+        coverage -x main_test_script.py 
+
+    or alternatively, using nose:
+
+        nosetests --cover-erase --cover-inclusive main_test_script.py
+
+
 ## Testing with Docker
 
 The [Dockerfile](Dockerfile) contains instructions for building a [Docker](https://www.docker.com/) image for running the B2HANDLE test suites.
