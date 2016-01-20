@@ -11,6 +11,7 @@ import mock
 from mock import patch
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
+from b2handle.clientcredentials import PIDClientCredentials
 from b2handle.handleexceptions import HandleAlreadyExistsException
 from b2handle.handleexceptions import HandleAuthenticationError
 from b2handle.handleexceptions import HandleNotFoundException
@@ -99,6 +100,59 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "999", "handle": "user/name", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "foo", "data": "foo"}, {"index": 4, "type": "bar", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
+        replace_timestamps(expected_payload)
+        self.assertEqual(passed_payload, expected_payload,
+            failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
+
+    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handleclient.requests.put')
+    @patch('b2handle.handleclient.requests.get')
+    def test_register_handle_different_owner(self, getpatch, putpatch, username_check_patch):
+        """Test registering a new handle with various types of values."""
+
+        # Define the replacement for the patched GET method:
+        # The handle does not exist yet, so a response with 404
+        mock_response_get = MockResponse(notfound=True)
+        getpatch.return_value = mock_response_get
+
+        # Define the replacement for the patched requests.put method:
+        mock_response_put = MockResponse(wascreated=True)
+        putpatch.return_value = mock_response_put
+
+        # Define replacement for the patched check for username existence:
+        username_check_patch = mock.Mock()
+        username_check_patch.response_value = True
+
+        # Make another connector, to add the handle owner:
+        cred = PIDClientCredentials('http://handle.server',
+                                   '999:user/name',
+                                   'apassword',
+                                   'myprefix',
+                                   '300:handle/owner')
+        newInst = EUDATHandleClient.instantiate_with_credentials(cred)
+
+        # Run the code to be tested:
+        testhandle = 'my/testhandle'
+        testlocation = 'http://foo.bar'
+        testchecksum = '123456'
+        additional_URLs = ['http://bar.bar', 'http://foo.foo']
+        handle_returned = newInst.register_handle(testhandle,
+                                                  location=testlocation,
+                                                  checksum=testchecksum,
+                                                  additional_URLs=additional_URLs,
+                                                  foo='foo',
+                                                  bar='bar')
+
+
+        # Check if the PUT request was sent exactly once:
+        self.assertEqual(putpatch.call_count, 1,
+            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+
+        # Get the payload+headers passed to "requests.put"
+        passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
+
+        # Compare with expected payload:
+        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "300", "handle": "handle/owner", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "foo", "data": "foo"}, {"index": 4, "type": "bar", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))

@@ -50,6 +50,15 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
                                     self.randompassword)
         self.assertIsInstance(inst, PIDClientCredentials)
 
+    def test_credentials_constructor4(self):
+        """Test credentials instantiation. No exception occurs if server url does not exist. """
+        inst = PIDClientCredentials('blablabla',
+                                    self.user,
+                                    self.randompassword,
+                                    'myprefix',
+                                    '300:myhandle/owner')
+        self.assertIsInstance(inst, PIDClientCredentials)
+
 
     def test_credentials_invalid_username(self):
         """Exception occurs when user name is not index:prefix/suffix."""
@@ -57,6 +66,15 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
             inst = PIDClientCredentials(self.url,
                                         self.handle,
                                         self.randompassword)
+
+    def test_credentials_invalid_handleowner(self):
+        """Exception occurs when handle owner is not index:prefix/suffix."""
+        with self.assertRaises(HandleSyntaxError):
+            inst = PIDClientCredentials(self.url,
+                                        self.handle,
+                                        self.randompassword,
+                                        'myprefix',
+                                        '300myhandleowner')
 
     def test_credentials_from_json(self):
         """Test credentials instantiation from JSON file."""
