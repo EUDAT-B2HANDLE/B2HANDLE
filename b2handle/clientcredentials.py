@@ -79,7 +79,7 @@ class PIDClientCredentials(object):
                 ' provided credentials file: '+str(missing)
             raise CredentialsFormatError(msg)
 
-    def __init__(self, handle_server_url, username, password, prefix, **config):
+    def __init__(self, handle_server_url, username, password, prefix=None, **config):
         '''
         Initialize client credentials instance with Handle server url,
             username and password.
