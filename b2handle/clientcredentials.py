@@ -30,9 +30,18 @@ class PIDClientCredentials(object):
             {
                 "baseuri": "https://url.to.your.handle.server",
                 "username": "index:prefix/suffix",
-                "password": "ZZZZZZZ"
+                "password": "ZZZZZZZ",
+                "prefix": "prefix_to_use_for_writing_handles",
+                "handleowner": "username_to_own_handles"
             }
-            prefix is an optional parameter and set to None or the prefix
+            The parameters 'prefix' and 'handleowner' are optional and default to None.
+            If 'prefix' is not given, the prefix has to be specified each time a handle is
+            created or modified.
+            If 'handleowner' is given, it is written into the created handles' HS_ADMIN.
+            If it is not given, the username is given. This parameter allows a user to create 
+            handles that are then modifiable by a larger user group than just himself, e.g.
+            user John Doe creates the handle, but wants all his colleagues to be able to
+            modify it.
             Any additional key-value-pairs are stored in the instance as
             config.
         :raises: CredentialsFormatError
@@ -47,13 +56,17 @@ class PIDClientCredentials(object):
         username = jsonfilecontent.pop('username')
         password = jsonfilecontent.pop('password')
         prefix = None
+        handle_owner = None
         if 'prefix' in jsonfilecontent:
             prefix = jsonfilecontent.pop('prefix')
+        if 'handleowner' in jsonfilecontent:
+            handle_owner = jsonfilecontent.pop('handleowner')
         instance = PIDClientCredentials(
             baseuri,
             username,
             password,
             prefix,
+            handle_owner,
             **jsonfilecontent
         )
         return instance
@@ -79,7 +92,7 @@ class PIDClientCredentials(object):
                 ' provided credentials file: '+str(missing)
             raise CredentialsFormatError(msg)
 
-    def __init__(self, handle_server_url, username, password, prefix=None, **config):
+    def __init__(self, handle_server_url, username, password, prefix=None, handle_owner=None, **config):
         '''
         Initialize client credentials instance with Handle server url,
             username and password.
@@ -96,9 +109,14 @@ class PIDClientCredentials(object):
         self.__username = username
         self.__password = password
         self.__prefix = prefix
+        self.__handle_owner = handle_owner
         self.__config = None
         if len(config) > 0:
             self.__config = config
+
+        if handle_owner is not None:
+            EUDATHandleClient.check_handle_syntax_with_index(handle_owner)
+            self.__handle_owner = handle_owner
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -115,6 +133,10 @@ class PIDClientCredentials(object):
     def get_prefix(self):
         # pylint: disable=missing-docstring
         return self.__prefix
+
+    def get_handle_owner(self):
+        # pylint: disable=missing-docstring
+        return self.__handle_owner
 
     def get_config(self):
         # pylint: disable=missing-docstring

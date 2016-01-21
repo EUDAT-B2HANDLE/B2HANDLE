@@ -83,6 +83,7 @@ class EUDATHandleClient(object):
         # All used attributes (some will be overwritten below)
         self.__username = None
         self.__password = None
+        self.__handle_owner = None
         self.__handle_server_url = 'https://hdl.handle.net'
         self.__default_permissions = '011111110011' # default from hdl-admintool
         self.__can_modify_HS_ADMIN = False
@@ -186,6 +187,14 @@ class EUDATHandleClient(object):
         if revlookup_user is not None and revlookup_pw is not None:
             self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
 
+        # Handle owner: THe user name to be written into HS_ADMIN.
+        # Can be specified in json credentials file (optionally).
+        # Otherwise, the username used to authenticate is used.
+        if ('handle_owner' in args.keys()) and (args['handle_owner'] is not None):
+            self.__handle_owner = args['handle_owner']
+        else:
+            self.__handle_owner = self.__username
+
         LOGGER.debug(' - (end of initialisation)')
 
     @staticmethod
@@ -280,6 +289,7 @@ class EUDATHandleClient(object):
             credentials.get_server_URL(),
             username=user,
             password=pw,
+            handle_owner=credentials.get_handle_owner(),
             **additional_config
         )
         return inst
@@ -851,13 +861,14 @@ class EUDATHandleClient(object):
 
         # Create admin entry
         list_of_entries = []
-        if not self.__username:
+        if not self.__handle_owner:
             op = 'creating handle without username'
-            msg = 'No username specified. Can not create handle without'+\
-                ' username. Please instantiate the client with a username'
+            msg = 'No username or handle owner specified. Can not create'+\
+                  ' handle without username or handle owner. Please'+\
+                  ' instantiate the client with a username or handle owner.'
             raise IllegalOperationException(op, handle, msg)
         adminentry = self.__create_admin_entry(
-            self.__username,
+            self.__handle_owner,
             self.__default_permissions,
             self.__make_another_index(list_of_entries, hs_admin=True)
         )
