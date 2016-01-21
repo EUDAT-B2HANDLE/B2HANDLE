@@ -49,12 +49,13 @@ class GenericHandleError(Exception):
     To be raised when the Handle Server returned an unexpected status code
     that does not map to any other specific exception.
     '''
-    def __init__(self, operation=None, handle=None, response=None, custom_message=None):
+    def __init__(self, operation=None, handle=None, response=None, custom_message=None, payload=None):
         self.msg = 'Error during interaction with Handle Server'
         self.handle = handle
         self.custom_message = custom_message
         self.operation = operation
         self.response = response
+        self.payload = payload
 
         if self.operation is not None:
             self.msg += ' ('+self.operation+')'
@@ -70,6 +71,9 @@ class GenericHandleError(Exception):
             self.msg += '\n\tURL: '+str(self.response.request.url)
             self.msg += '\n\tHTTP Status Code: '+str(self.response.status_code)
             self.msg += '\n\tResponse: '+str(self.response.content)
+
+        if self.payload is not None:
+            self.msg += '\n\tPayload: '+self.payload
 
         super(self.__class__, self).__init__(self.msg)
 

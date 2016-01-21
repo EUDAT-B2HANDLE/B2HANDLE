@@ -593,7 +593,7 @@ class EUDATHandleClient(object):
         else:
             # TODO FIXME: Implement overwriting by index (less risky),
             # once HS have fixed the issue with the indices.
-            resp = self.__send_handle_put_request(
+            resp, put_payload = self.__send_handle_put_request(
                 handle,
                 new_list_of_entries,
                 overwrite=True)
@@ -605,7 +605,7 @@ class EUDATHandleClient(object):
             else:
                 op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
-                raise GenericHandleError(op, handle, resp, msg)
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def delete_handle_value(self, handle, key):
         '''
@@ -725,7 +725,7 @@ class EUDATHandleClient(object):
         else:
             self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
 
-            resp = self.__send_handle_put_request(
+            resp, put_payload = self.__send_handle_put_request(
                 handle,
                 list_of_entries,
                 overwrite=True
@@ -740,7 +740,8 @@ class EUDATHandleClient(object):
                 raise HandleAuthenticationError(op, handle, resp)
             else:
                 op = 'exchanging "'+str(urls)+'"'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
@@ -778,7 +779,7 @@ class EUDATHandleClient(object):
             for url in urls:
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
-            resp = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
+            resp, put_payload = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
             # TODO FIXME (one day) Overwrite by index.
 
             if self.handle_success(resp):
@@ -789,7 +790,8 @@ class EUDATHandleClient(object):
                 raise HandleAuthenticationError(op, handle, resp)
             else:
                 op = 'adding "'+str(urls)+'"'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def remove_additional_URL(self, handle, *urls):
         '''
@@ -814,7 +816,7 @@ class EUDATHandleClient(object):
             self.__remove_URL_from_10320LOC(url, list_of_entries, handle)
 
 
-        resp = self.__send_handle_put_request(
+        resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
             overwrite=True
@@ -829,7 +831,8 @@ class EUDATHandleClient(object):
             raise HandleAuthenticationError(op, handle, resp)
         else:
             op = 'removing "'+str(urls)+'"'
-            raise GenericHandleError(op, handle, resp)
+            msg = None
+            raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def register_handle(self, handle, location, checksum=None, additional_URLs=None, overwrite=False, **extratypes):
         '''
@@ -903,7 +906,7 @@ class EUDATHandleClient(object):
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
         # Create record itself and put to server
-        resp = self.__send_handle_put_request(
+        resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
             overwrite=overwrite
@@ -918,7 +921,8 @@ class EUDATHandleClient(object):
                 raise HandleAuthenticationError(op, handle)
             else:
                 op = 'registering handle'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     # No HS access:
 
@@ -1480,7 +1484,7 @@ class EUDATHandleClient(object):
         veri = self.__http_verify
         resp = requests.put(url, data=payload, headers=head, verify=veri)
         self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
-        return resp
+        return resp, payload
 
     def __send_handle_get_request(self, handle, indices=None):
         '''
