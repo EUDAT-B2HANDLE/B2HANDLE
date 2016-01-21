@@ -153,15 +153,15 @@ class HandleAlreadyExistsException(Exception):
     To be raised if self.handle already exists.
     '''
     def __init__(self, handle=None, custom_message=None):
-        self.msg = 'Handle alreay exists'
+        self.msg = 'Handle already exists'
         self.handle = handle
         self.custom_message = custom_message
 
         if self.handle is not None:
-            self.msg = self.msg.replace('andle', 'self.handle '+self.handle)
+            self.msg = self.msg.replace('andle', 'andle '+self.handle)
 
         if self.custom_message is not None:
-            self.msg += self.custom_message
+            self.msg += ': '+self.custom_message
         self.msg += '.'
 
         super(self.__class__, self).__init__(self.msg)
