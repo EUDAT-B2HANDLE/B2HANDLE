@@ -148,7 +148,6 @@ class EUDATHandleClient(object):
             LOGGER.debug(' - username set to: '+self.__username)
             self.__set_HS_auth_string(self.__username, self.__password)
 
-
         # Needed for reverse lookup:
 
         if 'allowed_search_keys' in args.keys():
@@ -187,13 +186,15 @@ class EUDATHandleClient(object):
         if revlookup_user is not None and revlookup_pw is not None:
             self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
 
-        # Handle owner: THe user name to be written into HS_ADMIN.
+        # Handle owner: The user name to be written into HS_ADMIN.
         # Can be specified in json credentials file (optionally).
-        # Otherwise, the username used to authenticate is used.
-        if ('handle_owner' in args.keys()) and (args['handle_owner'] is not None):
-            self.__handle_owner = args['handle_owner']
-        else:
-            self.__handle_owner = self.__username
+        if writeaccess:
+
+            # If specified in json credentials file:
+            if ('handle_owner' in args.keys()) and (args['handle_owner'] is not None):
+                self.__handle_owner = args['handle_owner']
+            else:
+                self.__handle_owner = None
 
         LOGGER.debug(' - (end of initialisation)')
 
@@ -861,16 +862,17 @@ class EUDATHandleClient(object):
 
         # Create admin entry
         list_of_entries = []
-        if not self.__handle_owner:
+        if not self.__username:
             op = 'creating handle without username'
-            msg = 'No username or handle owner specified. Can not create'+\
-                  ' handle without username or handle owner. Please'+\
-                  ' instantiate the client with a username or handle owner.'
+            msg = 'No username specified. Can not create'+\
+                  ' handle without username. Please'+\
+                  ' instantiate the client with a username.'
             raise IllegalOperationException(op, handle, msg)
         adminentry = self.__create_admin_entry(
             self.__handle_owner,
             self.__default_permissions,
-            self.__make_another_index(list_of_entries, hs_admin=True)
+            self.__make_another_index(list_of_entries, hs_admin=True),
+            handle
         )
         list_of_entries.append(adminentry)
 
@@ -1620,7 +1622,7 @@ class EUDATHandleClient(object):
 
         return entry
 
-    def __create_admin_entry(self, username, permissions, index, ttl=None):
+    def __create_admin_entry(self, handleowner, permissions, index, handle, ttl=None):
         '''
         Create an entry of type "HS_ADMIN".
 
@@ -1637,7 +1639,17 @@ class EUDATHandleClient(object):
             System sets it.
         :return: The entry as a dict.
         '''
-        adminindex, adminhandle = self.remove_index(username)
+        # If the handle owner is specified, use it. Otherwise, use 200:0.NA/prefix
+        # With the prefix taken from the handle that is being created, not from anywhere else
+        #adminindex = None
+        #adminhandle = None
+        if handleowner is None:
+            adminindex = '200'
+            prefix = handle.split('/')[0]
+            adminhandle = '0.NA/'+prefix
+        else:
+            adminindex, adminhandle = self.remove_index(handleowner)
+    
         data = {
             'value':{
                 'index':adminindex,
