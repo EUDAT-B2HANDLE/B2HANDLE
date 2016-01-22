@@ -89,7 +89,7 @@ class EUDATHandleClient(object):
         self.__can_modify_HS_ADMIN = False
         self.__10320LOC_chooseby = None
         self.__url_extension_REST_API = '/api/handles/'
-        self.__http_verify = True
+        self.__https_verify = True
         self.__allowed_search_keys = ['URL', 'CHECKSUM']
         self.__solrbaseurl = None
         self.__solrurlpath = '/hrls/handles/'
@@ -108,8 +108,8 @@ class EUDATHandleClient(object):
             LOGGER.debug(' - url_extension_REST_API set to '+self.__url_extension_REST_API)
 
         if 'HTTPS_verify' in args.keys():
-            self.__http_verify = self.string_to_bool(args['HTTPS_verify'])
-            LOGGER.debug(' - http_verify set to: '+str(self.__http_verify))
+            self.__https_verify = self.string_to_bool(args['HTTPS_verify'])
+            LOGGER.debug(' - https_verify set to: '+str(self.__https_verify))
 
         # Needed for write access:
 
@@ -1445,7 +1445,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('DELETE Request to '+url)
         head = self.__get_headers('DELETE')
  
-        veri = self.__http_verify
+        veri = self.__https_verify
         resp = requests.delete(url, headers=head, verify=veri)
         self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
         return resp
@@ -1485,7 +1485,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('PUT Request to '+url)
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
-        veri = self.__http_verify
+        veri = self.__https_verify
         resp = requests.put(url, data=payload, headers=head, verify=veri)
         self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
         return resp, payload
@@ -1506,7 +1506,7 @@ class EUDATHandleClient(object):
         url = self.make_handle_URL(handle, indices)
         LOGGER.debug('GET Request to '+url)
         head = self.__get_headers('GET')
-        veri = self.__http_verify
+        veri = self.__https_verify
         resp = requests.get(url, headers=head, verify=veri)
         self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
         return resp
@@ -1517,7 +1517,7 @@ class EUDATHandleClient(object):
         entirequery = solrurl+'?'+query.lstrip('?')
 
         head = self.__get_headers('SEARCH')
-        veri = self.__http_verify
+        veri = self.__https_verify
         resp = requests.get(entirequery, headers=head, verify=veri)
         self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
