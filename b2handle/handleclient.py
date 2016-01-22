@@ -274,6 +274,10 @@ class EUDATHandleClient(object):
         :return: An instance of the client.
         '''
 
+        if handle_server_url is None and 'reverselookup_baseuri' not in config.keys():
+            raise TypeError('You must specify either "handle_server_url" or "reverselookup_baseuri".'+\
+                ' Searching not possible without the URL of a search servlet.')
+
         inst = EUDATHandleClient(
             handle_server_url,
             reverselookup_username=reverselookup_username,

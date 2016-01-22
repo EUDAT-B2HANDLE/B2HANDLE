@@ -49,10 +49,10 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
     def test_instantiate_for_read_an_search(self):
         """Testing if instantiating with default handle server works. """
 
-        # Create client instance with username and password
-        inst = b2handle.EUDATHandleClient.instantiate_for_read_and_search(
-            None, 'johndoe', 'passywordy')
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient)
+        # Try to create client instance for search without a search URL:
+        with self.assertRaises(TypeError):
+            inst = b2handle.EUDATHandleClient.instantiate_for_read_and_search(
+                None, 'johndoe', 'passywordy')
 
     def test_instantiate_with_username_and_password_noindex(self):
 
