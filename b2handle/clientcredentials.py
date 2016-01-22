@@ -56,17 +56,17 @@ class PIDClientCredentials(object):
         username = jsonfilecontent.pop('username')
         password = jsonfilecontent.pop('password')
         prefix = None
-        handle_owner = None
+        handleowner = None
         if 'prefix' in jsonfilecontent:
             prefix = jsonfilecontent.pop('prefix')
         if 'handleowner' in jsonfilecontent:
-            handle_owner = jsonfilecontent.pop('handleowner')
+            handleowner = jsonfilecontent.pop('handleowner')
         instance = PIDClientCredentials(
             baseuri,
             username,
             password,
             prefix,
-            handle_owner,
+            handleowner,
             **jsonfilecontent
         )
         return instance
@@ -92,7 +92,7 @@ class PIDClientCredentials(object):
                 ' provided credentials file: '+str(missing)
             raise CredentialsFormatError(msg)
 
-    def __init__(self, handle_server_url, username, password, prefix=None, handle_owner=None, **config):
+    def __init__(self, handle_server_url, username, password, prefix=None, handleowner=None, **config):
         '''
         Initialize client credentials instance with Handle server url,
             username and password.
@@ -109,14 +109,14 @@ class PIDClientCredentials(object):
         self.__username = username
         self.__password = password
         self.__prefix = prefix
-        self.__handle_owner = handle_owner
+        self.__handleowner = handleowner
         self.__config = None
         if len(config) > 0:
             self.__config = config
 
-        if handle_owner is not None:
-            EUDATHandleClient.check_handle_syntax_with_index(handle_owner)
-            self.__handle_owner = handle_owner
+        if handleowner is not None:
+            EUDATHandleClient.check_handle_syntax_with_index(handleowner)
+            self.__handleowner = handleowner
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -134,9 +134,9 @@ class PIDClientCredentials(object):
         # pylint: disable=missing-docstring
         return self.__prefix
 
-    def get_handle_owner(self):
+    def get_handleowner(self):
         # pylint: disable=missing-docstring
-        return self.__handle_owner
+        return self.__handleowner
 
     def get_config(self):
         # pylint: disable=missing-docstring
