@@ -80,66 +80,93 @@ class EUDATHandleClient(object):
         LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
             '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
 
-        # All used attributes (some will be overwritten below)
+        # All used attributes
         self.__username = None
         self.__password = None
         self.__handle_owner = None
-        self.__handle_server_url = 'https://hdl.handle.net'
-        self.__default_permissions = '011111110011' # default from hdl-admintool
-        self.__can_modify_HS_ADMIN = False
+        self.__handle_server_url = None
+        self.__default_permissions = None
+        self.__can_modify_HS_ADMIN = None
         self.__10320LOC_chooseby = None
-        self.__url_extension_REST_API = '/api/handles/'
-        self.__https_verify = True
-        self.__allowed_search_keys = ['URL', 'CHECKSUM']
+        self.__url_extension_REST_API =  None
+        self.__https_verify = None
+        self.__allowed_search_keys = None
         self.__solrbaseurl = None
-        self.__solrurlpath = '/hrls/handles/'
+        self.__solrurlpath = None
         self.__revlookup_auth_string = None
         self.__HS_auth_string = None
 
+        # Defaults:
+        defaults = {
+            'handle_server_url':'https://hdl.handle.net',
+            'HS_ADMIN_permissions':'011111110011', # default from hdl-admintool
+            'REST_API_url_extension': '/api/handles/',
+            'allowed_search_keys': ['URL', 'CHECKSUM'],
+            'HTTPS_verify': True,
+            'reverselookup_url_extension': '/hrls/handles/',
+            'modify_HS_ADMIN': False
+        }
+
         # Needed for read and or write access:
 
-        if handle_server_url is not None:
+        if handle_server_url is None:
+            self.__handle_server_url = defaults['handle_server_url']
+            LOGGER.debug(' - handle_server_url set to default: '+self.__handle_server_url)
+        else:
             self.__handle_server_url = handle_server_url
-            self.__solrbaseurl = handle_server_url
-            LOGGER.debug(' - handle_server_url and solrbaseurl set to '+handle_server_url)
+            LOGGER.debug(' - handle_server_url set to '+self.__handle_server_url)
 
         if 'REST_API_url_extension' in args.keys():
             self.__url_extension_REST_API = args['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to '+self.__url_extension_REST_API)
+            LOGGER.debug(' - url_extension_REST_API set to: '+self.__url_extension_REST_API)
+        else:
+            self.__url_extension_REST_API = defaults['REST_API_url_extension']
+            LOGGER.debug(' - url_extension_REST_API set to default: '+self.__url_extension_REST_API)
 
         if 'HTTPS_verify' in args.keys():
             self.__https_verify = self.string_to_bool(args['HTTPS_verify'])
             LOGGER.debug(' - https_verify set to: '+str(self.__https_verify))
+        else:
+            self.__https_verify = defaults['HTTPS_verify']
+            LOGGER.debug(' - https_verify set to default: '+str(self.__https_verify))
 
         # Needed for write access:
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__default_permissions = args['HS_ADMIN_permissions']
             LOGGER.debug(' - default_permissions set to: '+self.__default_permissions)
+        else:
+            self.__default_permissions = defaults['HS_ADMIN_permissions']
+            LOGGER.debug(' - default_permissions set to default: '+self.__default_permissions)
 
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
             LOGGER.debug(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
+        else:
+            LOGGER.debug(' - 10320LOC_chooseby: No default.')
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__can_modify_HS_ADMIN = args['modify_HS_ADMIN']
             LOGGER.debug(' - can_modify_HS_ADMIN set to: '+str(self.__can_modify_HS_ADMIN))
+        else:
+            self.__can_modify_HS_ADMIN = defaults['modify_HS_ADMIN']
+            LOGGER.debug(' - can_modify_HS_ADMIN set to default: '+str(self.__can_modify_HS_ADMIN))
 
-        # For write access, username AND pw AND server url must be given!
+        # Check if user wants write access:
 
-        if 'username' in args.keys():
-            if 'password' not in args.keys():
-                raise TypeError('No password given.')
-        if 'password' in args.keys():
-            if 'username' not in args.keys():
-                raise TypeError('No username given.')
         writeaccess = False
         if 'username' in args.keys() or 'password' in args.keys():
             writeaccess = True
-            if handle_server_url is None:
-                raise TypeError('No handle_server_URL given.')
+
+        # For write access, username AND pw AND server url must be given!
 
         if writeaccess:
+            if 'username' in args.keys() and 'password' not in args.keys():
+                raise TypeError('No password given.')
+            if 'password' in args.keys() and 'username' not in args.keys():
+                raise TypeError('No username given.')
+            if handle_server_url is None:
+                raise TypeError('No handle_server_URL given.')
             self.check_handle_syntax_with_index(args['username'])
             self.check_if_username_exists(args['username'])
             self.__password = args['password']
@@ -148,19 +175,39 @@ class EUDATHandleClient(object):
             LOGGER.debug(' - username set to: '+self.__username)
             self.__set_HS_auth_string(self.__username, self.__password)
 
+            # Handle owner: The user name to be written into HS_ADMIN.
+            # Can be specified in json credentials file (optionally):
+            if ('handle_owner' in args.keys()) and (args['handle_owner'] is not None):
+                self.__handle_owner = args['handle_owner']
+                LOGGER.debug(' - handle_owner set to: '+self.__handle_owner)
+            else:
+                self.__handle_owner = None
+                LOGGER.debug(' - handle_owner: Will be set to default for each created handle separately.')
+
         # Needed for reverse lookup:
 
         if 'allowed_search_keys' in args.keys():
             self.__allowed_search_keys = args['allowed_search_keys']
             LOGGER.debug(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
+        else:
+            self.__allowed_search_keys = defaults['allowed_search_keys']
+            LOGGER.debug(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
 
         if 'reverselookup_baseuri' in args.keys():
             self.__solrbaseurl = args['reverselookup_baseuri']
             LOGGER.debug(' - solrbaseurl set to: '+self.__solrbaseurl)
+        elif handle_server_url is not None:
+            self.__solrbaseurl = handle_server_url
+            LOGGER.debug(' - solrbaseurl set to same as handle server: '+str(self.__solrbaseurl))
+        else:
+            LOGGER.debug(' - solrbaseurl: No default.')
 
         if 'reverselookup_url_extension' in args.keys():
             self.__solrurlpath = args['reverselookup_url_extension']
             LOGGER.debug(' - solrurlpath set to: '+self.__solrurlpath)
+        else:
+            self.__solrurlpath = defaults['reverselookup_url_extension']
+            LOGGER.debug(' - solrurlpath set to default: '+self.__solrurlpath)
 
         # Authentication reverse lookup:
         #   If specified, use it.
@@ -174,6 +221,9 @@ class EUDATHandleClient(object):
         elif self.__username is not None:
             revlookup_user = self.__username
             LOGGER.debug(' - revlookup_user set to handle server username: '+revlookup_user)
+        else:
+            LOGGER.debug(' - revlookup_user: No default.')
+
 
         revlookup_pw = None
         if 'reverselookup_password' in args.keys():
@@ -182,19 +232,11 @@ class EUDATHandleClient(object):
         elif self.__password is not None:
             revlookup_pw = self.__password
             LOGGER.debug(' - revlookup_pw set to handle server password.')
+        else:
+            LOGGER.debug(' - revlookup_pw: No default.')
 
         if revlookup_user is not None and revlookup_pw is not None:
             self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
-
-        # Handle owner: The user name to be written into HS_ADMIN.
-        # Can be specified in json credentials file (optionally).
-        if writeaccess:
-
-            # If specified in json credentials file:
-            if ('handle_owner' in args.keys()) and (args['handle_owner'] is not None):
-                self.__handle_owner = args['handle_owner']
-            else:
-                self.__handle_owner = None
 
         LOGGER.debug(' - (end of initialisation)')
 
