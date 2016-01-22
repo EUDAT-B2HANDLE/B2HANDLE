@@ -172,12 +172,13 @@ class HandleAuthenticationError(Exception):
     write permission for creating, modifying, deleting.
     '''
 
-    def __init__(self, operation=None, handle=None, response=None, custom_message=None):
+    def __init__(self, operation=None, handle=None, response=None, custom_message=None, username=None):
         self.msg = 'Insufficient permission'
         self.handle = handle
         self.custom_message = custom_message
         self.operation = operation
         self.response = response
+        self.username = username
 
         if self.operation is not None:
             self.msg += ' for '+self.operation
@@ -188,6 +189,9 @@ class HandleAuthenticationError(Exception):
 
         if self.handle is not None:
             self.msg += '\n\tHandle: '+self.handle
+
+        if self.username is not None:
+            self.msg += '\n\tUsername: '+self.username
 
         if self.response is not None:
             self.msg += '\n\tURL: '+str(self.response.request.url)

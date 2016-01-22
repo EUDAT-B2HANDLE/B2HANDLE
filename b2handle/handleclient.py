@@ -601,7 +601,8 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'modifying handle values'
-                raise HandleAuthenticationError(op, handle, resp)
+                msg = None
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
@@ -663,7 +664,8 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'deleting "'+str(key)+'"'
-                raise HandleAuthenticationError(op, handle, resp)
+                msg = None
+                raise HandleAuthenticationError(op, handle, resp,msg, self.__username)
             else:
                 op = 'deleting "'+str(keys)+'"'
                 raise GenericHandleError(op, handle, resp)
@@ -737,7 +739,7 @@ class EUDATHandleClient(object):
             elif self.not_authenticated(resp):
                 msg = 'Could not exchange URLs '+str(urls)
                 op = 'exchanging URLs'
-                raise HandleAuthenticationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'exchanging "'+str(urls)+'"'
                 msg = None
@@ -787,7 +789,7 @@ class EUDATHandleClient(object):
             elif self.not_authenticated(resp):
                 msg = 'Could not add URLs '+str(urls)
                 op = 'adding URLs'
-                raise HandleAuthenticationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'adding "'+str(urls)+'"'
                 msg = None
@@ -828,7 +830,7 @@ class EUDATHandleClient(object):
         elif self.not_authenticated(resp):
             msg = 'Could not remove URLs '+str(urls)
             op = 'removing URLs'
-            raise HandleAuthenticationError(op, handle, resp)
+            raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
         else:
             op = 'removing "'+str(urls)+'"'
             msg = None
@@ -918,7 +920,9 @@ class EUDATHandleClient(object):
         else:
             if self.not_authenticated(resp):
                 op = 'registering handle'
-                raise HandleAuthenticationError(op, handle)
+                msg = None
+                resp = None
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'registering handle'
                 msg = None
@@ -1405,14 +1409,14 @@ class EUDATHandleClient(object):
             if self.__HS_auth_string is None:
                 raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
-                    'for Handle System set.')
+                    'for Handle System set.', username=self.__username)
             head = {'Content-Type': content_type,
                     'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'DELETE':
             if self.__HS_auth_string is None:
                 raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
-                    'for Handle System set.')
+                    'for Handle System set.', username=self.__username)
             head = {'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
