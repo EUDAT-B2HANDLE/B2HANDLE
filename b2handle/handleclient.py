@@ -588,6 +588,7 @@ class EUDATHandleClient(object):
 
         nothingchanged = True
         new_list_of_entries = []
+        list_of_old_and_new_entries = list_of_entries[:]
         keys = kvpairs.keys()
         for key, newval in kvpairs.iteritems():
             # Change existing entry:
@@ -609,6 +610,7 @@ class EUDATHandleClient(object):
                         changed = True
                         nothingchanged = False
                         new_list_of_entries.append(list_of_entries[i])
+                        list_of_old_and_new_entries.append(list_of_entries[i])
                     else:
                         msg = 'There is several entries of type "'+key+'".'+\
                             ' This can lead to unexpected behaviour.'+\
@@ -620,9 +622,10 @@ class EUDATHandleClient(object):
                 if add_if_not_exist:
                     LOGGER.debug('modify_handle_value: Adding entry "'+key+'"'+\
                         ' to handle '+handle)
-                    index = self.__make_another_index(list_of_entries)
+                    index = self.__make_another_index(list_of_old_and_new_entries)
                     entry_to_add = self.__create_entry(key, newval, index, ttl)
                     new_list_of_entries.append(entry_to_add)
+                    list_of_old_and_new_entries.append(entry_to_add)
                     changed = True
                     nothingchanged = False
 
