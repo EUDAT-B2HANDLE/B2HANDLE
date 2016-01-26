@@ -909,10 +909,11 @@ class EUDATHandleClient(object):
         LOGGER.debug('register_handle...')
 
         # If already exists and can't be overwritten:
-        handlerecord_json = self.retrieve_handle_record_json(handle)
-        if handlerecord_json is not None and overwrite == False:
-            msg = 'Could not register handle'
-            raise HandleAlreadyExistsException(handle, msg)
+        if overwrite == False:
+            handlerecord_json = self.retrieve_handle_record_json(handle)
+            if handlerecord_json is not None:
+                msg = 'Could not register handle'
+                raise HandleAlreadyExistsException(handle, msg)
 
         # Create admin entry
         list_of_entries = []
