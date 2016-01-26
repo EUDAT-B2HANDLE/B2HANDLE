@@ -8,6 +8,24 @@ to set up the Handle server to use proper certificates. A default installation w
 which should be replaced for production scenarios. The following short guide explains how to provide a signed certificate
 to the Handle server instance using a Java keystore.
 
+Replace the default certificate
+===============================
+
+The Handle server delivers a certificate taken from the *serverCertificate.pem* file in the instance directory. To replace this
+with a proper certificate, do the following (based on a CentOS installation)::
+
+1. Convert certificate to pkcs8 format:
+
+  | $ openssl pkcs8 -in /etc/pki/tls/private/<your key file> -out serverCertificatePrivateKey.pem -inform pem -nocrypt -topk8
+  
+2. Convert to Handle binary key format using hdl-convert-key:
+
+  | $ ../hsj-8.1.0/bin/hdl-convert-key serverCertificatePrivateKey.pem serverCertificatePrivateKey.bin
+
+Creating the keystore
+=====================
+
+
 1. Create a Java keystore based on your signed server certificate and your trust chain::
 
   | $ openssl pkcs12 -export -in serverCertificate.pem -inkey <private key.pem> -certfile <your CA bundle.crt> -name "handle" -out keystore.p12
