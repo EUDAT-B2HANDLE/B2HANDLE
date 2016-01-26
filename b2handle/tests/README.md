@@ -15,7 +15,7 @@ If you have installed the B2HANDLE module running `python setup.py install`, [no
 
 Then run:
 
-    nosetests --with-xunit --xunit-testsuite-name=b2handle --cover-erase --cover-branches --cover-inclusive --cover-xml main_test_script.py
+    nosetests --with-xunit --xunit-testsuite-name=b2handle --with-coverage --cover-erase --cover-package=b2handle --cover-branches --cover-inclusive --cover-xml main_test_script.py
 
 The above will generate test results in the standard XUnit XML format and also provide an XML-formatted coverage report using Ned Batchelder's [Coverage.py](https://pypi.python.org/pypi/coverage). The latter can be installed using `pip` (recommended) as follows:
 
@@ -38,7 +38,7 @@ To generate test coverage reports without `nose`, run:
 
     or alternatively, using nose:
 
-        nosetests --cover-erase --cover-inclusive main_test_script.py
+        nosetests --with-coverage --cover-erase --cover-inclusive main_test_script.py
 
 
 ## Testing with Docker
