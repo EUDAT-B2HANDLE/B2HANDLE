@@ -31,6 +31,7 @@ h = NullHandler()
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(h)
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
+REQUESTLOGGER.propagate = False
 REQUESTLOGGER.addHandler(h)
 
 class EUDATHandleClient(object):
