@@ -164,5 +164,4 @@ if __name__ == '__main__':
     unittest.TextTestRunner(descriptions=descriptions, verbosity=verbosity).run(test_suites)
 
     # Run with:
-    # python -m coverage run main_test_script.py
-    # python -m coverage report
+    # python main_test_script.py

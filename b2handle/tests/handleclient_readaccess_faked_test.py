@@ -1,9 +1,12 @@
 """Testing methods that normally need Handle server read access,
 by providing a handle record to replace read access."""
 
-import unittest
-import json
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
 

@@ -1,8 +1,11 @@
 """Testing methods that need no server access."""
 
-import unittest
-import json
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+import json
 sys.path.append("../..")
 import b2handle.handleclient as b2handle
 from b2handle.handleexceptions import HandleSyntaxError
@@ -46,10 +49,10 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
     def test_instantiate_for_read_an_search(self):
         """Testing if instantiating with default handle server works. """
 
-        # Create client instance with username and password
-        inst = b2handle.EUDATHandleClient.instantiate_for_read_and_search(
-            None, 'johndoe', 'passywordy')
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient)
+        # Try to create client instance for search without a search URL:
+        with self.assertRaises(TypeError):
+            inst = b2handle.EUDATHandleClient.instantiate_for_read_and_search(
+                None, 'johndoe', 'passywordy')
 
     def test_instantiate_with_username_and_password_noindex(self):
 

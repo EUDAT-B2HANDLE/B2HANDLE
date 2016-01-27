@@ -31,6 +31,7 @@ h = NullHandler()
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(h)
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
+REQUESTLOGGER.propagate = False
 REQUESTLOGGER.addHandler(h)
 
 class EUDATHandleClient(object):
@@ -80,65 +81,93 @@ class EUDATHandleClient(object):
         LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
             '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
 
-        # All used attributes (some will be overwritten below)
+        # All used attributes
         self.__username = None
         self.__password = None
-        self.__handle_server_url = 'https://hdl.handle.net'
-        self.__default_permissions = '011111110011' # default from hdl-admintool
-        self.__can_modify_HS_ADMIN = False
+        self.__handleowner = None
+        self.__handle_server_url = None
+        self.__HS_ADMIN_permissions = None
+        self.__modify_HS_ADMIN = None
         self.__10320LOC_chooseby = None
-        self.__url_extension_REST_API = '/api/handles/'
-        self.__http_verify = True
-        self.__allowed_search_keys = ['URL', 'CHECKSUM']
-        self.__solrbaseurl = None
-        self.__solrurlpath = '/hrls/handles/'
+        self.__REST_API_url_extension =  None
+        self.__HTTPS_verify = None
+        self.__allowed_search_keys = None
+        self.__reverselookup_baseuri = None
+        self.__reverselookup_url_extension = None
         self.__revlookup_auth_string = None
         self.__HS_auth_string = None
 
+        # Defaults:
+        defaults = {
+            'handle_server_url':'https://hdl.handle.net',
+            'HS_ADMIN_permissions':'011111110011', # default from hdl-admintool
+            'REST_API_url_extension': '/api/handles/',
+            'allowed_search_keys': ['URL', 'CHECKSUM'],
+            'HTTPS_verify': True,
+            'reverselookup_url_extension': '/hrls/handles/',
+            'modify_HS_ADMIN': False
+        }
+
         # Needed for read and or write access:
 
-        if handle_server_url is not None:
+        if handle_server_url is None:
+            self.__handle_server_url = defaults['handle_server_url']
+            LOGGER.debug(' - handle_server_url set to default: '+self.__handle_server_url)
+        else:
             self.__handle_server_url = handle_server_url
-            self.__solrbaseurl = handle_server_url
-            LOGGER.debug(' - handle_server_url and solrbaseurl set to '+handle_server_url)
+            LOGGER.debug(' - handle_server_url set to '+self.__handle_server_url)
 
         if 'REST_API_url_extension' in args.keys():
-            self.__url_extension_REST_API = args['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to '+self.__url_extension_REST_API)
+            self.__REST_API_url_extension = args['REST_API_url_extension']
+            LOGGER.debug(' - url_extension_REST_API set to: '+self.__REST_API_url_extension)
+        else:
+            self.__REST_API_url_extension = defaults['REST_API_url_extension']
+            LOGGER.debug(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
 
         if 'HTTPS_verify' in args.keys():
-            self.__http_verify = self.string_to_bool(args['HTTPS_verify'])
-            LOGGER.debug(' - http_verify set to: '+str(self.__http_verify))
+            self.__HTTPS_verify = self.string_to_bool(args['HTTPS_verify'])
+            LOGGER.debug(' - https_verify set to: '+str(self.__HTTPS_verify))
+        else:
+            self.__HTTPS_verify = defaults['HTTPS_verify']
+            LOGGER.debug(' - https_verify set to default: '+str(self.__HTTPS_verify))
 
         # Needed for write access:
 
         if 'HS_ADMIN_permissions' in args.keys():
-            self.__default_permissions = args['HS_ADMIN_permissions']
-            LOGGER.debug(' - default_permissions set to: '+self.__default_permissions)
+            self.__HS_ADMIN_permissions = args['HS_ADMIN_permissions']
+            LOGGER.debug(' - HS_ADMIN_permissions set to: '+self.__HS_ADMIN_permissions)
+        else:
+            self.__HS_ADMIN_permissions = defaults['HS_ADMIN_permissions']
+            LOGGER.debug(' - HS_ADMIN_permissions set to default: '+self.__HS_ADMIN_permissions)
 
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
             LOGGER.debug(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
+        else:
+            LOGGER.debug(' - 10320LOC_chooseby: No default.')
 
         if 'modify_HS_ADMIN' in args.keys():
-            self.__can_modify_HS_ADMIN = args['modify_HS_ADMIN']
-            LOGGER.debug(' - can_modify_HS_ADMIN set to: '+str(self.__can_modify_HS_ADMIN))
+            self.__modify_HS_ADMIN = args['modify_HS_ADMIN']
+            LOGGER.debug(' - modify_HS_ADMIN set to: '+str(self.__modify_HS_ADMIN))
+        else:
+            self.__modify_HS_ADMIN = defaults['modify_HS_ADMIN']
+            LOGGER.debug(' - modify_HS_ADMIN set to default: '+str(self.__modify_HS_ADMIN))
 
-        # For write access, username AND pw AND server url must be given!
+        # Check if user wants write access:
 
-        if 'username' in args.keys():
-            if 'password' not in args.keys():
-                raise TypeError('No password given.')
-        if 'password' in args.keys():
-            if 'username' not in args.keys():
-                raise TypeError('No username given.')
         writeaccess = False
         if 'username' in args.keys() or 'password' in args.keys():
             writeaccess = True
-            if handle_server_url is None:
-                raise TypeError('No handle_server_URL given.')
+
+        # For write access, username AND pw AND server url must be given!
 
         if writeaccess:
+            if 'username' in args.keys() and 'password' not in args.keys():
+                raise TypeError('No password given.')
+            if 'password' in args.keys() and 'username' not in args.keys():
+                raise TypeError('No username given.')
+            if handle_server_url is None:
+                raise TypeError('No handle_server_url given.')
             self.check_handle_syntax_with_index(args['username'])
             self.check_if_username_exists(args['username'])
             self.__password = args['password']
@@ -147,44 +176,68 @@ class EUDATHandleClient(object):
             LOGGER.debug(' - username set to: '+self.__username)
             self.__set_HS_auth_string(self.__username, self.__password)
 
+            # Handle owner: The user name to be written into HS_ADMIN.
+            # Can be specified in json credentials file (optionally):
+            if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
+                self.__handleowner = args['handleowner']
+                LOGGER.debug(' - handleowner set to: '+self.__handleowner)
+            else:
+                self.__handleowner = None
+                LOGGER.debug(' - handleowner: Will be set to default for each created handle separately.')
 
         # Needed for reverse lookup:
 
         if 'allowed_search_keys' in args.keys():
             self.__allowed_search_keys = args['allowed_search_keys']
             LOGGER.debug(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
+        else:
+            self.__allowed_search_keys = defaults['allowed_search_keys']
+            LOGGER.debug(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
 
         if 'reverselookup_baseuri' in args.keys():
-            self.__solrbaseurl = args['reverselookup_baseuri']
-            LOGGER.debug(' - solrbaseurl set to: '+self.__solrbaseurl)
+            self.__reverselookup_baseuri = args['reverselookup_baseuri']
+            LOGGER.debug(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
+        elif handle_server_url is not None:
+            self.__reverselookup_baseuri = handle_server_url
+            LOGGER.debug(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
+        else:
+            LOGGER.debug(' - solrbaseurl: No default.')
 
         if 'reverselookup_url_extension' in args.keys():
-            self.__solrurlpath = args['reverselookup_url_extension']
-            LOGGER.debug(' - solrurlpath set to: '+self.__solrurlpath)
+            self.__reverselookup_url_extension = args['reverselookup_url_extension']
+            LOGGER.debug(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
+        else:
+            self.__reverselookup_url_extension = defaults['reverselookup_url_extension']
+            LOGGER.debug(' - reverselookup_url_extension set to default: '+self.__reverselookup_url_extension)
 
         # Authentication reverse lookup:
         #   If specified, use it.
         #   Else: Try using handle system authentication
         #   Else: search_handle does not work and will raise an exception.
 
-        revlookup_user = None
+        reverselookup_username = None
         if 'reverselookup_username' in args.keys():
-            revlookup_user = args['reverselookup_username']
-            LOGGER.debug('" - revlookup_user set to: '+revlookup_user)
+            reverselookup_username = args['reverselookup_username']
+            LOGGER.debug('" - reverselookup_username set to: '+reverselookup_username)
         elif self.__username is not None:
-            revlookup_user = self.__username
-            LOGGER.debug(' - revlookup_user set to handle server username: '+revlookup_user)
+            reverselookup_username = self.__username
+            LOGGER.debug(' - reverselookup_username set to handle server username: '+reverselookup_username)
+        else:
+            LOGGER.debug(' - reverselookup_username: No default.')
 
-        revlookup_pw = None
+
+        reverselookup_password = None
         if 'reverselookup_password' in args.keys():
-            revlookup_pw = args['reverselookup_password']
-            LOGGER.debug(' - revlookup_pw set.')
+            reverselookup_password = args['reverselookup_password']
+            LOGGER.debug(' - reverselookup_password set.')
         elif self.__password is not None:
-            revlookup_pw = self.__password
-            LOGGER.debug(' - revlookup_pw set to handle server password.')
+            reverselookup_password = self.__password
+            LOGGER.debug(' - reverselookup_password set to handle server password.')
+        else:
+            LOGGER.debug(' - reverselookup_password: No default.')
 
-        if revlookup_user is not None and revlookup_pw is not None:
-            self.__set_revlookup_auth_string(revlookup_user, revlookup_pw)
+        if reverselookup_username is not None and reverselookup_password is not None:
+            self.__set_revlookup_auth_string(reverselookup_username, reverselookup_password)
 
         LOGGER.debug(' - (end of initialisation)')
 
@@ -221,6 +274,10 @@ class EUDATHandleClient(object):
             credentials object are overwritten by this.
         :return: An instance of the client.
         '''
+
+        if handle_server_url is None and 'reverselookup_baseuri' not in config.keys():
+            raise TypeError('You must specify either "handle_server_url" or "reverselookup_baseuri".'+\
+                ' Searching not possible without the URL of a search servlet.')
 
         inst = EUDATHandleClient(
             handle_server_url,
@@ -280,6 +337,7 @@ class EUDATHandleClient(object):
             credentials.get_server_URL(),
             username=user,
             password=pw,
+            handleowner=credentials.get_handleowner(),
             **additional_config
         )
         return inst
@@ -524,13 +582,14 @@ class EUDATHandleClient(object):
         list_of_entries = handlerecord_json['values']
 
         # HS_ADMIN
-        if 'HS_ADMIN' in kvpairs.keys() and not self.__can_modify_HS_ADMIN:
+        if 'HS_ADMIN' in kvpairs.keys() and not self.__modify_HS_ADMIN:
             msg = 'You may not modify HS_ADMIN'
             raise IllegalOperationException(
                 msg, 'modifying HS_ADMIN', handle)
 
         nothingchanged = True
         new_list_of_entries = []
+        list_of_old_and_new_entries = list_of_entries[:]
         keys = kvpairs.keys()
         for key, newval in kvpairs.iteritems():
             # Change existing entry:
@@ -541,7 +600,7 @@ class EUDATHandleClient(object):
                         list_of_entries[i]['data'] = newval
                         list_of_entries[i].pop('timestamp') # will be ignored anyway
                         if key == 'HS_ADMIN':
-                            newval['permissions'] = self.__default_permissions
+                            newval['permissions'] = self.__HS_ADMIN_permissions
                             list_of_entries[i].pop('timestamp') # will be ignored anyway
                             list_of_entries[i]['data'] = {
                                 'format':'admin',
@@ -552,6 +611,7 @@ class EUDATHandleClient(object):
                         changed = True
                         nothingchanged = False
                         new_list_of_entries.append(list_of_entries[i])
+                        list_of_old_and_new_entries.append(list_of_entries[i])
                     else:
                         msg = 'There is several entries of type "'+key+'".'+\
                             ' This can lead to unexpected behaviour.'+\
@@ -563,9 +623,10 @@ class EUDATHandleClient(object):
                 if add_if_not_exist:
                     LOGGER.debug('modify_handle_value: Adding entry "'+key+'"'+\
                         ' to handle '+handle)
-                    index = self.__make_another_index(list_of_entries)
+                    index = self.__make_another_index(list_of_old_and_new_entries)
                     entry_to_add = self.__create_entry(key, newval, index, ttl)
                     new_list_of_entries.append(entry_to_add)
+                    list_of_old_and_new_entries.append(entry_to_add)
                     changed = True
                     nothingchanged = False
 
@@ -582,7 +643,7 @@ class EUDATHandleClient(object):
         else:
             # TODO FIXME: Implement overwriting by index (less risky),
             # once HS have fixed the issue with the indices.
-            resp = self.__send_handle_put_request(
+            resp, put_payload = self.__send_handle_put_request(
                 handle,
                 new_list_of_entries,
                 overwrite=True)
@@ -590,11 +651,12 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'modifying handle values'
-                raise HandleAuthenticationError(op, handle, resp)
+                msg = None
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
-                raise GenericHandleError(op, handle, resp, msg)
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def delete_handle_value(self, handle, key):
         '''
@@ -652,7 +714,8 @@ class EUDATHandleClient(object):
                 pass
             elif self.not_authenticated(resp):
                 op = 'deleting "'+str(key)+'"'
-                raise HandleAuthenticationError(op, handle, resp)
+                msg = None
+                raise HandleAuthenticationError(op, handle, resp,msg, self.__username)
             else:
                 op = 'deleting "'+str(keys)+'"'
                 raise GenericHandleError(op, handle, resp)
@@ -714,7 +777,7 @@ class EUDATHandleClient(object):
         else:
             self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
 
-            resp = self.__send_handle_put_request(
+            resp, put_payload = self.__send_handle_put_request(
                 handle,
                 list_of_entries,
                 overwrite=True
@@ -726,10 +789,11 @@ class EUDATHandleClient(object):
             elif self.not_authenticated(resp):
                 msg = 'Could not exchange URLs '+str(urls)
                 op = 'exchanging URLs'
-                raise HandleAuthenticationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'exchanging "'+str(urls)+'"'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
@@ -767,7 +831,7 @@ class EUDATHandleClient(object):
             for url in urls:
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
-            resp = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
+            resp, put_payload = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
             # TODO FIXME (one day) Overwrite by index.
 
             if self.handle_success(resp):
@@ -775,10 +839,11 @@ class EUDATHandleClient(object):
             elif self.not_authenticated(resp):
                 msg = 'Could not add URLs '+str(urls)
                 op = 'adding URLs'
-                raise HandleAuthenticationError(op, handle, resp)
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'adding "'+str(urls)+'"'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def remove_additional_URL(self, handle, *urls):
         '''
@@ -803,7 +868,7 @@ class EUDATHandleClient(object):
             self.__remove_URL_from_10320LOC(url, list_of_entries, handle)
 
 
-        resp = self.__send_handle_put_request(
+        resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
             overwrite=True
@@ -815,10 +880,11 @@ class EUDATHandleClient(object):
         elif self.not_authenticated(resp):
             msg = 'Could not remove URLs '+str(urls)
             op = 'removing URLs'
-            raise HandleAuthenticationError(op, handle, resp)
+            raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
         else:
             op = 'removing "'+str(urls)+'"'
-            raise GenericHandleError(op, handle, resp)
+            msg = None
+            raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     def register_handle(self, handle, location, checksum=None, additional_URLs=None, overwrite=False, **extratypes):
         '''
@@ -844,22 +910,25 @@ class EUDATHandleClient(object):
         LOGGER.debug('register_handle...')
 
         # If already exists and can't be overwritten:
-        handlerecord_json = self.retrieve_handle_record_json(handle)
-        if handlerecord_json is not None and overwrite == False:
-            msg = 'Could not register handle'
-            raise HandleAlreadyExistsException(handle, msg)
+        if overwrite == False:
+            handlerecord_json = self.retrieve_handle_record_json(handle)
+            if handlerecord_json is not None:
+                msg = 'Could not register handle'
+                raise HandleAlreadyExistsException(handle, msg)
 
         # Create admin entry
         list_of_entries = []
         if not self.__username:
             op = 'creating handle without username'
-            msg = 'No username specified. Can not create handle without'+\
-                ' username. Please instantiate the client with a username'
+            msg = 'No username specified. Can not create'+\
+                  ' handle without username. Please'+\
+                  ' instantiate the client with a username.'
             raise IllegalOperationException(op, handle, msg)
         adminentry = self.__create_admin_entry(
-            self.__username,
-            self.__default_permissions,
-            self.__make_another_index(list_of_entries, hs_admin=True)
+            self.__handleowner,
+            self.__HS_ADMIN_permissions,
+            self.__make_another_index(list_of_entries, hs_admin=True),
+            handle
         )
         list_of_entries.append(adminentry)
 
@@ -890,7 +959,7 @@ class EUDATHandleClient(object):
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
         # Create record itself and put to server
-        resp = self.__send_handle_put_request(
+        resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
             overwrite=overwrite
@@ -902,10 +971,13 @@ class EUDATHandleClient(object):
         else:
             if self.not_authenticated(resp):
                 op = 'registering handle'
-                raise HandleAuthenticationError(op, handle)
+                msg = None
+                resp = None
+                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
             else:
                 op = 'registering handle'
-                raise GenericHandleError(op, handle, resp)
+                msg = None
+                raise GenericHandleError(op, handle, resp, msg, put_payload)
 
     # No HS access:
 
@@ -1062,7 +1134,7 @@ class EUDATHandleClient(object):
             url = other_url
         else:
             url = self.__handle_server_url.strip('/') +'/'+\
-                self.__url_extension_REST_API.strip('/')
+                self.__REST_API_url_extension.strip('/')
         url = url.strip('/')+'/'+ handle
 
         if indices is None:
@@ -1388,14 +1460,14 @@ class EUDATHandleClient(object):
             if self.__HS_auth_string is None:
                 raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
-                    'for Handle System set.')
+                    'for Handle System set.', username=self.__username)
             head = {'Content-Type': content_type,
                     'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'DELETE':
             if self.__HS_auth_string is None:
                 raise HandleAuthenticationError(custom_message='Could not '+\
                     'create header for PUT request, no authentication string '+\
-                    'for Handle System set.')
+                    'for Handle System set.', username=self.__username)
             head = {'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
@@ -1424,7 +1496,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('DELETE Request to '+url)
         head = self.__get_headers('DELETE')
  
-        veri = self.__http_verify
+        veri = self.__HTTPS_verify
         resp = requests.delete(url, headers=head, verify=veri)
         self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
         return resp
@@ -1464,10 +1536,10 @@ class EUDATHandleClient(object):
         LOGGER.debug('PUT Request to '+url)
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
-        veri = self.__http_verify
+        veri = self.__HTTPS_verify
         resp = requests.put(url, data=payload, headers=head, verify=veri)
         self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
-        return resp
+        return resp, payload
 
     def __send_handle_get_request(self, handle, indices=None):
         '''
@@ -1485,18 +1557,18 @@ class EUDATHandleClient(object):
         url = self.make_handle_URL(handle, indices)
         LOGGER.debug('GET Request to '+url)
         head = self.__get_headers('GET')
-        veri = self.__http_verify
+        veri = self.__HTTPS_verify
         resp = requests.get(url, headers=head, verify=veri)
         self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
         return resp
 
     def __send_revlookup_get_request(self, query):
 
-        solrurl = self.__solrbaseurl.rstrip('/')+'/'+self.__solrurlpath.strip('/')
+        solrurl = self.__reverselookup_baseuri.rstrip('/')+'/'+self.__reverselookup_url_extension.strip('/')
         entirequery = solrurl+'?'+query.lstrip('?')
 
         head = self.__get_headers('SEARCH')
-        veri = self.__http_verify
+        veri = self.__HTTPS_verify
         resp = requests.get(entirequery, headers=head, verify=veri)
         self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
@@ -1609,7 +1681,7 @@ class EUDATHandleClient(object):
 
         return entry
 
-    def __create_admin_entry(self, username, permissions, index, ttl=None):
+    def __create_admin_entry(self, handleowner, permissions, index, handle, ttl=None):
         '''
         Create an entry of type "HS_ADMIN".
 
@@ -1626,7 +1698,17 @@ class EUDATHandleClient(object):
             System sets it.
         :return: The entry as a dict.
         '''
-        adminindex, adminhandle = self.remove_index(username)
+        # If the handle owner is specified, use it. Otherwise, use 200:0.NA/prefix
+        # With the prefix taken from the handle that is being created, not from anywhere else
+        #adminindex = None
+        #adminhandle = None
+        if handleowner is None:
+            adminindex = '200'
+            prefix = handle.split('/')[0]
+            adminhandle = '0.NA/'+prefix
+        else:
+            adminindex, adminhandle = self.remove_index(handleowner)
+    
         data = {
             'value':{
                 'index':adminindex,

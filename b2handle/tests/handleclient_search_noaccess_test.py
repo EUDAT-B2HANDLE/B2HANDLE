@@ -1,8 +1,11 @@
 """Testing methods that need Handle server write access"""
 
-import unittest
-import json
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import ReverseLookupException

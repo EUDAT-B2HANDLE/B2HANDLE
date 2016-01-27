@@ -121,7 +121,7 @@ class MockCredentials(object):
     '''
     This is a mocked credentials object.
     '''
-    def __init__(self, config=None, user=None, password=None, url=None, restapi=None):
+    def __init__(self, config=None, user=None, password=None, url=None, restapi=None, handleowner=None):
         self.config = config
 
         if restapi is not None:
@@ -140,7 +140,13 @@ class MockCredentials(object):
         if url is not None:
             self.url = url
 
+        if handleowner is not None:
+            self.handleowner = handleowner
+        else:
+            self.handleowner = self.user
+
         self.get_config = mock.MagicMock(return_value=self.config)
         self.get_username = mock.MagicMock(return_value=self.user)
         self.get_password = mock.MagicMock(return_value=self.password)
         self.get_server_URL = mock.MagicMock(return_value=self.url)
+        self.get_handleowner = mock.MagicMock(return_value=self.handleowner)
