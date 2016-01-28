@@ -2,7 +2,7 @@
 Handle Client documentation
 ===========================
 
-.. important:: Before using the library, make sure you have configured your Handle server correctly! (see :doc:`handleserverconfig`)
+.. important:: If you encounter security warnings when using the library, contact your Handle server administrators and ask them to set up the server certificates correctly! (see :doc:`handleserverconfig`)
 
 The EUDATHandleClient class provides a Python-level interface for interactions with a Handle server through its native REST interface. The class provides common methods for working with Handles and their records:
 
