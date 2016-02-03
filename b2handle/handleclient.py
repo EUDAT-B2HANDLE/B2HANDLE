@@ -96,6 +96,7 @@ class EUDATHandleClient(object):
         self.__reverselookup_url_extension = None
         self.__revlookup_auth_string = None
         self.__HS_auth_string = None
+        self.__session = requests.Session()
 
         # Defaults:
         defaults = {
@@ -1497,7 +1498,7 @@ class EUDATHandleClient(object):
         head = self.__get_headers('DELETE')
  
         veri = self.__HTTPS_verify
-        resp = requests.delete(url, headers=head, verify=veri)
+        resp = self.__session.delete(url, headers=head, verify=veri)
         self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
         return resp
 
@@ -1537,7 +1538,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
         veri = self.__HTTPS_verify
-        resp = requests.put(url, data=payload, headers=head, verify=veri)
+        resp = self.__session.put(url, data=payload, headers=head, verify=veri)
         self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
         return resp, payload
 
@@ -1558,7 +1559,7 @@ class EUDATHandleClient(object):
         LOGGER.debug('GET Request to '+url)
         head = self.__get_headers('GET')
         veri = self.__HTTPS_verify
-        resp = requests.get(url, headers=head, verify=veri)
+        resp = self.__session.get(url, headers=head, verify=veri)
         self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
         return resp
 
@@ -1569,7 +1570,7 @@ class EUDATHandleClient(object):
 
         head = self.__get_headers('SEARCH')
         veri = self.__HTTPS_verify
-        resp = requests.get(entirequery, headers=head, verify=veri)
+        resp = self.__session.get(entirequery, headers=head, verify=veri)
         self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
 
