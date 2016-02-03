@@ -90,7 +90,7 @@ class PIDClientCredentials(object):
         if len(missing) > 0:
             msg = 'The following item(s) were empty or missing in the'+\
                 ' provided credentials file: '+str(missing)
-            raise CredentialsFormatError(msg)
+            raise CredentialsFormatError(msg=msg)
 
     def __init__(self, handle_server_url, username, password, prefix=None, handleowner=None, **config):
         '''
