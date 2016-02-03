@@ -386,7 +386,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Check desired outcomes
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def test_instantiate_with_credentials_config(self, checkpatch):
         """Test instantiation of client: No exception if password wrong."""
 
@@ -405,7 +405,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         inst = EUDATHandleClient.instantiate_with_credentials(credentials)
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials_config_override(self, getpatch, checkpatch):
         """Test instantiation of client: We pass a config value in the credentials

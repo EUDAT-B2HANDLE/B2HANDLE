@@ -6,6 +6,7 @@ Last updated: 2015-08-26
 
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import CredentialsFormatError
+import util
 import json
 
 class PIDClientCredentials(object):
@@ -104,7 +105,7 @@ class PIDClientCredentials(object):
         :param config: Any key-value pairs added are stored as config.
         :raises: HandleSyntaxError
         '''
-        EUDATHandleClient.check_handle_syntax_with_index(username)
+        util.check_handle_syntax_with_index(username)
         self.__handle_server_url = handle_server_url
         self.__username = username
         self.__password = password
@@ -115,7 +116,7 @@ class PIDClientCredentials(object):
             self.__config = config
 
         if handleowner is not None:
-            EUDATHandleClient.check_handle_syntax_with_index(handleowner)
+            util.check_handle_syntax_with_index(handleowner)
             self.__handleowner = handleowner
 
     def get_username(self):
