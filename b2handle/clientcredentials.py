@@ -186,7 +186,7 @@ class PIDClientCredentials(object):
         # pylint: disable=missing-docstring
         return self.__additional_config
 
-    def get_private_key(self):
+    def get_path_to_private_key(self):
         # pylint: disable=missing-docstring
         return self.__private_key
 
@@ -200,4 +200,4 @@ class PIDClientCredentials(object):
 
     def get_path_to_file_certificate_and_key(self):
         # pylint: disable=missing-docstring
-        return only or self.__certificate_and_key
+        return self.__certificate_and_key

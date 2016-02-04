@@ -286,7 +286,7 @@ class EUDATHandleClient(object):
         '''
         Initialize the client against an HSv8 instance with full read/write
         access.
-
+ 
         :param credentials: A credentials object, see separate class
             PIDClientCredentials.
         :param **config: More key-value pairs may be passed that will be passed
@@ -295,19 +295,24 @@ class EUDATHandleClient(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
         :return: An instance of the client.
         '''
-        user = credentials.get_username()
-        pw = credentials.get_password()
+ 
+        # Combine config passed in JSON file and config passed to this method into one dict
+        # where config passed to the method overrson file.
         additional_config = credentials.get_config()
-
+ 
         if additional_config is not None:
             additional_config.update(**config)
         else:
             additional_config = config
+ 
         inst = EUDATHandleClient(
             credentials.get_server_URL(),
-            username=user,
-            password=pw,
+            username=credentials.get_username(),
+            password=credentials.get_password(),
             handleowner=credentials.get_handleowner(),
+            private_key=credentials.get_path_to_private_key(),
+            certificate_only=credentials.get_path_to_file_certificate_only(),
+            certificate_and_key=credentials.get_path_to_file_certificate_and_key(),
             **additional_config
         )
         return inst
