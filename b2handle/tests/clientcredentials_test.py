@@ -27,54 +27,68 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
         self.url = self.testvalues['url']
         self.user = self.testvalues['user']
         self.handle = self.testvalues['handle']
+        self.prefix = self.testvalues['prefix']
+        self.owner = self.testvalues['handleowner']
         self.randompassword = 'some_random_password_lisjfg8473i84urtf'
+
+    # Test constructor:
 
     def test_credentials_constructor1(self):
         """Test credentials instantiation. No exception occurs if password wrong. """
-        inst = PIDClientCredentials(self.url,
-                                    self.user,
-                                    self.randompassword)
+        inst = PIDClientCredentials(handle_server_url = self.url,
+                                    username = self.user,
+                                    password = self.randompassword)
         self.assertIsInstance(inst, PIDClientCredentials)
 
     def test_credentials_constructor2(self):
         """Test credentials instantiation. No exception occurs if username does not exist. """
-        inst = PIDClientCredentials(self.url,
-                                    '100:not/exist',
-                                    self.randompassword)
+        inst = PIDClientCredentials(handle_server_url = self.url,
+                                    username = '100:not/exist',
+                                    password = self.randompassword)
         self.assertIsInstance(inst, PIDClientCredentials)
 
     def test_credentials_constructor3(self):
         """Test credentials instantiation. No exception occurs if server url does not exist. """
-        inst = PIDClientCredentials('blablabla',
-                                    self.user,
-                                    self.randompassword)
+        inst = PIDClientCredentials(handle_server_url = 'blablabla',
+                                    username = self.user,
+                                    password = self.randompassword)
         self.assertIsInstance(inst, PIDClientCredentials)
 
+    def test_credentials_missing_url(self):
+        """Exception occurs when URL is missing."""
+        with self.assertRaises(CredentialsFormatError):
+            inst = PIDClientCredentials(username = self.user,
+                                        password = self.randompassword)
+
     def test_credentials_constructor4(self):
-        """Test credentials instantiation. No exception occurs if server url does not exist. """
-        inst = PIDClientCredentials('blablabla',
-                                    self.user,
-                                    self.randompassword,
-                                    'myprefix',
-                                    '300:myhandle/owner')
+        """Test credentials instantiation. Prefix and handleowner can be passed. """
+        inst = PIDClientCredentials(handle_server_url = self.url,
+                                    username = self.user,
+                                    password = self.randompassword,
+                                    prefix = self.prefix,
+                                    handleowner = self.owner)
         self.assertIsInstance(inst, PIDClientCredentials)
 
 
     def test_credentials_invalid_username(self):
         """Exception occurs when user name is not index:prefix/suffix."""
         with self.assertRaises(HandleSyntaxError):
-            inst = PIDClientCredentials(self.url,
-                                        self.handle,
-                                        self.randompassword)
+            inst = PIDClientCredentials(handle_server_url = self.url,
+                                        username = self.handle,
+                                        password = self.randompassword)
 
     def test_credentials_invalid_handleowner(self):
         """Exception occurs when handle owner is not index:prefix/suffix."""
         with self.assertRaises(HandleSyntaxError):
-            inst = PIDClientCredentials(self.url,
-                                        self.handle,
-                                        self.randompassword,
-                                        'myprefix',
-                                        '300myhandleowner')
+            inst = PIDClientCredentials(handle_server_url = self.url,
+                                        username = self.handle,
+                                        password = self.randompassword,
+                                        prefix = self.prefix,
+                                        handleowner = '300myhandleowner')
+    
+
+
+    # Read from JSON:
 
     def test_credentials_from_json(self):
         """Test credentials instantiation from JSON file."""
@@ -100,25 +114,11 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
         with self.assertRaises(CredentialsFormatError):
             _inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
 
-
     def test_credentials_from_json_empty_items(self):
         """Exception occurs if items are empty in json credentials file."""
         path_to_json_credentials = PATH_CRED+'/credentials_usernameempty_PUBLIC.json'
         with self.assertRaises(CredentialsFormatError):
             _inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
-
-    def test_getters(self):
-        """Test credentials instantiation from JSON file."""
-        path_to_json_credentials = PATH_CRED+'/credentials_correct_PUBLIC.json'
-        inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
-        jsonfilecontent = json.loads(open(path_to_json_credentials, 'r').read())
-
-        self.assertEqual(inst.get_username(), jsonfilecontent['username'],
-            'Username not the same as in json file.')
-        self.assertEqual(inst.get_password(), jsonfilecontent['password'],
-            'Password not the same as in json file.')
-        self.assertEqual(inst.get_server_URL(), jsonfilecontent['baseuri'],
-            'Server URL not the same as in json file.')
 
     def test_config_from_json(self):
         """Test credentials instantiation from JSON file, with config."""
@@ -133,9 +133,9 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
 
     def test_config_from_init(self):
         """Test credentials instantiation from JSON file, with config."""
-        inst = PIDClientCredentials(self.url,
-                                    self.user,
-                                    self.randompassword,
+        inst = PIDClientCredentials(handle_server_url=self.url,
+                                    username=self.user,
+                                    password=self.randompassword,
                                     foo='bar',
                                     bar='baz')
 
@@ -144,3 +144,23 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
 
         self.assertEqual(inst.get_config()['bar'], 'baz',
             'Config not the same as in json file.')
+
+
+    # Test the getters
+
+    def test_getters(self):
+        """Test credentials instantiation from JSON file."""
+        path_to_json_credentials = PATH_CRED+'/credentials_correct_PUBLIC.json'
+        inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
+        jsonfilecontent = json.loads(open(path_to_json_credentials, 'r').read())
+
+        self.assertEqual(inst.get_username(), jsonfilecontent['username'],
+            'Username not the same as in json file.')
+        self.assertEqual(inst.get_password(), jsonfilecontent['password'],
+            'Password not the same as in json file.')
+        self.assertEqual(inst.get_server_URL(), jsonfilecontent['baseuri'],
+            'Server URL not the same as in json file.')
+        self.assertEqual(inst.get_prefix(), jsonfilecontent['prefix'],
+            'Server URL not the same as in json file.')
+        self.assertEqual(inst.get_handleowner(), jsonfilecontent['handleowner'],
+            'Server URL not the same as in json file.')

@@ -353,9 +353,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Test variables
         testusername_inexistent = '100:john/doe'
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            testusername_inexistent,
-            'some_password')
+            handle_server_url='some/url',
+            username=testusername_inexistent,
+            password='some_password')
 
         # Run code to be tested + check exception:
         # Create instance with credentials
@@ -375,9 +375,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            '100:my/testhandle',
-            'some_password_123')
+            handle_server_url='some/url',
+            username='100:my/testhandle',
+            password='some_password_123')
 
         # Run code to be tested
         # Create instance with credentials

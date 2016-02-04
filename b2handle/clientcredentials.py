@@ -53,23 +53,11 @@ class PIDClientCredentials(object):
         jsonfilecontent = json.loads(open(json_filename, 'r').read())
         PIDClientCredentials.check_credentials_format(jsonfilecontent)
 
-        baseuri = jsonfilecontent.pop('baseuri')
-        username = jsonfilecontent.pop('username')
-        password = jsonfilecontent.pop('password')
-        prefix = None
-        handleowner = None
-        if 'prefix' in jsonfilecontent:
-            prefix = jsonfilecontent.pop('prefix')
-        if 'handleowner' in jsonfilecontent:
-            handleowner = jsonfilecontent.pop('handleowner')
-        instance = PIDClientCredentials(
-            baseuri,
-            username,
-            password,
-            prefix,
-            handleowner,
-            **jsonfilecontent
-        )
+        if 'baseuri' in jsonfilecontent:
+            jsonfilecontent['handle_server_url'] = jsonfilecontent['baseuri']
+            del jsonfilecontent['baseuri']
+
+        instance = PIDClientCredentials(**jsonfilecontent)
         return instance
 
 
@@ -93,7 +81,7 @@ class PIDClientCredentials(object):
                 ' provided credentials file: '+str(missing)
             raise CredentialsFormatError(msg=msg)
 
-    def __init__(self, handle_server_url, username, password, prefix=None, handleowner=None, **config):
+    def __init__(self, **args):
         '''
         Initialize client credentials instance with Handle server url,
             username and password.
@@ -105,19 +93,36 @@ class PIDClientCredentials(object):
         :param config: Any key-value pairs added are stored as config.
         :raises: HandleSyntaxError
         '''
-        util.check_handle_syntax_with_index(username)
-        self.__handle_server_url = handle_server_url
-        self.__username = username
-        self.__password = password
-        self.__prefix = prefix
-        self.__handleowner = handleowner
-        self.__config = None
-        if len(config) > 0:
-            self.__config = config
 
-        if handleowner is not None:
-            util.check_handle_syntax_with_index(handleowner)
-            self.__handleowner = handleowner
+        useful_args = ['username', 'password', 'handle_server_url', 'prefix', 'handleowner']
+        util.add_missing_optional_args_with_value_none(args, useful_args)
+
+        util.check_handle_syntax_with_index(args['username'])
+        self.__handle_server_url = args['handle_server_url']
+        self.__username = args['username']
+        self.__password = args['password']
+        self.__prefix = args['prefix']
+        self.__handleowner = args['handleowner']
+        self.__additional_config = None
+
+        # All the other args collected as "additional config":
+        self.__additional_config = self.__collect_additional_arguments(args, useful_args)
+
+        if self.__handle_server_url is None:
+            raise CredentialsFormatError(msg='No handle server URL provided in the credentials!')
+
+        if self.__handleowner is not None:
+            util.check_handle_syntax_with_index(self.__handleowner)
+
+    def __collect_additional_arguments(self, args, used_args):
+        temp_additional_config = {}
+        for argname in args.keys():
+            if argname not in used_args:
+                temp_additional_config[argname] = args[argname]
+        if len(temp_additional_config) > 0:
+            return temp_additional_config
+        else:
+            return None
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -141,4 +146,4 @@ class PIDClientCredentials(object):
 
     def get_config(self):
         # pylint: disable=missing-docstring
-        return self.__config
+        return self.__additional_config

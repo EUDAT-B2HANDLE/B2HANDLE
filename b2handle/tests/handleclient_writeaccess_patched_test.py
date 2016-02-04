@@ -125,11 +125,11 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         username_check_patch.response_value = True
 
         # Make another connector, to add the handle owner:
-        cred = PIDClientCredentials('http://handle.server',
-                                   '999:user/name',
-                                   'apassword',
-                                   'myprefix',
-                                   '300:handle/owner')
+        cred = PIDClientCredentials(handle_server_url='http://handle.server',
+                                   username='999:user/name',
+                                   password='apassword',
+                                   prefix='myprefix',
+                                   handleowner='300:handle/owner')
         newInst = EUDATHandleClient.instantiate_with_credentials(cred)
 
         # Run the code to be tested:
