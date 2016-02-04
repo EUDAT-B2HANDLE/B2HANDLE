@@ -29,7 +29,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
     # retrieve_handle_record_json:
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_normal(self, getpatch):
         """Test if retrieve_handle_record_json returns the correct things.."""
 
@@ -46,7 +46,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(received, expected,
             'Unexpected return from handle retrieval.')
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_handle_does_not_exist(self, getpatch):
         """Test return value (None) if handle does not exist (retrieve_handle_record_json)."""
 
@@ -62,7 +62,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertIsNone(json_record,
             'The return value should be None if the handle does not exist, not: '+str(json_record))
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_handle_empty(self, getpatch):
         """Test return value if handle is empty (retrieve_handle_record_json)."""
 
@@ -78,7 +78,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertEquals(json_record['responseCode'],200,
             'Unexpected return value: '+str(json_record))
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_genericerror(self, getpatch):
         """Test exception if retrieve_handle_record_json returns a strange HTTP code."""
 
@@ -96,7 +96,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
     # retrieve_handle_record:
 
     #@patch('b2handle.handleclient.EUDATHandleClient._EUDATHandleClient__send_handle_get_request')
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_json_not_given(self, getpatch):
         """Test retrieving a handle record"""
 
@@ -132,7 +132,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(len(dict_record), 4,
             'The record should have a length of 5 (as the duplicate is ignored.')
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_handle_is_wrong(self, getpatch):
         """Test error when retrieving a handle record with contradicting inputs."""
         
@@ -149,7 +149,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(GenericHandleError):
             self.inst.retrieve_handle_record(testhandle)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_handle_is_None(self, getpatch):
         """Test error when retrieving a handle record with a None input."""
 
@@ -160,7 +160,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(HandleSyntaxError):
             self.inst.retrieve_handle_record(testhandle)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_handle_is_wrong(self, getpatch):
         """Test error when retrieving a nonexistent handle record."""
         
@@ -176,7 +176,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertIsNone(hrec,
             'The handle record for a nonexistent handle should be None!')
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_handlerecord_is_None(self, getpatch):
         """Test error when retrieving a handle record, giving a None type."""
 
@@ -215,7 +215,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
     # get_value_from_handle
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_get_value_from_handle_when_handle_inexistent(self, getpatch):
         """Test error when retrieving a handle record, giving a None type."""
         
@@ -233,7 +233,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
     # check if username exists
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_check_if_username_exists_normal(self, getpatch):
         """Test whether username exists."""
 
@@ -251,7 +251,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertTrue(res,
             'The handle exists, so "check_if_username_exists" should return true!')
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_check_if_username_exists_inconsistent_info(self, getpatch):
         """Test exception when contradictory inputs are given."""
     
@@ -267,7 +267,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(GenericHandleError):
             self.inst.check_if_username_exists(testhandle)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_check_if_username_exists_it_doesnot(self, getpatch):
         """Test exception"""
 
@@ -282,7 +282,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(HandleNotFoundException):
             self.inst.check_if_username_exists(testhandle)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_is_10320LOC_empty_handle_does_not_exist(self, getpatch):
         """Test exception"""
 
@@ -297,7 +297,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(HandleNotFoundException):
             self.inst.is_10320LOC_empty(testhandle)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_is_url_contained_in_10320LOC_handle_does_not_exist(self, getpatch):
         """Test exception"""
 
@@ -318,7 +318,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
     # Instantiation
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_username_and_password_wrongpw(self, getpatch):
         
 
@@ -331,7 +331,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_username_and_password_inexistentuser(self, getpatch):
         
         # Define the replacement for the patched method:
@@ -342,7 +342,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
             inst = EUDATHandleClient.instantiate_with_username_and_password(
                 'http://someurl', '100:john/doe', 'passywordy')
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials_inexistentuser(self, getpatch):
         """Test instantiation of client: Exception if username does not exist."""
 
@@ -353,9 +353,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Test variables
         testusername_inexistent = '100:john/doe'
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            testusername_inexistent,
-            'some_password')
+            handle_server_url='some/url',
+            username=testusername_inexistent,
+            password='some_password')
 
         # Run code to be tested + check exception:
         # Create instance with credentials
@@ -365,7 +365,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # If the user name has no index, exception is already thrown in credentials creation!
         #self.assertRaises(HandleSyntaxError, b2handle.PIDClientCredentials, 'url', 'prefix/suffix', randompassword)
 
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials(self, getpatch):
         """Test instantiation of client: No exception if password wrong."""
 
@@ -375,9 +375,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            '100:my/testhandle',
-            'some_password_123')
+            handle_server_url='some/url',
+            username='100:my/testhandle',
+            password='some_password_123')
 
         # Run code to be tested
         # Create instance with credentials
@@ -386,7 +386,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Check desired outcomes
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def test_instantiate_with_credentials_config(self, checkpatch):
         """Test instantiation of client: No exception if password wrong."""
 
@@ -405,8 +405,8 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         inst = EUDATHandleClient.instantiate_with_credentials(credentials)
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
-    @patch('b2handle.handleclient.requests.get')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
+    @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials_config_override(self, getpatch, checkpatch):
         """Test instantiation of client: We pass a config value in the credentials
         and also as an arg in the instantiation. We want the latter to override the

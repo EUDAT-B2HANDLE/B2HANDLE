@@ -7,6 +7,8 @@ Last updates 2015-10-01
 # pylint handleclient_cont.py --method-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --max-line-length=250 --variable-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --attr-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --argument-rgx="[a-z_][a-zA-Z0-9_]{2,30}$"
 
 from handleexceptions import *
+import hsresponses
+from handlesystemconnector import HandleSystemConnector
 import requests
 import urllib
 import json
@@ -17,6 +19,7 @@ import uuid
 import logging
 import re
 import time
+import util
 
 # parameters for debugging
 #LOG_FILENAME = 'example.log'
@@ -81,57 +84,44 @@ class EUDATHandleClient(object):
         LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
             '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
 
-        # All used attributes
-        self.__username = None
-        self.__password = None
+        args['handle_server_url'] = handle_server_url
+
+        # Args that the constructor understands:
+        #self.__username = None # TODO MAY BE USED FOR REVERSE LOOKUP
+        #self.__password = None # TODO MAY BE USED FOR REVERSE LOOKUP
         self.__handleowner = None
-        self.__handle_server_url = None
         self.__HS_ADMIN_permissions = None
         self.__modify_HS_ADMIN = None
         self.__10320LOC_chooseby = None
-        self.__REST_API_url_extension =  None
         self.__HTTPS_verify = None
         self.__allowed_search_keys = None
         self.__reverselookup_baseuri = None
         self.__reverselookup_url_extension = None
         self.__revlookup_auth_string = None
-        self.__HS_auth_string = None
+        #self.__HS_auth_string = None
+
+        # Other attributes:
+        self.__session = requests.Session()
+        self.__handlesystemconnector = HandleSystemConnector(handleclient=self, **args)
 
         # Defaults:
         defaults = {
-            'handle_server_url':'https://hdl.handle.net',
             'HS_ADMIN_permissions':'011111110011', # default from hdl-admintool
-            'REST_API_url_extension': '/api/handles/',
             'allowed_search_keys': ['URL', 'CHECKSUM'],
             'HTTPS_verify': True,
             'reverselookup_url_extension': '/hrls/handles/',
             'modify_HS_ADMIN': False
         }
 
-        # Needed for read and or write access:
 
-        if handle_server_url is None:
-            self.__handle_server_url = defaults['handle_server_url']
-            LOGGER.debug(' - handle_server_url set to default: '+self.__handle_server_url)
-        else:
-            self.__handle_server_url = handle_server_url
-            LOGGER.debug(' - handle_server_url set to '+self.__handle_server_url)
+        self.__store_args_or_set_to_defaults(args, defaults)
+        
 
-        if 'REST_API_url_extension' in args.keys():
-            self.__REST_API_url_extension = args['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to: '+self.__REST_API_url_extension)
-        else:
-            self.__REST_API_url_extension = defaults['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
+        LOGGER.debug(' - (end of initialisation)')
 
-        if 'HTTPS_verify' in args.keys():
-            self.__HTTPS_verify = self.string_to_bool(args['HTTPS_verify'])
-            LOGGER.debug(' - https_verify set to: '+str(self.__HTTPS_verify))
-        else:
-            self.__HTTPS_verify = defaults['HTTPS_verify']
-            LOGGER.debug(' - https_verify set to default: '+str(self.__HTTPS_verify))
+    def __store_args_or_set_to_defaults(self, args, defaults):
 
-        # Needed for write access:
+        # Needed for creating handles:
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__HS_ADMIN_permissions = args['HS_ADMIN_permissions']
@@ -140,11 +130,13 @@ class EUDATHandleClient(object):
             self.__HS_ADMIN_permissions = defaults['HS_ADMIN_permissions']
             LOGGER.debug(' - HS_ADMIN_permissions set to default: '+self.__HS_ADMIN_permissions)
 
+
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
             LOGGER.debug(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
         else:
             LOGGER.debug(' - 10320LOC_chooseby: No default.')
+
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__modify_HS_ADMIN = args['modify_HS_ADMIN']
@@ -153,37 +145,15 @@ class EUDATHandleClient(object):
             self.__modify_HS_ADMIN = defaults['modify_HS_ADMIN']
             LOGGER.debug(' - modify_HS_ADMIN set to default: '+str(self.__modify_HS_ADMIN))
 
-        # Check if user wants write access:
 
-        writeaccess = False
-        if 'username' in args.keys() or 'password' in args.keys():
-            writeaccess = True
-
-        # For write access, username AND pw AND server url must be given!
-
-        if writeaccess:
-            if 'username' in args.keys() and 'password' not in args.keys():
-                raise TypeError('No password given.')
-            if 'password' in args.keys() and 'username' not in args.keys():
-                raise TypeError('No username given.')
-            if handle_server_url is None:
-                raise TypeError('No handle_server_url given.')
-            self.check_handle_syntax_with_index(args['username'])
-            self.check_if_username_exists(args['username'])
-            self.__password = args['password']
-            LOGGER.debug(' - password set.')
-            self.__username = args['username']
-            LOGGER.debug(' - username set to: '+self.__username)
-            self.__set_HS_auth_string(self.__username, self.__password)
-
-            # Handle owner: The user name to be written into HS_ADMIN.
-            # Can be specified in json credentials file (optionally):
-            if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
-                self.__handleowner = args['handleowner']
-                LOGGER.debug(' - handleowner set to: '+self.__handleowner)
-            else:
-                self.__handleowner = None
-                LOGGER.debug(' - handleowner: Will be set to default for each created handle separately.')
+        # Handle owner: The user name to be written into HS_ADMIN.
+        # Can be specified in json credentials file (optionally):
+        if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
+            self.__handleowner = args['handleowner']
+            LOGGER.debug(' - handleowner set to: '+self.__handleowner)
+        else:
+            self.__handleowner = None
+            LOGGER.debug(' - handleowner: Will be set to default for each created handle separately.')
 
         # Needed for reverse lookup:
 
@@ -197,8 +167,8 @@ class EUDATHandleClient(object):
         if 'reverselookup_baseuri' in args.keys():
             self.__reverselookup_baseuri = args['reverselookup_baseuri']
             LOGGER.debug(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
-        elif handle_server_url is not None:
-            self.__reverselookup_baseuri = handle_server_url
+        elif args['handle_server_url'] is not None:
+            self.__reverselookup_baseuri = args['handle_server_url']
             LOGGER.debug(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
         else:
             LOGGER.debug(' - solrbaseurl: No default.')
@@ -219,8 +189,8 @@ class EUDATHandleClient(object):
         if 'reverselookup_username' in args.keys():
             reverselookup_username = args['reverselookup_username']
             LOGGER.debug('" - reverselookup_username set to: '+reverselookup_username)
-        elif self.__username is not None:
-            reverselookup_username = self.__username
+        elif 'username' in args.keys() and args['username'] is not None:
+            reverselookup_username = args['username']
             LOGGER.debug(' - reverselookup_username set to handle server username: '+reverselookup_username)
         else:
             LOGGER.debug(' - reverselookup_username: No default.')
@@ -230,16 +200,16 @@ class EUDATHandleClient(object):
         if 'reverselookup_password' in args.keys():
             reverselookup_password = args['reverselookup_password']
             LOGGER.debug(' - reverselookup_password set.')
-        elif self.__password is not None:
-            reverselookup_password = self.__password
+        elif 'password' in args.keys() and args['password'] is not None:
+            reverselookup_password = args['password']
             LOGGER.debug(' - reverselookup_password set to handle server password.')
         else:
             LOGGER.debug(' - reverselookup_password: No default.')
 
+
         if reverselookup_username is not None and reverselookup_password is not None:
             self.__set_revlookup_auth_string(reverselookup_username, reverselookup_password)
 
-        LOGGER.debug(' - (end of initialisation)')
 
     @staticmethod
     def instantiate_for_read_access(handle_server_url=None, **config):
@@ -359,21 +329,29 @@ class EUDATHandleClient(object):
         '''
         LOGGER.debug('retrieve_handle_record_json...')
 
-        self.check_handle_syntax(handle)
+        util.check_handle_syntax(handle)
         response = self.__send_handle_get_request(handle)
-        if self.handle_not_found(response):
+        if hsresponses.handle_not_found(response):
             return None
-        elif self.does_handle_exist(response):
+        elif hsresponses.does_handle_exist(response):
             handlerecord_json = json.loads(response.content)
             if not handlerecord_json['handle'] == handle:
-                raise GenericHandleError(operation='retrieving handle record', handle=handle, response=response, custom_message='The retrieve returned a different handle than was asked for.')
+                raise GenericHandleError(
+                    operation='retrieving handle record',
+                    handle=handle,
+                    response=response,
+                    custom_message='The retrieve returned a different handle than was asked for.'
+                )
             return handlerecord_json
-        elif self.is_handle_empty(response):
+        elif hsresponses.is_handle_empty(response):
             handlerecord_json = json.loads(response.content)
             return handlerecord_json
         else:
             raise GenericHandleError(
-                'retrieving', handle, response)
+                operation='retrieving',
+                handle=handle,
+                response=response
+            )
 
     def retrieve_handle_record(self, handle, handlerecord_json=None):
         '''
@@ -421,7 +399,7 @@ class EUDATHandleClient(object):
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
-            raise HandleNotFoundException(handle)
+            raise HandleNotFoundException(handle=handle)
         list_of_entries = handlerecord_json['values']
 
         indices = []
@@ -457,7 +435,7 @@ class EUDATHandleClient(object):
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
-            raise HandleNotFoundException(handle)
+            raise HandleNotFoundException(handle=handle)
         list_of_entries = handlerecord_json['values']
 
         num_entries = 0
@@ -495,7 +473,7 @@ class EUDATHandleClient(object):
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
-            raise HandleNotFoundException(handle)
+            raise HandleNotFoundException(handle=handle)
         list_of_entries = handlerecord_json['values']
 
         num_entries = 0
@@ -578,14 +556,17 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot modify unexisting handle'
-            raise HandleNotFoundException(handle, msg)
+            raise HandleNotFoundException(handle=handle, msg=msg)
         list_of_entries = handlerecord_json['values']
 
         # HS_ADMIN
         if 'HS_ADMIN' in kvpairs.keys() and not self.__modify_HS_ADMIN:
             msg = 'You may not modify HS_ADMIN'
             raise IllegalOperationException(
-                msg, 'modifying HS_ADMIN', handle)
+                msg=msg,
+                operation='modifying HS_ADMIN',
+                handle=handle
+            )
 
         nothingchanged = True
         new_list_of_entries = []
@@ -616,7 +597,7 @@ class EUDATHandleClient(object):
                         msg = 'There is several entries of type "'+key+'".'+\
                             ' This can lead to unexpected behaviour.'+\
                             ' Please clean up before modifying the record.'
-                        raise BrokenHandleRecordException(handle, msg)
+                        raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             # If the entry doesn't exist yet, add it:
             if not changed:
@@ -647,16 +628,28 @@ class EUDATHandleClient(object):
                 handle,
                 new_list_of_entries,
                 overwrite=True)
-            if self.handle_success(resp):
+            if hsresponses.handle_success(resp):
                 pass
             elif self.not_authenticated(resp):
                 op = 'modifying handle values'
                 msg = None
-                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
+                raise HandleAuthenticationError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    username=self.__username
+                )
             else:
                 op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
-                raise GenericHandleError(op, handle, resp, msg, put_payload)
+                raise GenericHandleError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    payload=put_payload
+                )
 
     def delete_handle_value(self, handle, key):
         '''
@@ -675,7 +668,7 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot modify unexisting handle'
-            raise HandleNotFoundException(handle, msg)
+            raise HandleNotFoundException(handle=handle, msg=msg)
         list_of_entries = handlerecord_json['values']
 
 
@@ -692,7 +685,7 @@ class EUDATHandleClient(object):
             # filter HS_ADMIN
             if key == 'HS_ADMIN':
                 op = 'deleting "HS_ADMIN"'
-                raise IllegalOperationException(op, handle)
+                raise IllegalOperationException(operation=op, handle=handle)
 
             if key not in keys_done:
                 indices_onekey = self.get_handlerecord_indices_for_key(key, list_of_entries)
@@ -707,7 +700,7 @@ class EUDATHandleClient(object):
 
             # delete and process response:
             resp = self.__send_handle_delete_request(handle, indices)
-            if self.handle_success(resp):
+            if hsresponses.handle_success(resp):
                 LOGGER.debug("delete_handle_value: Deleted handle values "+str(keys)+"of handle "+handle)
                 pass
             elif self.values_not_found(resp):
@@ -715,10 +708,20 @@ class EUDATHandleClient(object):
             elif self.not_authenticated(resp):
                 op = 'deleting "'+str(key)+'"'
                 msg = None
-                raise HandleAuthenticationError(op, handle, resp,msg, self.__username)
+                raise HandleAuthenticationError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    username=self.__username
+                )
             else:
                 op = 'deleting "'+str(keys)+'"'
-                raise GenericHandleError(op, handle, resp)
+                raise GenericHandleError(
+                    operation=op,
+                    handle=handle,
+                    response=resp
+                )
 
     def delete_handle(self, handle, *other):
         '''Delete the handle and its handle record.
@@ -733,7 +736,7 @@ class EUDATHandleClient(object):
 
         LOGGER.debug('delete_handle...')
 
-        EUDATHandleClient.check_handle_syntax(handle)
+        util.check_handle_syntax(handle)
 
         # Safety check. In old epic client, the method could be used for
         # deleting handle values (not entire handle) by specifying more
@@ -745,9 +748,9 @@ class EUDATHandleClient(object):
             raise TypeError(message)
 
         resp = self.__send_handle_delete_request(handle)
-        if self.handle_success(resp):
+        if hsresponses.handle_success(resp):
             LOGGER.info('Handle '+handle+' deleted.')
-        elif self.handle_not_found(resp):
+        elif hsresponses.handle_not_found(resp):
             message = 'delete_handle: Handle '+handle+' did not exist, so'+\
                 ' it could not be deleted.'
             LOGGER.debug(message)
@@ -769,7 +772,11 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot exchange URLs in unexisting handle'
-            raise HandleNotFoundException(handle, msg, resp)
+            raise HandleNotFoundException(
+                handle=handle,
+                msg=msg,
+                response=resp
+            )
         list_of_entries = handlerecord_json['values']
 
         if not self.is_URL_contained_in_10320LOC(handle, old, handlerecord_json):
@@ -784,16 +791,28 @@ class EUDATHandleClient(object):
             )
             # TODO FIXME (one day): Implement overwriting by index (less risky),
             # once HS have fixed the issue with the indices.
-            if self.handle_success(resp):
+            if hsresponses.handle_success(resp):
                 pass
             elif self.not_authenticated(resp):
                 msg = 'Could not exchange URLs '+str(urls)
                 op = 'exchanging URLs'
-                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
+                raise HandleAuthenticationError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    username=self.__username
+                )
             else:
                 op = 'exchanging "'+str(urls)+'"'
                 msg = None
-                raise GenericHandleError(op, handle, resp, msg, put_payload)
+                raise GenericHandleError(
+                    operation=op,
+                    handle=handle,
+                    reponse=resp,
+                    msg=msg,
+                    payload=put_payload
+                )
 
     def add_additional_URL(self, handle, *urls, **attributes):
         '''
@@ -816,7 +835,7 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot add URLS to unexisting handle!'
-            raise HandleNotFoundException(handle, msg)
+            raise HandleNotFoundException(handle=handle, msg=msg)
         list_of_entries = handlerecord_json['values']
 
         is_new = False
@@ -834,16 +853,29 @@ class EUDATHandleClient(object):
             resp, put_payload = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
             # TODO FIXME (one day) Overwrite by index.
 
-            if self.handle_success(resp):
+            if hsresponses.handle_success(resp):
                 pass
             elif self.not_authenticated(resp):
                 msg = 'Could not add URLs '+str(urls)
                 op = 'adding URLs'
-                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
+                raise HandleAuthenticationError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    username=self.__username
+                )
+
             else:
                 op = 'adding "'+str(urls)+'"'
                 msg = None
-                raise GenericHandleError(op, handle, resp, msg, put_payload)
+                raise GenericHandleError(
+                    operation=op,
+                    handle=handle,
+                    reponse=resp,
+                    msg=msg,
+                    payload=put_payload
+                )
 
     def remove_additional_URL(self, handle, *urls):
         '''
@@ -861,7 +893,7 @@ class EUDATHandleClient(object):
         handlerecord_json = self.retrieve_handle_record_json(handle)
         if handlerecord_json is None:
             msg = 'Cannot remove URLs from unexisting handle'
-            raise HandleNotFoundException(handle, msg)
+            raise HandleNotFoundException(handle=handle, msg=msg)
         list_of_entries = handlerecord_json['values']
 
         for url in urls:
@@ -875,16 +907,28 @@ class EUDATHandleClient(object):
         )
         # TODO FIXME (one day): Implement overwriting by index (less risky),
         # once HS have fixed the issue with the indices.
-        if self.handle_success(resp):
+        if hsresponses.handle_success(resp):
             pass
         elif self.not_authenticated(resp):
             msg = 'Could not remove URLs '+str(urls)
             op = 'removing URLs'
-            raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
+            raise HandleAuthenticationError(
+                operation=op,
+                handle=handle,
+                response=resp,
+                msg=msg,
+                username=self.__username
+            )
         else:
             op = 'removing "'+str(urls)+'"'
             msg = None
-            raise GenericHandleError(op, handle, resp, msg, put_payload)
+            raise GenericHandleError(
+                operation=op,
+                handle=handle,
+                reponse=resp,
+                msg=msg,
+                payload=put_payload
+            )
 
     def register_handle(self, handle, location, checksum=None, additional_URLs=None, overwrite=False, **extratypes):
         '''
@@ -914,16 +958,10 @@ class EUDATHandleClient(object):
             handlerecord_json = self.retrieve_handle_record_json(handle)
             if handlerecord_json is not None:
                 msg = 'Could not register handle'
-                raise HandleAlreadyExistsException(handle, msg)
+                raise HandleAlreadyExistsException(handle=handle, msg=msg)
 
         # Create admin entry
         list_of_entries = []
-        if not self.__username:
-            op = 'creating handle without username'
-            msg = 'No username specified. Can not create'+\
-                  ' handle without username. Please'+\
-                  ' instantiate the client with a username.'
-            raise IllegalOperationException(op, handle, msg)
         adminentry = self.__create_admin_entry(
             self.__handleowner,
             self.__HS_ADMIN_permissions,
@@ -965,7 +1003,7 @@ class EUDATHandleClient(object):
             overwrite=overwrite
         )
 
-        if self.was_handle_created(resp) or self.handle_success(resp):
+        if hsresponses.was_handle_created(resp) or hsresponses.handle_success(resp):
             LOGGER.info("Handle "+handle+" registered.")
             return json.loads(resp.content)['handle']
         else:
@@ -973,11 +1011,23 @@ class EUDATHandleClient(object):
                 op = 'registering handle'
                 msg = None
                 resp = None
-                raise HandleAuthenticationError(op, handle, resp, msg, self.__username)
+                raise HandleAuthenticationError(
+                    operation=op,
+                    handle=handle,
+                    response=resp,
+                    msg=msg,
+                    username=self.__username
+                )
             else:
                 op = 'registering handle'
                 msg = None
-                raise GenericHandleError(op, handle, resp, msg, put_payload)
+                raise GenericHandleError(
+                    operation=op,
+                    handle=handle,
+                    reponse=resp,
+                    msg=msg,
+                    payload=put_payload
+                )
 
     # No HS access:
 
@@ -1018,7 +1068,7 @@ class EUDATHandleClient(object):
             LOGGER.debug('search_handle: No key value pair was specified.')
             msg = 'No search terms have been specified. Please specify'+\
                 ' at least one key-value-pair.'
-            raise ReverseLookupException(msg)
+            raise ReverseLookupException(msg=msg)
 
         kvpairs = copy.deepcopy(key_value_pairs)
         if URL is not None:
@@ -1035,7 +1085,7 @@ class EUDATHandleClient(object):
 
         if query is None:
             msg = 'No search query was specified'
-            raise ReverseLookupException(msg)
+            raise ReverseLookupException(msg=msg)
 
         resp = self.__send_revlookup_get_request(query)
 
@@ -1045,14 +1095,14 @@ class EUDATHandleClient(object):
         if match is not None:
             undefined_field = resp.content.split('undefined field ')[1]
             msg = 'Tried to search in undefined field "'+undefined_field+'"..'
-            raise ReverseLookupException(msg, query, resp)
+            raise ReverseLookupException(msg=msg, query=query, response=resp)
 
         if resp.status_code == 200:
             try:
                 list_of_handles = json.loads(resp.content)
             except ValueError:
                 msg = 'The response is not JSON.'
-                raise ReverseLookupException(msg, query, resp)
+                raise ReverseLookupException(msg=msg, query=query, response=resp)
 
         elif resp.status_code == 401:
             msg = 'Authentication failed.'
@@ -1063,17 +1113,17 @@ class EUDATHandleClient(object):
                     ' password separately when instantiating the client')
             else:
                 msg +=' You need to specify a username and password to search'
-            raise ReverseLookupException(msg, query, resp)
+            raise ReverseLookupException(msg=msg, query=query, response=resp)
         elif resp.status_code == 404:
             msg = 'Wrong search servlet URL ('+resp.request.url+')'
             rx = 'The handle you requested.+cannot be found'
             match = re.compile(rx, re.DOTALL).search(str(resp.content))
             if match is not None:
                 msg += '. It seems you reached a Handle Server'
-            raise ReverseLookupException(msg, query, resp)
+            raise ReverseLookupException(msg=msg, query=query, response=resp)
 
         else:
-            raise ReverseLookupException(None, query, resp)
+            raise ReverseLookupException(query=query, response=resp)
 
         # Filter prefixes:
         # TODO QUESTION to Robert: Is this the desired behaviour?
@@ -1108,149 +1158,6 @@ class EUDATHandleClient(object):
             return str(randomuuid)
 
     # Other public methods
-
-    def make_handle_URL(self, handle, indices=None, overwrite=None, other_url=None):
-        '''
-        Create the URL for a HTTP request (URL + query string) to request
-        a specific handle from the Handle Server.
-
-        :param handle: The handle to access.
-        :param indices: Optional. A list of integers or strings. Indices of
-            the handle record entries to read or write. Defaults to None.
-        :param overwrite: Optional. If set, an overwrite flag will be appended
-            to the URL (?overwrite=true or ?overwrite=false). If not set, no
-            flag is set, thus the Handle Server's default behaviour will be
-            used. Defaults to None.
-        :param other_url: Optional. If a different Handle Server URL than the
-            one specified in the constructor should be used. Defaults to None.
-            If set, it should be set including the URL extension,
-            e.g. '/api/handles/'.
-        :return: The complete URL, e.g.
-         'http://some.handle.server/api/handles/prefix/suffix?index=2&index=6&overwrite=false
-        '''
-        LOGGER.debug('make_handle_URL...')
-
-        if other_url is not None:
-            url = other_url
-        else:
-            url = self.__handle_server_url.strip('/') +'/'+\
-                self.__REST_API_url_extension.strip('/')
-        url = url.strip('/')+'/'+ handle
-
-        if indices is None:
-            indices = []
-        if len(indices) > 0:
-            url = url+'?'
-            for index in indices:
-                url = url+'&index='+str(index)
-
-        if overwrite is not None:
-            if overwrite:
-                url = url+'?&overwrite=true'
-            else:
-                url = url+'?&overwrite=false'
-
-        url = url.replace('?&', '?')
-        return url
-
-    @staticmethod
-    def check_handle_syntax(string):
-        '''
-        Checks the syntax of a handle without an index (are prefix and suffix
-        there, are there too many slashes).
-
-        :string: The handle without index, as string prefix/suffix.
-        :raise: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
-        :return: True. If it's not ok, exceptions are raised.
-
-        '''
-
-        LOGGER.debug('check_handle_syntax...')
-
-        expected = 'prefix/suffix'
-
-        try:
-            arr = string.split('/')
-        except AttributeError:
-            raise HandleSyntaxError(custom_message='The provided handle is None.', expected_syntax=expected)
-
-        if len(arr) > 2:
-            msg = 'Too many slashes'
-            raise HandleSyntaxError(msg, string, expected)
-        elif len(arr) < 2:
-            msg = 'No slash'
-            raise HandleSyntaxError(msg, string, expected)
-
-        if len(arr[0]) == 0:
-            msg = 'Empty prefix'
-            raise HandleSyntaxError(msg, string, expected)
-
-        if len(arr[1]) == 0:
-            msg = 'Empty suffix'
-            raise HandleSyntaxError(msg, string, expected)
-
-        if ':' in string:
-            EUDATHandleClient.check_handle_syntax_with_index(string, base_already_checked=True)
-
-        return True
-
-    @staticmethod
-    def check_handle_syntax_with_index(string, base_already_checked=False):
-        '''
-        Checks the syntax of a handle with an index (is index there, is it an
-        integer), and of the handle itself.
-        
-        :string: The handle with index, as string index:prefix/suffix.
-        :raise: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
-        :return: True. If it's not ok, exceptions are raised.
-        '''
-
-        LOGGER.debug('check_handle_syntax_with_index...')
-
-        expected = 'index:prefix/suffix'
-        try:
-            arr = string.split(':')
-        except AttributeError:
-            raise HandleSyntaxError(custom_message='The provided handle is None.', expected_syntax=expected)
-
-        if len(arr) > 2:
-            msg = 'Too many colons'
-            raise HandleSyntaxError(msg, string, expected)
-        elif len(arr) < 2:
-            msg = 'No colon'
-            raise HandleSyntaxError(msg, string, expected)
-        try:
-            int(arr[0])
-        except ValueError:
-            msg = 'Index is not an integer'
-            raise HandleSyntaxError(msg, string, expected)
-
-        if not base_already_checked:
-            EUDATHandleClient.check_handle_syntax(string)
-        return True
-
-    @staticmethod
-    def remove_index(handle_with_index):
-        '''
-        Returns index and handle separately, in a tuple.
-
-        :param handle_with_index: The handle string with an index (e.g.
-            500:prefix/suffix)
-        :return: index and handle as a tuple.
-        '''
-
-        LOGGER.debug('remove_index...')
-
-        split = handle_with_index.split(':')
-        if len(split) == 2:
-            return split
-        elif len(split) == 1:
-            return (None, handle_with_index)
-        elif len(split) > 2:
-            raise HandleSyntaxError(
-                custom_message='Too many colons',
-                handle=handle_with_index,
-                expected_syntax='index:prefix/suffix')
 
     def get_handlerecord_indices_for_key(self, key, list_of_entries):
         '''
@@ -1310,23 +1217,7 @@ class EUDATHandleClient(object):
         validity of the index is not checked, because entries containing
         a key are hidden anyway.
         '''
-        LOGGER.debug('check_if_username_exists...')
-
-        _, handle = self.remove_index(username)
-
-        resp = self.__send_handle_get_request(handle)
-        if self.does_handle_exist(resp):
-            handlerecord_json = json.loads(resp.content)
-            if not handlerecord_json['handle'] == handle:
-                raise GenericHandleError(operation='Checking if username exists', handle=handle, response=resp, custom_message='The check returned a different handle than was asked for.')
-            return True
-        elif self.handle_not_found(resp):
-            msg = 'The username handle does not exist'
-            raise HandleNotFoundException(handle, msg, resp)
-        else:
-            op = 'checking if handle exists'
-            msg = 'Checking if username exists went wrong'
-            raise GenericHandleError(op, handle, resp, msg)
+        return self.__handlesystemconnector.check_if_username_exists(username)
 
     def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
         '''
@@ -1361,7 +1252,7 @@ class EUDATHandleClient(object):
             msg = 'Full-text search is not implemented yet.'+\
                 ' The provided searchterms '+str(fulltext_searchterms)+\
                 ' can not be used.'
-            raise ReverseLookupException(msg)
+            raise ReverseLookupException(msg=msg)
 
         keyvalue_searchterms_given = True
         if len(keyvalue_searchterms) == 0:
@@ -1373,7 +1264,7 @@ class EUDATHandleClient(object):
         if not keyvalue_searchterms_given and not fulltext_searchterms_given:
             msg = 'No search terms have been specified. Please specify'+\
                 ' at least one key-value-pair.'
-            raise ReverseLookupException(msg)
+            raise ReverseLookupException(msg=msg)
 
         counter = 0
         query = '?'
@@ -1382,7 +1273,7 @@ class EUDATHandleClient(object):
             if only_search_for_allowed_keys and key not in allowed_search_keys:
                 msg = 'Cannot search for key "'+key+'". Only searches '+\
                     'for keys '+str(allowed_search_keys)+' are implemented.'
-                raise ReverseLookupException(msg)
+                raise ReverseLookupException(msg=msg)
             else:
                 query = query+'&'+key+'='+value
                 counter += 1
@@ -1391,51 +1282,8 @@ class EUDATHandleClient(object):
         LOGGER.debug('create_revlookup_query: query: '+query)
         if counter == 0: # unreachable?
             msg = 'No valid search terms have been specified.'
-            raise ReverseLookupException(msg)
+            raise ReverseLookupException(msg=msg)
         return query
-
-    # Handling responses (TODO improve):
-
-    def handle_success(self, response):
-        if response.status_code == 200 and json.loads(response.content)["responseCode"] == 1:
-            return True
-        return False
-
-    def does_handle_exist(self, response):
-        if self.handle_success(response):
-            return True
-        return False
-
-    def is_handle_empty(self, response):
-        if response.status_code == 200 and json.loads(response.content)["responseCode"] == 200:
-            return True
-        return False
-
-    def was_handle_created(self, response):
-        if response.status_code == 201 and json.loads(response.content)["responseCode"] == 1:
-            return True
-        return False
-
-    def handle_not_found(self, response):
-        if response.status_code == 404 and json.loads(response.content)["responseCode"] == 100:
-            return True
-        return False
-
-    def not_authenticated(self, response):
-        if response.status_code == 401 or json.loads(response.content)["responseCode"] == 402:
-            # need to put 'OR' because the HS responseCode is not always received!
-            return True
-        return False
-
-    def values_not_found(self, response):
-        if response.status_code == 400 and json.loads(response.content)["responseCode"] == 200:
-            return True
-        return False
-
-    def handle_already_exists(self, response):
-        if response.status_code == 409 & json.loads(response.content)["responseCode"] == 101:
-            return True
-        return False
 
     # Private methods:
 
@@ -1458,16 +1306,17 @@ class EUDATHandleClient(object):
             head = {'Accept': accept}
         elif action is 'PUT':
             if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(custom_message='Could not '+\
+                raise HandleAuthenticationError(msg='Could not '+\
                     'create header for PUT request, no authentication string '+\
                     'for Handle System set.', username=self.__username)
             head = {'Content-Type': content_type,
                     'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'DELETE':
             if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(custom_message='Could not '+\
-                    'create header for PUT request, no authentication string '+\
-                    'for Handle System set.', username=self.__username)
+                raise HandleAuthenticationError(
+                    msg='Could not create header for PUT request, '+\
+                    'no authentication string for Handle System set.',
+                    username=self.__username)
             head = {'Authorization': 'Basic ' + self.__HS_auth_string}
         elif action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
@@ -1488,17 +1337,7 @@ class EUDATHandleClient(object):
         :return: The server's response.
         '''
 
-        url = self.make_handle_URL(handle, indices)
-        if indices is not None and len(indices) > 0:
-            LOGGER.debug('__send_handle_delete_request: Deleting values '+str(indices)+' from handle '+handle+'.')
-        else:
-            LOGGER.debug('__send_handle_delete_request: Deleting handle '+handle+'.')
-        LOGGER.debug('DELETE Request to '+url)
-        head = self.__get_headers('DELETE')
- 
-        veri = self.__HTTPS_verify
-        resp = requests.delete(url, headers=head, verify=veri)
-        self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
+        resp = self.__handlesystemconnector.send_handle_delete_request(handle, indices)
         return resp
 
     def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
@@ -1517,28 +1356,8 @@ class EUDATHandleClient(object):
          if it exists already.
         :return: The server's response.
         '''
-        payload = json.dumps({'values':list_of_entries})
 
-        if indices is not None:
-            message = 'Writing handle values by index is not implemented'+\
-                ' yet because the way the indices are interpreted by the'+\
-                ' Handle Server may be modified soon. The entire handle'+\
-                ' record has to be overwritten.'
-            raise NotImplementedError(message)
-            # TODO FIXME: As soon as the Handle System uses the correct indices
-            # for overwriting, this may be implemented.
-            # In HSv8 beta, the HS uses ?index=3 for overwriting index:4. If the
-            # library used this and then the behaviour is changed, it would lead
-            # to corrupt handle records, so we wait until the issue is fixed by
-            # the Handle System.
-
-        url = self.make_handle_URL(handle, overwrite=overwrite)
-        LOGGER.debug('PUT Request to '+url)
-        LOGGER.debug('PUT Request payload: '+payload)
-        head = self.__get_headers('PUT')
-        veri = self.__HTTPS_verify
-        resp = requests.put(url, data=payload, headers=head, verify=veri)
-        self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
+        resp, payload = self.__handlesystemconnector.send_handle_put_request(handle, list_of_entries, indices, overwrite)
         return resp, payload
 
     def __send_handle_get_request(self, handle, indices=None):
@@ -1554,12 +1373,7 @@ class EUDATHandleClient(object):
         :return: The server's response.
         '''
 
-        url = self.make_handle_URL(handle, indices)
-        LOGGER.debug('GET Request to '+url)
-        head = self.__get_headers('GET')
-        veri = self.__HTTPS_verify
-        resp = requests.get(url, headers=head, verify=veri)
-        self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
+        resp = self.__handlesystemconnector.send_handle_get_request(handle, indices)
         return resp
 
     def __send_revlookup_get_request(self, query):
@@ -1569,7 +1383,7 @@ class EUDATHandleClient(object):
 
         head = self.__get_headers('SEARCH')
         veri = self.__HTTPS_verify
-        resp = requests.get(entirequery, headers=head, verify=veri)
+        resp = self.__session.get(entirequery, headers=head, verify=veri)
         self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
         return resp
 
@@ -1672,7 +1486,7 @@ class EUDATHandleClient(object):
         if entrytype == 'HS_ADMIN':
             op = 'creating HS_ADMIN entry'
             msg = 'This method can not create HS_ADMIN entries.'
-            raise IllegalOperationException(op, None, msg)
+            raise IllegalOperationException(operation=op, msg=msg)
 
         entry = {'index':index, 'type':entrytype, 'data':data}
 
@@ -1707,7 +1521,7 @@ class EUDATHandleClient(object):
             prefix = handle.split('/')[0]
             adminhandle = '0.NA/'+prefix
         else:
-            adminindex, adminhandle = self.remove_index(handleowner)
+            adminindex, adminhandle = util.remove_index_from_handle(handleowner)
     
         data = {
             'value':{
@@ -1767,7 +1581,7 @@ class EUDATHandleClient(object):
 
             if len(python_indices) > 1:
                 msg = str(len(python_indices))+' entries of type "10320/LOC".'
-                raise BrokenHandleRecordException(handle, msg)
+                raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             for index in python_indices:
                 entry = list_of_entries.pop(index)
@@ -1816,7 +1630,7 @@ class EUDATHandleClient(object):
 
             if len(python_indices) > 1:
                 msg = str(len(python_indices))+' entries of type "10320/LOC".'
-                raise BrokenHandleRecordException(handle, msg)
+                raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             for index in python_indices:
                 entry = list_of_entries.pop(index)
@@ -1885,7 +1699,7 @@ class EUDATHandleClient(object):
         else:
             if len(indices) > 1:
                 msg = 'There is '+str(len(indices))+' 10320/LOC entries.'
-                raise BrokenHandleRecordException(handle, msg)
+                raise BrokenHandleRecordException(handle=handle, msg=msg)
             ind = indices[0]
             entry = list_of_entries.pop(ind)
 
