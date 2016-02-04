@@ -87,7 +87,7 @@ class HandleSystemConnector(object):
             LOGGER.debug(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
 
 
-        if args['HTTPS_verify']:
+        if args['HTTPS_verify'] is not None:
             self.__HTTPS_verify = self.__string_to_bool(args['HTTPS_verify'])
             LOGGER.debug(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
