@@ -8,7 +8,7 @@ else:
 import json
 sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
-from b2handle.handleexceptions import HandleSyntaxError
+from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError
 from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
 
 class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
@@ -21,8 +21,7 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
         pass
 
 
-
-# make_handle_url
+    # make_handle_url
 
     def test_make_handle_url(self):
 
@@ -80,3 +79,51 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
             'Index specified in URL: '+url)
         #self.assertIn('overwrite=false', url,
         #    'overwrite=false is missing: '+url)
+
+    # Initiating:
+
+    def test_init_cert_onefile(self):
+
+        inst = connector.HandleSystemConnector(
+            certificate_and_key='./testcredentials/fake_certi_and_bothkeys.pem',
+            handle_server_url='http://foo.com'
+        )
+        self.assertIsInstance(inst, connector.HandleSystemConnector)
+
+    def test_init_cert_twofiles(self):
+
+        inst = connector.HandleSystemConnector(
+            certificate_only='./testcredentials/fake_certi_and_bothkeys.pem',
+            private_key='./testcredentials/fake_privatekey.pem',
+            handle_server_url='http://foo.com'
+        )
+        self.assertIsInstance(inst, connector.HandleSystemConnector)
+
+    def test_init_cert_serverurl_missing(self):
+
+        with self.assertRaises(TypeError):
+            inst = connector.HandleSystemConnector(certificate_and_key='/testcredentials/fake_certi_and_bothkeys.pem')
+        
+    def test_init_privatekey_missing(self):
+
+        inst = connector.HandleSystemConnector(
+            certificate_only='./testcredentials/fake_certi_and_bothkeys.pem',
+            handle_server_url='http://foo.com'
+        )
+        self.assertIsInstance(inst, connector.HandleSystemConnector)
+
+    def test_init_certificate_missing(self):
+
+        inst = connector.HandleSystemConnector(
+            handle_server_url='http://foo.com',
+            private_key='./testcredentials/fake_privatekey.pem'
+        )
+        self.assertIsInstance(inst, connector.HandleSystemConnector)
+
+    def test_init_cert_onefile_wrongpath(self):
+
+        with self.assertRaises(CredentialsFormatError):
+            inst = connector.HandleSystemConnector(
+                certificate_and_key='./testcredentials/noexist.pem',
+                handle_server_url='http://foo.com'
+            )

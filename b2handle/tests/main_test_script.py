@@ -12,6 +12,7 @@ from handleclient_writeaccess_patched_test import EUDATHandleClientWriteaccessPa
 from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccessFaked10320LOCTestCase
 from clientcredentials_test import PIDClientCredentialsTestCase
 from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
+from handleconnector_writeaccess_patched_test import EUDATHandleConnectorWriteaccessPatchedTestCase
 
 # Integration tests:
 # Imports below!
@@ -132,6 +133,12 @@ if __name__ == '__main__':
         n=patched_write.countTestCases()
         numtests += n
         print 'Number of tests for patched write access:\t\t\t\t\t'+str(n)
+
+        patched_write_conn = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorWriteaccessPatchedTestCase)
+        tests_to_run.append(patched_write_conn)
+        n=patched_write_conn.countTestCases()
+        numtests += n
+        print 'Number of tests for patched write access (connector):\t\t\t\t\t'+str(n)
 
 
     if read_access:
