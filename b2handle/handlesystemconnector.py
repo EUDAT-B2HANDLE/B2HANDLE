@@ -26,6 +26,11 @@ class HandleSystemConnector(object):
     
     def __init__(self, **args):
 
+        LOGGER.debug('Instantiating handle system connector.')
+        for argname in args:
+            if args[argname]:
+                LOGGER.debug('Param '+argname+'='+str(args[argname]))
+
         # Possible arguments:
         optional_args = ['handle_server_url', 'REST_API_url_extension','HTTPS_verify','username', 'password', 'private_key', 'certificate_only','certificate_and_key']
         util.add_missing_optional_args_with_value_none(args, optional_args)
@@ -64,63 +69,68 @@ class HandleSystemConnector(object):
         if self.__check_if_write_access(args):
             self.__setup_for_writeaccess(args)
 
+        LOGGER.debug('End of instantiation of the handle system connector.')
+
 
     # Helpers for init method:
 
     def __store_args_or_set_to_defaults(self, args, defaults):
 
+        LOGGER.debug('Setting the attributes:')
+
         # Useful for read and write:
 
         if args['handle_server_url']:
             self.__handle_server_url = args['handle_server_url']
-            LOGGER.debug(' - handle_server_url set to '+self.__handle_server_url)
+            LOGGER.info(' - handle_server_url set to '+self.__handle_server_url)
         else:
             self.__handle_server_url = defaults['handle_server_url']
-            LOGGER.debug(' - handle_server_url set to default: '+self.__handle_server_url)
+            LOGGER.info(' - handle_server_url set to default: '+self.__handle_server_url)
 
 
         if args['REST_API_url_extension']:
             self.__REST_API_url_extension = args['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to: '+self.__REST_API_url_extension)
+            LOGGER.info(' - url_extension_REST_API set to: '+self.__REST_API_url_extension)
         else:
             self.__REST_API_url_extension = defaults['REST_API_url_extension']
-            LOGGER.debug(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
+            LOGGER.info(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
 
 
         if args['HTTPS_verify'] is not None:
             self.__HTTPS_verify = self.__string_to_bool(args['HTTPS_verify'])
-            LOGGER.debug(' - https_verify set to: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
-            LOGGER.debug(' - https_verify set to default: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to default: '+str(self.__HTTPS_verify))
 
 
         # Useful for write:
 
         if args['password']:
             self.__password = args['password']
-            LOGGER.debug(' - password set.')
+            LOGGER.info(' - password set.')
 
         if args['username']:
             self.__username = args['username']
-            LOGGER.debug(' - username set to: '+self.__username)
+            LOGGER.info(' - username set to: '+self.__username)
 
         if args['certificate_only']:
             self.__certificate_only = args['certificate_only']
-            LOGGER.debug(' - certificate_only set to: '+str(self.__certificate_only))
+            LOGGER.info(' - certificate_only set to: '+str(self.__certificate_only))
 
         if args['private_key']:
             self.__private_key = args['private_key']
-            LOGGER.debug(' - private_key set to: '+str(self.__private_key))
+            LOGGER.info(' - private_key set to: '+str(self.__private_key))
 
         if args['certificate_and_key']:
             self.__certificate_and_key = args['certificate_and_key']
-            LOGGER.debug(' - certificate_and_key set to: '+str(self.__certificate_and_key))
+            LOGGER.info(' - certificate_and_key set to: '+str(self.__certificate_and_key))
 
     def __check_if_write_access(self, args):
         write_access_argnames = ['username', 'password', 'certificate_only', 'private_key', 'certificate_and_key']
         for argname in write_access_argnames:
             if argname in args.keys() and args[argname] is not None:
+                LOGGER.debug('Connector got argument "'+argname+'", so write access is desired.')
                 return True
         return False
 
@@ -201,7 +211,10 @@ class HandleSystemConnector(object):
             elif self.__private_key is None and not self.__certificate_only is None:
                 msg += '.\nA private key was provided, but no client certificate'
             self.__no_auth_message = msg
+            LOGGER.debug(msg)
             self.__has_write_access = False
+        else:
+            LOGGER.debug('Authentication method: '+authentication_method)
 
         return authentication_method
 
@@ -340,7 +353,6 @@ class HandleSystemConnector(object):
         else:
             raise HandleAuthenticationError(msg=self.__no_auth_message)
         return resp
-
 
     def check_if_username_exists(self, username):
         '''

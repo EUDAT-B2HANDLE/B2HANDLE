@@ -19,6 +19,7 @@ import uuid
 import logging
 import re
 import time
+import datetime
 import util
 
 # parameters for debugging
@@ -81,7 +82,8 @@ class EUDATHandleClient(object):
             Defaults to '/hrls/handles/'
         '''
 
-        LOGGER.debug('\n'+60*'*'+'\nInstantialisation with these params:'+\
+        LOGGER.info('Instantiation at '+datetime.datetime.now().strftime('%Y-%m-%d_%H:%M'))
+        LOGGER.debug('\n'+60*'*'+'\nInstantiation with these params:'+\
             '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
 
         args['handle_server_url'] = handle_server_url
@@ -125,60 +127,60 @@ class EUDATHandleClient(object):
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__HS_ADMIN_permissions = args['HS_ADMIN_permissions']
-            LOGGER.debug(' - HS_ADMIN_permissions set to: '+self.__HS_ADMIN_permissions)
+            LOGGER.info(' - HS_ADMIN_permissions set to: '+self.__HS_ADMIN_permissions)
         else:
             self.__HS_ADMIN_permissions = defaults['HS_ADMIN_permissions']
-            LOGGER.debug(' - HS_ADMIN_permissions set to default: '+self.__HS_ADMIN_permissions)
+            LOGGER.info(' - HS_ADMIN_permissions set to default: '+self.__HS_ADMIN_permissions)
 
 
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
-            LOGGER.debug(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
+            LOGGER.info(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
         else:
-            LOGGER.debug(' - 10320LOC_chooseby: No default.')
+            LOGGER.info(' - 10320LOC_chooseby: No default.')
 
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__modify_HS_ADMIN = args['modify_HS_ADMIN']
-            LOGGER.debug(' - modify_HS_ADMIN set to: '+str(self.__modify_HS_ADMIN))
+            LOGGER.info(' - modify_HS_ADMIN set to: '+str(self.__modify_HS_ADMIN))
         else:
             self.__modify_HS_ADMIN = defaults['modify_HS_ADMIN']
-            LOGGER.debug(' - modify_HS_ADMIN set to default: '+str(self.__modify_HS_ADMIN))
+            LOGGER.info(' - modify_HS_ADMIN set to default: '+str(self.__modify_HS_ADMIN))
 
 
         # Handle owner: The user name to be written into HS_ADMIN.
         # Can be specified in json credentials file (optionally):
         if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
             self.__handleowner = args['handleowner']
-            LOGGER.debug(' - handleowner set to: '+self.__handleowner)
+            LOGGER.info(' - handleowner set to: '+self.__handleowner)
         else:
             self.__handleowner = None
-            LOGGER.debug(' - handleowner: Will be set to default for each created handle separately.')
+            LOGGER.info(' - handleowner: Will be set to default for each created handle separately.')
 
         # Needed for reverse lookup:
 
         if 'allowed_search_keys' in args.keys():
             self.__allowed_search_keys = args['allowed_search_keys']
-            LOGGER.debug(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
+            LOGGER.info(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
         else:
             self.__allowed_search_keys = defaults['allowed_search_keys']
-            LOGGER.debug(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
+            LOGGER.info(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
 
         if 'reverselookup_baseuri' in args.keys():
             self.__reverselookup_baseuri = args['reverselookup_baseuri']
-            LOGGER.debug(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
+            LOGGER.info(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
         elif args['handle_server_url'] is not None:
             self.__reverselookup_baseuri = args['handle_server_url']
-            LOGGER.debug(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
+            LOGGER.info(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
         else:
-            LOGGER.debug(' - solrbaseurl: No default.')
+            LOGGER.info(' - solrbaseurl: No default.')
 
         if 'reverselookup_url_extension' in args.keys():
             self.__reverselookup_url_extension = args['reverselookup_url_extension']
-            LOGGER.debug(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
+            LOGGER.info(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
         else:
             self.__reverselookup_url_extension = defaults['reverselookup_url_extension']
-            LOGGER.debug(' - reverselookup_url_extension set to default: '+self.__reverselookup_url_extension)
+            LOGGER.info(' - reverselookup_url_extension set to default: '+self.__reverselookup_url_extension)
 
         # Authentication reverse lookup:
         #   If specified, use it.
@@ -188,28 +190,30 @@ class EUDATHandleClient(object):
         reverselookup_username = None
         if 'reverselookup_username' in args.keys():
             reverselookup_username = args['reverselookup_username']
-            LOGGER.debug('" - reverselookup_username set to: '+reverselookup_username)
+            LOGGER.info('" - reverselookup_username set to: '+reverselookup_username)
         elif 'username' in args.keys() and args['username'] is not None:
             reverselookup_username = args['username']
-            LOGGER.debug(' - reverselookup_username set to handle server username: '+reverselookup_username)
+            LOGGER.info(' - reverselookup_username set to handle server username: '+reverselookup_username)
         else:
-            LOGGER.debug(' - reverselookup_username: No default.')
+            LOGGER.info(' - reverselookup_username: No default.')
 
 
         reverselookup_password = None
         if 'reverselookup_password' in args.keys():
             reverselookup_password = args['reverselookup_password']
-            LOGGER.debug(' - reverselookup_password set.')
+            LOGGER.info(' - reverselookup_password set.')
         elif 'password' in args.keys() and args['password'] is not None:
             reverselookup_password = args['password']
-            LOGGER.debug(' - reverselookup_password set to handle server password.')
+            LOGGER.info(' - reverselookup_password set to handle server password.')
         else:
-            LOGGER.debug(' - reverselookup_password: No default.')
+            LOGGER.info(' - reverselookup_password: No default.')
 
 
         if reverselookup_username is not None and reverselookup_password is not None:
             self.__set_revlookup_auth_string(reverselookup_username, reverselookup_password)
-
+            LOGGER.info('Reverse lookup authentication is set.')
+        else:
+            LOGGER.info('No reverse lookup authentication was set.')
 
     @staticmethod
     def instantiate_for_read_access(handle_server_url=None, **config):
@@ -286,7 +290,7 @@ class EUDATHandleClient(object):
         '''
         Initialize the client against an HSv8 instance with full read/write
         access.
- 
+
         :param credentials: A credentials object, see separate class
             PIDClientCredentials.
         :param **config: More key-value pairs may be passed that will be passed
@@ -295,16 +299,15 @@ class EUDATHandleClient(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
         :return: An instance of the client.
         '''
- 
+
         # Combine config passed in JSON file and config passed to this method into one dict
         # where config passed to the method overrson file.
         additional_config = credentials.get_config()
- 
         if additional_config is not None:
             additional_config.update(**config)
         else:
             additional_config = config
- 
+
         inst = EUDATHandleClient(
             credentials.get_server_URL(),
             username=credentials.get_username(),
@@ -634,6 +637,7 @@ class EUDATHandleClient(object):
                 new_list_of_entries,
                 overwrite=True)
             if hsresponses.handle_success(resp):
+                LOGGER.info('Handle modified: '+handle)
                 pass
             elif self.not_authenticated(resp):
                 op = 'modifying handle values'
@@ -1009,7 +1013,7 @@ class EUDATHandleClient(object):
         )
 
         if hsresponses.was_handle_created(resp) or hsresponses.handle_success(resp):
-            LOGGER.info("Handle "+handle+" registered.")
+            LOGGER.info("Handle registered: "+handle)
             return json.loads(resp.content)['handle']
         else:
             if self.not_authenticated(resp):
