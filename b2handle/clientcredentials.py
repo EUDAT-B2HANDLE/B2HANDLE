@@ -8,6 +8,7 @@ from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import CredentialsFormatError
 import util
 import json
+import os
 
 class PIDClientCredentials(object):
     '''
@@ -51,35 +52,12 @@ class PIDClientCredentials(object):
         '''
 
         jsonfilecontent = json.loads(open(json_filename, 'r').read())
-        PIDClientCredentials.check_credentials_format(jsonfilecontent)
-
         if 'baseuri' in jsonfilecontent:
             jsonfilecontent['handle_server_url'] = jsonfilecontent['baseuri']
             del jsonfilecontent['baseuri']
-
         instance = PIDClientCredentials(**jsonfilecontent)
         return instance
 
-
-    @staticmethod
-    def check_credentials_format(credentials_dict):
-        '''
-        Check whether the credentials contain all necessary items.
-
-        :param credentials_dict: A dictionary of the credentials.
-        :raise: CredentialsFormatError, if the credentials lack information.
-        '''
-        missing = []
-        mandatoryitems = ['baseuri', 'username', 'password']
-        for item in mandatoryitems:
-            if not item in credentials_dict:
-                missing.append(item)
-            elif credentials_dict[item] == '':
-                missing.append(item)
-        if len(missing) > 0:
-            msg = 'The following item(s) were empty or missing in the'+\
-                ' provided credentials file: '+str(missing)
-            raise CredentialsFormatError(msg=msg)
 
     def __init__(self, **args):
         '''
@@ -93,26 +71,31 @@ class PIDClientCredentials(object):
         :param config: Any key-value pairs added are stored as config.
         :raises: HandleSyntaxError
         '''
-
-        useful_args = ['username', 'password', 'handle_server_url', 'prefix', 'handleowner']
+        # Possible arguments:
+        useful_args = ['handle_server_url', 'username', 'password', 'private_key', 'certificate_only','certificate_and_key', 'prefix', 'handleowner']
         util.add_missing_optional_args_with_value_none(args, useful_args)
 
-        util.check_handle_syntax_with_index(args['username'])
+        # Args that the constructor understands:
         self.__handle_server_url = args['handle_server_url']
         self.__username = args['username']
         self.__password = args['password']
         self.__prefix = args['prefix']
         self.__handleowner = args['handleowner']
+        self.__private_key = args['private_key']
+        self.__certificate_only = args['certificate_only']
+        self.__certificate_and_key = args['certificate_and_key']
+
+        # Other attributes:
         self.__additional_config = None
 
         # All the other args collected as "additional config":
         self.__additional_config = self.__collect_additional_arguments(args, useful_args)
 
-        if self.__handle_server_url is None:
-            raise CredentialsFormatError(msg='No handle server URL provided in the credentials!')
-
-        if self.__handleowner is not None:
-            util.check_handle_syntax_with_index(self.__handleowner)
+        # Some checks:
+        self.__check_mandatory_args()
+        self.__check_handle_syntax()
+        self.__check_file_existence()
+        self.__check_if_enough_arguments_for_authentication()
 
     def __collect_additional_arguments(self, args, used_args):
         temp_additional_config = {}
@@ -123,6 +106,61 @@ class PIDClientCredentials(object):
             return temp_additional_config
         else:
             return None
+
+    def __check_mandatory_args(self):
+        if self.__handle_server_url is None:
+            raise CredentialsFormatError(msg='The Handle Server\'s URL is missing in the credentials.')
+
+    def __check_handle_syntax(self):
+        if self.__handleowner:
+            util.check_handle_syntax_with_index(self.__handleowner)
+        if self.__username:
+            util.check_handle_syntax_with_index(self.__username)
+
+    def __check_file_existence(self):
+        if self.__certificate_only:
+            if not os.path.isfile(self.__certificate_only):
+                msg = 'The certificate file was not found at the specified path: '+self.__certificate_only
+                raise CredentialsFormatError(msg=msg)
+        if self.__certificate_and_key:
+            if not os.path.isfile(self.__certificate_and_key):
+                msg = 'The certificate file was not found at the specified path: '+self.__certificate_and_key
+                raise CredentialsFormatError(msg=msg)
+        if self.__private_key:
+            if not os.path.isfile(self.__private_key):
+                msg = 'The private key file was not found at the specified path: '+self.__private_key
+                raise CredentialsFormatError(msg=msg)
+
+    def __check_if_enough_arguments_for_authentication(self):
+
+        # Which authentication method?
+        authentication_method = None
+
+        # Username and Password
+        if self.__username and self.__password:
+            authentication_method = 'user_password'
+
+        # Certificate file and Key file
+        if self.__certificate_only and self.__private_key:
+            authentication_method = 'auth_cert_2files'
+
+        # Certificate and Key in one file
+        if self.__certificate_and_key:
+            authentication_method = 'auth_cert_1file'
+
+        # None was provided:
+        if authentication_method is None:
+            msg = ''
+            if self.__username and not self.__password:
+                msg += 'Username was provided, but no password. '
+            elif self.__password and not self.__username:
+                msg += 'Password was provided, but no username. '
+            if self.__certificate_only and not self.__private_key:
+                msg += 'A client certificate was provided, but no private key. '
+            elif self.__private_key and not self.__certificate_only:
+                msg += 'A private key was provided, but no client certificate. '
+            raise CredentialsFormatError(msg=msg)
+
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -147,3 +185,19 @@ class PIDClientCredentials(object):
     def get_config(self):
         # pylint: disable=missing-docstring
         return self.__additional_config
+
+    def get_private_key(self):
+        # pylint: disable=missing-docstring
+        return self.__private_key
+
+    def get_path_to_file_certificate(self):
+        # pylint: disable=missing-docstring
+        return self.__certificate_only or self.__certificate_and_key
+
+    def get_path_to_file_certificate_only(self):
+        # pylint: disable=missing-docstring
+        return self.__certificate_only
+
+    def get_path_to_file_certificate_and_key(self):
+        # pylint: disable=missing-docstring
+        return only or self.__certificate_and_key

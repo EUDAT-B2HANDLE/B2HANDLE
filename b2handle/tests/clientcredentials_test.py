@@ -120,6 +120,18 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
         with self.assertRaises(CredentialsFormatError):
             _inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
 
+    def test_credentials_from_json_clientcert_onefile(self):
+        """Test credentials instantiation from JSON file."""
+        path_to_json_credentials = PATH_CRED+'/credentials_correct_with_cert_and_key_PUBLIC.json'
+        inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
+        self.assertIsInstance(inst, PIDClientCredentials)
+ 
+    def test_credentials_from_json_clientcert_twofiles(self):
+        """Test credentials instantiation from JSON file."""
+        path_to_json_credentials = PATH_CRED+'/credentials_correct_with_cert_PUBLIC.json'
+        inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
+        self.assertIsInstance(inst, PIDClientCredentials)
+ 
     def test_config_from_json(self):
         """Test credentials instantiation from JSON file, with config."""
         path_to_json_credentials = PATH_CRED+'/credentials_correct_withconfig_PUBLIC.json'
