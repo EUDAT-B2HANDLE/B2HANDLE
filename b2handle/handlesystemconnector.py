@@ -95,7 +95,7 @@ class HandleSystemConnector(object):
 
 
         if args['HTTPS_verify'] is not None:
-            self.__HTTPS_verify = self.__string_to_bool(args['HTTPS_verify'])
+            self.__HTTPS_verify = util.string_to_bool(args['HTTPS_verify'])
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
@@ -471,14 +471,6 @@ class HandleSystemConnector(object):
 
         url = url.replace('?&', '?')
         return url
-
-    def __string_to_bool(self, string):
-        dic = {'false':False, 'true':True}
-        if string is True or string is False:
-            return string
-        else:
-            return dic[string.lower()]
-
 
     def __log_request_response_to_file(self, **args):
         message = util.make_request_log_message(**args)

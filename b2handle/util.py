@@ -168,3 +168,10 @@ def check_presence_of_mandatory_args(args, mandatory_args):
         raise ValueError('Missing mandatory arguments: '+', '.join(missing_args))
     else:
         return True
+
+def string_to_bool(string):
+    dic = {'false':False, 'true':True}
+    if string is True or string is False:
+        return string
+    else:
+        return dic[string.lower()]
