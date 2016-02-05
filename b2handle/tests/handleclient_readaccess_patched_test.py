@@ -231,57 +231,6 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(HandleNotFoundException):
             self.inst.get_value_from_handle(testhandle, key=key)
 
-    # check if username exists
-
-    @patch('b2handle.handleclient.requests.Session.get')
-    def test_check_if_username_exists_normal(self, getpatch):
-        """Test whether username exists."""
-
-        # Test variables
-        handlerecord_string = open('resources/handlerecord_for_reading.json').read()
-        handlerecord_json = json.loads(handlerecord_string)
-        testhandle = '100:'+handlerecord_json['handle']
-
-        # Define the replacement for the patched method:
-        mock_response = MockResponse(success=True, content=handlerecord_string)
-        getpatch.return_value = mock_response
-
-        # Call method and check result:
-        res = self.inst.check_if_username_exists(testhandle)
-        self.assertTrue(res,
-            'The handle exists, so "check_if_username_exists" should return true!')
-
-    @patch('b2handle.handleclient.requests.Session.get')
-    def test_check_if_username_exists_inconsistent_info(self, getpatch):
-        """Test exception when contradictory inputs are given."""
-    
-        # Test variables
-        handlerecord_string = open('resources/handlerecord_for_reading.json').read()
-        testhandle = 'who/cares'
-
-        # Define the replacement for the patched method:
-        mock_response = MockResponse(success=True, content=handlerecord_string)
-        getpatch.return_value = mock_response
-
-        # Call method and check result:
-        with self.assertRaises(GenericHandleError):
-            self.inst.check_if_username_exists(testhandle)
-
-    @patch('b2handle.handleclient.requests.Session.get')
-    def test_check_if_username_exists_it_doesnot(self, getpatch):
-        """Test exception"""
-
-        # Test variables
-        testhandle = 'who/cares'
-        
-        # Define the replacement for the patched method:
-        mock_response = MockResponse(notfound=True)
-        getpatch.return_value = mock_response
-
-        # Call method and check result:
-        with self.assertRaises(HandleNotFoundException):
-            self.inst.check_if_username_exists(testhandle)
-
     @patch('b2handle.handleclient.requests.Session.get')
     def test_is_10320LOC_empty_handle_does_not_exist(self, getpatch):
         """Test exception"""

@@ -1190,21 +1190,6 @@ class EUDATHandleClient(object):
                 indices.append(entry['index'])
         return indices
 
-    def check_if_username_exists(self, username):
-        '''
-        Check if the username handles exists.
-
-        :param username: The username, in the form index:prefix/suffix
-        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
-        :raises: :exc:`~b2handle.handleexceptions.GenericHandleError`
-        :return: True. If it does not exist, an exception is raised.
-
-        *Note:* Only the existence of the handle is verified. The existence or
-        validity of the index is not checked, because entries containing
-        a key are hidden anyway.
-        '''
-        return self.__handlesystemconnector.check_if_username_exists(username)
-
     def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
         '''
         Create the part of the solr request that comes after the question mark,
@@ -1288,23 +1273,7 @@ class EUDATHandleClient(object):
         accept = 'application/json'
         content_type = 'application/json'
 
-        if action is 'GET':
-            head = {'Accept': accept}
-        elif action is 'PUT':
-            if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(msg='Could not '+\
-                    'create header for PUT request, no authentication string '+\
-                    'for Handle System set.', username=self.__username)
-            head = {'Content-Type': content_type,
-                    'Authorization': 'Basic ' + self.__HS_auth_string}
-        elif action is 'DELETE':
-            if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(
-                    msg='Could not create header for PUT request, '+\
-                    'no authentication string for Handle System set.',
-                    username=self.__username)
-            head = {'Authorization': 'Basic ' + self.__HS_auth_string}
-        elif action is 'SEARCH':
+        if action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
         else:
             LOGGER.debug('__getHeader: ACTION is unknown ('+action+')')
@@ -1379,19 +1348,6 @@ class EUDATHandleClient(object):
             verify=veri,
             resp=resp)
         return resp
-
-    def __set_HS_auth_string(self, username, password):
-        '''
-        Creates and sets the authentication string for (write-)accessing the
-            Handle Server. No return, the string is set as an attribute to
-            the client instance.
-
-        :param username: Username handle with index: index:prefix/suffix.
-        :param password: The password contained in the index of the username
-            handle.
-        '''
-        auth = util.create_authentication_string(username, password)
-        self.__HS_auth_string = auth
 
     def __set_revlookup_auth_string(self, username, password):
         '''
@@ -1776,10 +1732,3 @@ class EUDATHandleClient(object):
 
         for key, value in kvpairs.iteritems():
             locelement.set(key, str(value))
-
-    def string_to_bool(self, string):
-        dic = {'false':False, 'true':True}
-        if string is True or string is False:
-            return string
-        else:
-            return dic[string.lower()]
