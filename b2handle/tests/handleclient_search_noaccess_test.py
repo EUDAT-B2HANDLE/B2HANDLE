@@ -8,7 +8,6 @@ else:
 import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
-from b2handle.searcher import Searcher
 from b2handle.handleexceptions import ReverseLookupException
 
 PATH_RES = 'resources'
@@ -21,8 +20,8 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
 
     def setUp(self):
         self.inst = EUDATHandleClient()
-        self.searcher = Searcher()
  
+
     def tearDown(self):
         pass
 
@@ -44,24 +43,24 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
 
     def test_create_revlookup_query_fulltext(self):
         with self.assertRaisesRegexp(ReverseLookupException, 'Full-text search is not implemented yet[.]*'):
-            self.searcher.create_revlookup_query('foo', 'bar')
+            self.inst.create_revlookup_query('foo', 'bar')
 
     def test_create_revlookup_query_forbiddenkeys(self):
         with self.assertRaisesRegexp(ReverseLookupException, 'Cannot search for key[.]*'):
-            self.searcher.create_revlookup_query(foo='foo', bar='bar')
+            self.inst.create_revlookup_query(foo='foo', bar='bar')
 
     def test_create_revlookup_query_noterms(self):
         with self.assertRaisesRegexp(ReverseLookupException, 'No search terms have been specified[.]*'):
-            self.searcher.create_revlookup_query()
+            self.inst.create_revlookup_query()
 
     def test_create_revlookup_query_norestriction(self):
-        searcher = Searcher(allowed_search_keys=[])
-        query = searcher.create_revlookup_query(baz='baz')
+        inst = EUDATHandleClient(allowed_search_keys=[])
+        query = inst.create_revlookup_query(baz='baz')
         self.assertEqual(query, '?baz=baz',
             'The query is: '+query)
 
     def test_create_revlookup_query_normal(self):
-        query = self.searcher.create_revlookup_query(URL='foo')
+        query = self.inst.create_revlookup_query(URL='foo')
         self.assertEqual(query, '?URL=foo',
             'The query is: '+query)
 
