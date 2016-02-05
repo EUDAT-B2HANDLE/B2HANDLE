@@ -142,3 +142,29 @@ def create_authentication_string(username, password):
     authinfostring = username_perc + ':' + userpw_perc
     authinfostring_base64 = base64.b64encode(authinfostring)
     return authinfostring_base64
+
+def log_request_response_to_file(**args):
+
+    mandatory_args = ['logger', 'op', 'handle', 'url', 'headers', 'verify', 'resp']
+    check_presence_of_mandatory_args(args, mandatory_args)
+    space = '\n   '
+    message = ''
+    message += '\n'+args['op']+' '+args['handle']
+    message += space+'URL:          '+args['url']
+    message += space+'HEADERS:      '+str(args['headers'])
+    message += space+'VERIFY:       '+str(args['verify'])
+    if 'payload' in args.keys():
+        message += space+'PAYLOAD:'+space+str(args['payload'])
+    message += space+'RESPONSECODE: '+str(args['resp'].status_code)
+    message += space+'RESPONSE:'+space+str(args['resp'].content)
+    args['logger'].info(message)
+
+def check_presence_of_mandatory_args(args, mandatory_args):
+    missing_args = []
+    for name in mandatory_args:
+        if name not in args.keys():
+            missing_args.append(name)
+    if len(missing_args)>0:
+        raise ValueError('Missing mandatory arguments: '+', '.join(missing_args))
+    else:
+        return True

@@ -1370,7 +1370,14 @@ class EUDATHandleClient(object):
         head = self.__get_headers('SEARCH')
         veri = self.__HTTPS_verify
         resp = self.__session.get(entirequery, headers=head, verify=veri)
-        self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
+        util.log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='SEARCH',
+            handle='',
+            url=entirequery,
+            headers=head,
+            verify=veri,
+            resp=resp)
         return resp
 
     def __set_HS_auth_string(self, username, password):
@@ -1769,21 +1776,6 @@ class EUDATHandleClient(object):
 
         for key, value in kvpairs.iteritems():
             locelement.set(key, str(value))
-
-    def __log_request_response_to_file(self, op, handle, url, head, veri, resp, payload=None):
- 
-        space = '\n   '
-        message = ''
-        message += '\n'+op+' '+handle
-        message += space+'URL:          '+url
-        message += space+'HEADERS:      '+str(head)
-        message += space+'VERIFY:       '+str(veri)
-        if payload is not None:
-            message += space+'PAYLOAD:'+space+str(payload)
-        message += space+'RESPONSECODE: '+str(resp.status_code)
-        message += space+'RESPONSE:'+space+str(resp.content)
-        REQUESTLOGGER.info(message)
-
 
     def string_to_bool(self, string):
         dic = {'false':False, 'true':True}
