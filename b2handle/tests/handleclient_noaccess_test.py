@@ -9,7 +9,7 @@ import json
 sys.path.append("../..")
 import b2handle.handleclient as b2handle
 from b2handle.handleexceptions import HandleSyntaxError
-from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
+from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle, create_authentication_string
 
 class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 
@@ -181,7 +181,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
     # make_authentication_string
 
     def test_create_authentication_string(self):
-        auth = self.inst.create_authentication_string('100:user/name', 'password123')
+        auth = create_authentication_string('100:user/name', 'password123')
         expected = 'MTAwJTNBdXNlci9uYW1lOnBhc3N3b3JkMTIz'
         self.assertEquals(expected, auth,
             'Authentication string is: '+auth+', but should be: '+expected)

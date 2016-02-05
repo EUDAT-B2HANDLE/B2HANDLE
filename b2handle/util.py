@@ -1,5 +1,7 @@
 import logging
 import handleexceptions
+import urllib
+import base64
 
 
 class NullHandler(logging.Handler):
@@ -120,3 +122,23 @@ def check_handle_syntax_with_index(string, base_already_checked=False):
     if not base_already_checked:
         check_handle_syntax(string)
     return True
+
+def create_authentication_string(username, password):
+    '''
+    Create an authentication string from the username and password.
+
+    :param username: Username.
+    :param password: Password.
+    :return: The encoded string.
+    '''
+
+    LOGGER.debug('create_authentication_string...')
+
+    username_utf8 = username.encode('utf-8')
+    userpw_utf8 = password.encode('utf-8')
+    username_perc = urllib.quote(username_utf8)
+    userpw_perc = urllib.quote(userpw_utf8)
+
+    authinfostring = username_perc + ':' + userpw_perc
+    authinfostring_base64 = base64.b64encode(authinfostring)
+    return authinfostring_base64

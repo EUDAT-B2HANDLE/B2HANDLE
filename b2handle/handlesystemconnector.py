@@ -4,8 +4,6 @@ import hsresponses
 import util
 import logging
 import requests
-import urllib
-import base64
 import os
 
 class NullHandler(logging.Handler):
@@ -228,28 +226,9 @@ class HandleSystemConnector(object):
         :param password: The password contained in the index of the username
             handle.
         '''
-        auth = self.__create_authentication_string(username, password)
+        auth = util.create_authentication_string(username, password)
         self.__basic_authentication_string = auth
 
-    def __create_authentication_string(self, username, password):
-        '''
-        Create an authentication string from the username and password.
-
-        :param username: Username.
-        :param password: Password.
-        :return: The encoded string.
-        '''
-
-        LOGGER.debug('create_authentication_string...')
-
-        username_utf8 = username.encode('utf-8')
-        userpw_utf8 = password.encode('utf-8')
-        username_perc = urllib.quote(username_utf8)
-        userpw_perc = urllib.quote(userpw_utf8)
-
-        authinfostring = username_perc + ':' + userpw_perc
-        authinfostring_base64 = base64.b64encode(authinfostring)
-        return authinfostring_base64
 
     # API methods:
 
