@@ -111,21 +111,21 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Call method and check result:
         dict_record = self.inst.retrieve_handle_record(testhandle)
-        self.assertIn('test1', dict_record,
+        self.assertIn('TEST1', dict_record,
             'Key "test1" not in handlerecord dictionary!')
-        self.assertIn('test2', dict_record,
+        self.assertIn('TEST2', dict_record,
             'Key "test2" not in handlerecord dictionary!')
-        self.assertIn('testdup', dict_record,
-            'Key "testdup" not in handlerecord dictionary!')
+        self.assertIn('TESTDUP', dict_record,
+            'Key "TESTDUP" not in handlerecord dictionary!')
         self.assertIn('HS_ADMIN', dict_record,
             'Key "HS_ADMIN" not in handlerecord dictionary!')
 
-        self.assertEqual(dict_record['test1'], 'val1',
+        self.assertEqual(dict_record['TEST1'], 'val1',
             'The value of "test1" is not "val1.')
-        self.assertEqual(dict_record['test2'], 'val2',
+        self.assertEqual(dict_record['TEST2'], 'val2',
             'The value of "test2" is not "val2.')
-        self.assertIn(dict_record['testdup'], ("dup1", "dup2"),
-            'The value of the duplicate key "testdup" should be "dup1" or "dup2".')
+        self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
+            'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
             'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
 
@@ -192,21 +192,21 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Call method and check result:
         dict_record = self.inst.retrieve_handle_record(testhandle, givenrecord)
-        self.assertIn('test1', dict_record,
+        self.assertIn('TEST1', dict_record,
             'Key "test1" not in handlerecord dictionary!')
-        self.assertIn('test2', dict_record,
+        self.assertIn('TEST2', dict_record,
             'Key "test2" not in handlerecord dictionary!')
-        self.assertIn('testdup', dict_record,
-            'Key "testdup" not in handlerecord dictionary!')
+        self.assertIn('TESTDUP', dict_record,
+            'Key "TESTDUP" not in handlerecord dictionary!')
         self.assertIn('HS_ADMIN', dict_record,
             'Key "HS_ADMIN" not in handlerecord dictionary!')
 
-        self.assertEqual(dict_record['test1'], 'val1',
+        self.assertEqual(dict_record['TEST1'], 'val1',
             'The value of "test1" is not "val1.')
-        self.assertEqual(dict_record['test2'], 'val2',
+        self.assertEqual(dict_record['TEST2'], 'val2',
             'The value of "test2" is not "val2.')
-        self.assertIn(dict_record['testdup'], ("dup1", "dup2"),
-            'The value of the duplicate key "testdup" should be "dup1" or "dup2".')
+        self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
+            'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
             'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
 
@@ -368,7 +368,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         checkpatch.return_value = mock_response
 
         # Define the replacement for the patched GET:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response = MockResponse(success=True, content=json.dumps(cont))
         getpatch.return_value = mock_response
 

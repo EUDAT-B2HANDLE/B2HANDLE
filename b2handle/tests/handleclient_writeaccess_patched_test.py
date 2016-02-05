@@ -88,8 +88,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                                     location=testlocation,
                                                     checksum=testchecksum,
                                                     additional_URLs=additional_URLs,
-                                                    foo='foo',
-                                                    bar='bar')
+                                                    FOO='foo',
+                                                    BAR='bar')
 
 
         # Check if the PUT request was sent exactly once:
@@ -100,7 +100,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "foo", "data": "foo"}, {"index": 4, "type": "bar", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
+        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
@@ -141,8 +141,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                                   location=testlocation,
                                                   checksum=testchecksum,
                                                   additional_URLs=additional_URLs,
-                                                  foo='foo',
-                                                  bar='bar')
+                                                  FOO='foo',
+                                                  BAR='bar')
 
 
         # Check if the PUT request was sent exactly once:
@@ -153,7 +153,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "300", "handle": "handle/owner", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "foo", "data": "foo"}, {"index": 4, "type": "bar", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
+        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "300", "handle": "handle/owner", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
@@ -202,8 +202,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                                     checksum=testchecksum,
                                                     additional_URLs=additional_URLs,
                                                     overwrite=overwrite,
-                                                    foo='foo',
-                                                    bar='bar')
+                                                    FOO='foo',
+                                                    BAR='bar')
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -213,7 +213,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, passed_headers = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "foo", "data": "foo"}, {"index": 4, "type": "bar", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
+        expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
@@ -265,7 +265,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying one existing handle value."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type":"test3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -276,7 +276,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run the method to be tested:
         testhandle = 'my/testhandle'
-        self.inst.modify_handle_value(testhandle, test4='newvalue')
+        self.inst.modify_handle_value(testhandle, TEST4='newvalue')
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -286,7 +286,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 4, "ttl": 86400, "type": "test4", "data": "newvalue"}, {"index": 111, "ttl": 86400, "type": "test1", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val1", "format": "string"}}, {"index": 2222, "ttl": 86400, "type": "test2", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val2", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "test3", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val3", "format": "string"}}]}
+        expected_payload = {"values": [{"index": 4, "ttl": 86400, "type": "TEST4", "data": "newvalue"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val1", "format": "string"}}, {"index": 2222, "ttl": 86400, "type": "TEST2", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val2", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val3", "format": "string"}}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -305,7 +305,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             "values":[
             {
                 "index":111,
-                "type":"test1",
+                "type": "TEST1",
                 "data":{
                     "format":"string",
                     "value":"val1"
@@ -314,7 +314,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 "timestamp":"2015-09-29T15:51:08Z"
             },{
                 "index":2222,
-                "type":"test2",
+                "type": "TEST2",
                 "data":{
                     "format":"string",
                     "value":"val2"
@@ -323,7 +323,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 "timestamp":"2015-09-29T15:51:08Z"
             },{
                 "index":333,
-                "type":"test3",
+                "type": "TEST3",
                 "data":{
                     "format":"string",
                     "value":"val3"
@@ -332,7 +332,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 "timestamp":"2015-09-29T15:51:08Z"
             },{
                 "index":4,
-                "type":"test4",
+                "type": "TEST4",
                 "data":{
                     "format":"string",
                     "value":"val4"
@@ -353,9 +353,9 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run the method to be tested:
         self.inst.modify_handle_value(testhandle,
-                                          test4='new4',
-                                          test2='new2',
-                                          test3='new3')
+                                          TEST4='new4',
+                                          TEST2='new2',
+                                          TEST3='new3')
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -370,7 +370,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         "values":[
             {
                 "index":111,
-                "type":"test1",
+                "type": "TEST1",
                 "data":{
                     "format":"string",
                     "value":"val1"
@@ -379,17 +379,17 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 "timestamp":"2015-09-29T15:51:08Z"
             },{
                 "index":2222,
-                "type":"test2",
+                "type": "TEST2",
                 "data":"new2",
                 "ttl":86400,
             },{
                 "index":333,
-                "type":"test3",
+                "type": "TEST3",
                 "data":"new3",
                 "ttl":86400,
             },{
                 "index":4,
-                "type":"test4",
+                "type": "TEST4",
                 "data":"new4",
                 "ttl":86400,
             }]
@@ -407,7 +407,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test exception when trying to modify corrupted handle record."""
 
         # Define the replacement for the patched GET method (getting a corrupted record):
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -419,9 +419,9 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Call the method to be tested: Modifying corrupted raises exception:
         with self.assertRaises(BrokenHandleRecordException):
             self.inst.modify_handle_value('my/testhandle',
-                                          test4='new4',
-                                          test2='new2',
-                                          test3='new3')
+                                          TEST4='new4',
+                                          TEST2='new2',
+                                          TEST3='new3')
 
         # Check if PUT was called (PUT should not have been called):
         self.assertEqual(putpatch.call_count, 0,
@@ -433,7 +433,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test if exception when not authenticated."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type":"test3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -447,7 +447,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run code to be tested and check exception:
         with self.assertRaises(HandleAuthenticationError):
-            inst_readonly.modify_handle_value(testhandle, foo='bar')
+            inst_readonly.modify_handle_value(testhandle, FOO='bar')
 
     @patch('b2handle.handlesystemconnector.requests.Session.put')
     @patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -455,7 +455,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying several existing handle values, one of them inexistent."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type":"test3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -468,9 +468,9 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run the method to be tested:
         self.inst.modify_handle_value(testhandle,
-                                          test4='new4',
-                                          test2='new2',
-                                          test100='new100')
+                                          TEST4='new4',
+                                          TEST2='new2',
+                                          TEST100='new100')
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -480,7 +480,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 2, "type": "test100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "test2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "test4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "test1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "test3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
+        expected_payload = {"values": [{"index": 2, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -494,7 +494,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying several existing handle values, SEVERAL of them inexistent."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type":"test3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -507,10 +507,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run the method to be tested:
         self.inst.modify_handle_value(testhandle,
-                                          test4='new4',
-                                          test2='new2',
-                                          test100='new100',
-                                          test101='new101')
+                                          TEST4='new4',
+                                          TEST2='new2',
+                                          TEST100='new100',
+                                          TEST101='new101')
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -520,7 +520,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 2, "type": "test101", "data": "new101"},{"index": 3, "type": "test100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "test2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "test4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "test1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "test3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
+        #expected_payload = {"values": [{"index": 2, "type": "TEST101", "data": "new101"},{"index": 3, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
+        expected_payload = {'values': [{'index': 2, 'type': 'TEST100', 'data': 'new100'}, {'index': 2222, 'ttl': 86400, 'type': 'TEST2', 'data': 'new2'}, {'index': 4, 'ttl': 86400, 'type': 'TEST4', 'data': 'new4'}, {'index': 3, 'type': 'TEST101', 'data': 'new101'}, {'index': 111, 'ttl': 86400, 'type': 'TEST1', 'timestamp': 'xxx', 'data': {'value': 'val1', 'format': 'string'}}, {'index': 333, 'ttl': 86400, 'type': 'TEST3', 'timestamp': 'xxx', 'data': {'value': 'val3', 'format': 'string'}}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -533,7 +534,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test exception when trying to modify HS_ADMIN."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type":"test3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -557,7 +558,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test deleting one entry from a record."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -566,7 +567,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         deletepatch.return_value = mock_response_del
 
         # Call the method to be tested:
-        self.inst.delete_handle_value('my/testhandle', 'test1')
+        self.inst.delete_handle_value('my/testhandle', 'TEST1')
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
@@ -586,7 +587,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -595,7 +596,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         deletepatch.return_value = mock_response_del
 
         # Call the method to be tested:
-        self.inst.delete_handle_value(testhandle, ['test1', 'test2'])
+        self.inst.delete_handle_value(testhandle, ['TEST1', 'TEST2'])
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
@@ -617,7 +618,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -641,7 +642,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -650,7 +651,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         deletepatch.return_value = mock_response_del
 
         # Call the method to be tested:
-        self.inst.delete_handle_value(testhandle, ['test1', 'test100'])
+        self.inst.delete_handle_value(testhandle, ['TEST1', 'TEST100'])
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
@@ -669,7 +670,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test trying to delete from a corrupted handle record."""
 
         # Define the replacement for the patched GET method (getting a corrupted record):
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"test1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"test2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"test2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"test4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -678,7 +679,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         deletepatch.return_value = mock_response_del
 
         # Call the method to be tested:
-        self.inst.delete_handle_value('my/testhandle', 'test2')
+        self.inst.delete_handle_value('my/testhandle', 'TEST2')
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
@@ -739,7 +740,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Call method to be tested:
         with self.assertRaises(TypeError):
-            self.inst.delete_handle('my/testhandle', 'test1')
+            self.inst.delete_handle('my/testhandle', 'TEST1')
 
     # 10320/LOC
 

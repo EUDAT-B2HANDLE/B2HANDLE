@@ -73,7 +73,7 @@ class EUDATHandleConnectorWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         handle = '123/456'
-        list_of_entries = [{"index":2, "type":"xyz", "data":"xyz"}]
+        list_of_entries = [{"index":2, "type":"XYZ", "data":"xyz"}]
 
         # Run code to be tested
         self.inst.send_handle_put_request(handle, list_of_entries)

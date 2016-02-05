@@ -20,22 +20,22 @@
     },
     {
         "index":3,
-        "type":"test1",
+        "type":"TEST1",
         "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
     },
     {
         "index":4,
-        "type":"test2",
+        "type":"TEST2",
         "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
     },
     {
         "index":5,
-        "type":"testdup",
+        "type":"TESTDUP",
         "data":{"format":"string", "value":"dup1"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
     },
     {
         "index":6,
-        "type":"testdup",
+        "type":"TESTDUP",
         "data":{"format":"string", "value":"dup2"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
     }]
 }
