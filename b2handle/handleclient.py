@@ -10,11 +10,9 @@ from handleexceptions import *
 import hsresponses
 from handlesystemconnector import HandleSystemConnector
 import requests
-import urllib
 import json
 import copy
 import xml.etree.ElementTree as ET
-import base64
 import uuid
 import logging
 import re
@@ -1192,42 +1190,6 @@ class EUDATHandleClient(object):
                 indices.append(entry['index'])
         return indices
 
-    @staticmethod
-    def create_authentication_string(username, password):
-        '''
-        Create an authentication string from the username and password.
-
-        :param username: Username.
-        :param password: Password.
-        :return: The encoded string.
-        '''
-
-        LOGGER.debug('create_authentication_string...')
-
-        username_utf8 = username.encode('utf-8')
-        userpw_utf8 = password.encode('utf-8')
-        username_perc = urllib.quote(username_utf8)
-        userpw_perc = urllib.quote(userpw_utf8)
-
-        authinfostring = username_perc + ':' + userpw_perc
-        authinfostring_base64 = base64.b64encode(authinfostring)
-        return authinfostring_base64
-
-    def check_if_username_exists(self, username):
-        '''
-        Check if the username handles exists.
-
-        :param username: The username, in the form index:prefix/suffix
-        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`
-        :raises: :exc:`~b2handle.handleexceptions.GenericHandleError`
-        :return: True. If it does not exist, an exception is raised.
-
-        *Note:* Only the existence of the handle is verified. The existence or
-        validity of the index is not checked, because entries containing
-        a key are hidden anyway.
-        '''
-        return self.__handlesystemconnector.check_if_username_exists(username)
-
     def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
         '''
         Create the part of the solr request that comes after the question mark,
@@ -1311,23 +1273,7 @@ class EUDATHandleClient(object):
         accept = 'application/json'
         content_type = 'application/json'
 
-        if action is 'GET':
-            head = {'Accept': accept}
-        elif action is 'PUT':
-            if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(msg='Could not '+\
-                    'create header for PUT request, no authentication string '+\
-                    'for Handle System set.', username=self.__username)
-            head = {'Content-Type': content_type,
-                    'Authorization': 'Basic ' + self.__HS_auth_string}
-        elif action is 'DELETE':
-            if self.__HS_auth_string is None:
-                raise HandleAuthenticationError(
-                    msg='Could not create header for PUT request, '+\
-                    'no authentication string for Handle System set.',
-                    username=self.__username)
-            head = {'Authorization': 'Basic ' + self.__HS_auth_string}
-        elif action is 'SEARCH':
+        if action is 'SEARCH':
             head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
         else:
             LOGGER.debug('__getHeader: ACTION is unknown ('+action+')')
@@ -1393,21 +1339,15 @@ class EUDATHandleClient(object):
         head = self.__get_headers('SEARCH')
         veri = self.__HTTPS_verify
         resp = self.__session.get(entirequery, headers=head, verify=veri)
-        self.__log_request_response_to_file('SEARCH', '', entirequery, head, veri, resp)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='SEARCH',
+            handle='',
+            url=entirequery,
+            headers=head,
+            verify=veri,
+            resp=resp)
         return resp
-
-    def __set_HS_auth_string(self, username, password):
-        '''
-        Creates and sets the authentication string for (write-)accessing the
-            Handle Server. No return, the string is set as an attribute to
-            the client instance.
-
-        :param username: Username handle with index: index:prefix/suffix.
-        :param password: The password contained in the index of the username
-            handle.
-        '''
-        auth = self.create_authentication_string(username, password)
-        self.__HS_auth_string = auth
 
     def __set_revlookup_auth_string(self, username, password):
         '''
@@ -1418,7 +1358,7 @@ class EUDATHandleClient(object):
         :param username: Username.
         :param password: Password.
         '''
-        auth = self.create_authentication_string(username, password)
+        auth = util.create_authentication_string(username, password)
         self.__revlookup_auth_string = auth
 
     def __get_handle_record_if_necessary(self, handle, handlerecord_json):
@@ -1793,24 +1733,6 @@ class EUDATHandleClient(object):
         for key, value in kvpairs.iteritems():
             locelement.set(key, str(value))
 
-    def __log_request_response_to_file(self, op, handle, url, head, veri, resp, payload=None):
- 
-        space = '\n   '
-        message = ''
-        message += '\n'+op+' '+handle
-        message += space+'URL:          '+url
-        message += space+'HEADERS:      '+str(head)
-        message += space+'VERIFY:       '+str(veri)
-        if payload is not None:
-            message += space+'PAYLOAD:'+space+str(payload)
-        message += space+'RESPONSECODE: '+str(resp.status_code)
-        message += space+'RESPONSE:'+space+str(resp.content)
-        REQUESTLOGGER.info(message)
-
-
-    def string_to_bool(self, string):
-        dic = {'false':False, 'true':True}
-        if string is True or string is False:
-            return string
-        else:
-            return dic[string.lower()]
+    def __log_request_response_to_file(self, **args):
+        message = util.make_request_log_message(**args)
+        args['logger'].info(message)

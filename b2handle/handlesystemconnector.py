@@ -4,8 +4,6 @@ import hsresponses
 import util
 import logging
 import requests
-import urllib
-import base64
 import os
 
 class NullHandler(logging.Handler):
@@ -228,28 +226,9 @@ class HandleSystemConnector(object):
         :param password: The password contained in the index of the username
             handle.
         '''
-        auth = self.__create_authentication_string(username, password)
+        auth = util.create_authentication_string(username, password)
         self.__basic_authentication_string = auth
 
-    def __create_authentication_string(self, username, password):
-        '''
-        Create an authentication string from the username and password.
-
-        :param username: Username.
-        :param password: Password.
-        :return: The encoded string.
-        '''
-
-        LOGGER.debug('create_authentication_string...')
-
-        username_utf8 = username.encode('utf-8')
-        userpw_utf8 = password.encode('utf-8')
-        username_perc = urllib.quote(username_utf8)
-        userpw_perc = urllib.quote(userpw_utf8)
-
-        authinfostring = username_perc + ':' + userpw_perc
-        authinfostring_base64 = base64.b64encode(authinfostring)
-        return authinfostring_base64
 
     # API methods:
 
@@ -271,7 +250,15 @@ class HandleSystemConnector(object):
         head = self.__get_headers('GET')
         veri = self.__HTTPS_verify
         resp = self.__session.get(url, headers=head, verify=veri)
-        self.__log_request_response_to_file('GET', handle, url, head, veri, resp)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='GET',
+            handle=handle,
+            url=url,
+            headers=head,
+            verify=veri,
+            resp=resp
+            )
         return resp
 
     def send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
@@ -316,7 +303,15 @@ class HandleSystemConnector(object):
                 resp = self.__session.put(url, data=payload, headers=head, verify=veri)
             elif self.__authentication_method == self.__auth_methods['cert']:
                 resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
-            self.__log_request_response_to_file('PUT', handle, url, head, veri, resp, payload)
+            self.__log_request_response_to_file(
+                logger=REQUESTLOGGER,
+                op='PUT',
+                handle=handle,
+                url=url,
+                headers=head,
+                verify=veri,
+                resp=resp,
+                payload=payload)
         else:
             raise HandleAuthenticationError(msg=self.__no_auth_message)
         return resp, payload
@@ -349,7 +344,15 @@ class HandleSystemConnector(object):
                 resp = self.__session.delete(url, headers=head, verify=veri)
             elif self.__authentication_method == self.__auth_methods['cert']:
                 resp = self.__session.delete(url, headers=head, verify=veri, cert=self.__cert_object)
-            self.__log_request_response_to_file('DELETE', handle, url, head, veri, resp)
+            self.__log_request_response_to_file(
+                logger=REQUESTLOGGER,
+                op='DELETE',
+                handle=handle,
+                url=url,
+                headers=head,
+                verify=veri,
+                resp=resp
+            )
         else:
             raise HandleAuthenticationError(msg=self.__no_auth_message)
         return resp
@@ -469,23 +472,14 @@ class HandleSystemConnector(object):
         url = url.replace('?&', '?')
         return url
 
-    def __log_request_response_to_file(self, op, handle, url, head, veri, resp, payload=None):
- 
-        space = '\n   '
-        message = ''
-        message += '\n'+op+' '+handle
-        message += space+'URL:          '+url
-        message += space+'HEADERS:      '+str(head)
-        message += space+'VERIFY:       '+str(veri)
-        if payload is not None:
-            message += space+'PAYLOAD:'+space+str(payload)
-        message += space+'RESPONSECODE: '+str(resp.status_code)
-        message += space+'RESPONSE:'+space+str(resp.content)
-        REQUESTLOGGER.info(message)
-
     def __string_to_bool(self, string):
         dic = {'false':False, 'true':True}
         if string is True or string is False:
             return string
         else:
             return dic[string.lower()]
+
+
+    def __log_request_response_to_file(self, **args):
+        message = util.make_request_log_message(**args)
+        args['logger'].info(message)

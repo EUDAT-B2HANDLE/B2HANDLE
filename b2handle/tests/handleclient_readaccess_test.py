@@ -87,22 +87,22 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         list_of_all_entries = [
             {
                 "index":111,
-                "type":"test1",
+                "type":"TEST1",
                 "data":"val1"
             },
             {
                 "index":2222,
-                "type":"test2",
+                "type":"TEST2",
                 "data":"val2"
             },
             {
                 "index":333,
-                "type":"test3",
+                "type":"TEST3",
                 "data":"val3"
             },
             {
                 "index":4,
-                "type":"test4",
+                "type":"TEST4",
                 "data":"val4"
             }
         ]

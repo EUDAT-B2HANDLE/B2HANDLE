@@ -1,5 +1,7 @@
 import logging
 import handleexceptions
+import urllib
+import base64
 
 
 class NullHandler(logging.Handler):
@@ -120,3 +122,49 @@ def check_handle_syntax_with_index(string, base_already_checked=False):
     if not base_already_checked:
         check_handle_syntax(string)
     return True
+
+def create_authentication_string(username, password):
+    '''
+    Create an authentication string from the username and password.
+
+    :param username: Username.
+    :param password: Password.
+    :return: The encoded string.
+    '''
+
+    LOGGER.debug('create_authentication_string...')
+
+    username_utf8 = username.encode('utf-8')
+    userpw_utf8 = password.encode('utf-8')
+    username_perc = urllib.quote(username_utf8)
+    userpw_perc = urllib.quote(userpw_utf8)
+
+    authinfostring = username_perc + ':' + userpw_perc
+    authinfostring_base64 = base64.b64encode(authinfostring)
+    return authinfostring_base64
+
+def make_request_log_message(**args):
+
+    mandatory_args = ['op', 'handle', 'url', 'headers', 'verify', 'resp']
+    check_presence_of_mandatory_args(args, mandatory_args)
+    space = '\n   '
+    message = ''
+    message += '\n'+args['op']+' '+args['handle']
+    message += space+'URL:          '+args['url']
+    message += space+'HEADERS:      '+str(args['headers'])
+    message += space+'VERIFY:       '+str(args['verify'])
+    if 'payload' in args.keys():
+        message += space+'PAYLOAD:'+space+str(args['payload'])
+    message += space+'RESPONSECODE: '+str(args['resp'].status_code)
+    message += space+'RESPONSE:'+space+str(args['resp'].content)
+    return message
+
+def check_presence_of_mandatory_args(args, mandatory_args):
+    missing_args = []
+    for name in mandatory_args:
+        if name not in args.keys():
+            missing_args.append(name)
+    if len(missing_args)>0:
+        raise ValueError('Missing mandatory arguments: '+', '.join(missing_args))
+    else:
+        return True

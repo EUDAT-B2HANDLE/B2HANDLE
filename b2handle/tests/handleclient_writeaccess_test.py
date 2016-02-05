@@ -73,7 +73,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         list_of_all_entries = [
             {
                 "index":111,
-                "type":"test1",
+                "type": "TEST1",
                 "data":{
                     "format":"string",
                     "value":"val1"
@@ -81,7 +81,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":2222,
-                "type":"test2",
+                "type": "TEST2",
                 "data":{
                     "format":"string",
                     "value":"val2"
@@ -89,7 +89,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":333,
-                "type":"test3",
+                "type": "TEST3",
                 "data":{
                     "format":"string",
                     "value":"val3"
@@ -97,7 +97,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":4,
-                "type":"test4",
+                "type": "TEST4",
                 "data":{
                     "format":"string",
                     "value":"val4"
@@ -130,7 +130,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         list_of_all_entries = [
             {
                 "index":111,
-                "type":"test1",
+                "type": "TEST1",
                 "data":{
                     "format":"string",
                     "value":"val1"
@@ -138,7 +138,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":2222,
-                "type":"test2",
+                "type": "TEST2",
                 "data":{
                     "format":"string",
                     "value":"val2"
@@ -146,7 +146,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":333,
-                "type":"test2",
+                "type": "TEST2",
                 "data":{
                     "format":"string",
                     "value":"val3"
@@ -154,7 +154,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             },
             {
                 "index":4,
-                "type":"test4",
+                "type": "TEST4",
                 "data":{
                     "format":"string",
                     "value":"val4"
