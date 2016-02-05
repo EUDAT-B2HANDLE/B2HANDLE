@@ -250,7 +250,7 @@ class HandleSystemConnector(object):
         head = self.__get_headers('GET')
         veri = self.__HTTPS_verify
         resp = self.__session.get(url, headers=head, verify=veri)
-        util.log_request_response_to_file(
+        self.__log_request_response_to_file(
             logger=REQUESTLOGGER,
             op='GET',
             handle=handle,
@@ -303,7 +303,7 @@ class HandleSystemConnector(object):
                 resp = self.__session.put(url, data=payload, headers=head, verify=veri)
             elif self.__authentication_method == self.__auth_methods['cert']:
                 resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
-            util.log_request_response_to_file(
+            self.__log_request_response_to_file(
                 logger=REQUESTLOGGER,
                 op='PUT',
                 handle=handle,
@@ -344,7 +344,7 @@ class HandleSystemConnector(object):
                 resp = self.__session.delete(url, headers=head, verify=veri)
             elif self.__authentication_method == self.__auth_methods['cert']:
                 resp = self.__session.delete(url, headers=head, verify=veri, cert=self.__cert_object)
-            util.log_request_response_to_file(
+            self.__log_request_response_to_file(
                 logger=REQUESTLOGGER,
                 op='DELETE',
                 handle=handle,
@@ -478,3 +478,8 @@ class HandleSystemConnector(object):
             return string
         else:
             return dic[string.lower()]
+
+
+    def __log_request_response_to_file(self, **args):
+        message = util.make_request_log_message(**args)
+        args['logger'].info(message)

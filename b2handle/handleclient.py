@@ -1339,7 +1339,7 @@ class EUDATHandleClient(object):
         head = self.__get_headers('SEARCH')
         veri = self.__HTTPS_verify
         resp = self.__session.get(entirequery, headers=head, verify=veri)
-        util.log_request_response_to_file(
+        self.__log_request_response_to_file(
             logger=REQUESTLOGGER,
             op='SEARCH',
             handle='',
@@ -1732,3 +1732,7 @@ class EUDATHandleClient(object):
 
         for key, value in kvpairs.iteritems():
             locelement.set(key, str(value))
+
+    def __log_request_response_to_file(self, **args):
+        message = util.make_request_log_message(**args)
+        args['logger'].info(message)

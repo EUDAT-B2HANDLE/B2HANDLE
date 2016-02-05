@@ -143,9 +143,9 @@ def create_authentication_string(username, password):
     authinfostring_base64 = base64.b64encode(authinfostring)
     return authinfostring_base64
 
-def log_request_response_to_file(**args):
+def make_request_log_message(**args):
 
-    mandatory_args = ['logger', 'op', 'handle', 'url', 'headers', 'verify', 'resp']
+    mandatory_args = ['op', 'handle', 'url', 'headers', 'verify', 'resp']
     check_presence_of_mandatory_args(args, mandatory_args)
     space = '\n   '
     message = ''
@@ -157,7 +157,7 @@ def log_request_response_to_file(**args):
         message += space+'PAYLOAD:'+space+str(args['payload'])
     message += space+'RESPONSECODE: '+str(args['resp'].status_code)
     message += space+'RESPONSE:'+space+str(args['resp'].content)
-    args['logger'].info(message)
+    return message
 
 def check_presence_of_mandatory_args(args, mandatory_args):
     missing_args = []
