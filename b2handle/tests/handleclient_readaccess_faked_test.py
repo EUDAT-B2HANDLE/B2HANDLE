@@ -9,6 +9,7 @@ else:
 import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
+from b2handle.util import check_handle_syntax
 
 class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
     '''Testing methods for retrieving values and indices.'''
@@ -60,7 +61,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
             'The HS_ADMIN has no entry "index".')
         self.assertIn('permissions', val,
             'The HS_ADMIN has no entry "permissions".')
-        syntax_ok = self.inst.check_handle_syntax(val['handle'])
+        syntax_ok = check_handle_syntax(val['handle'])
         self.assertTrue(syntax_ok,
             'The handle in HS_ADMIN is not well-formatted.')
         self.assertIsInstance(val['index'], (int, long),

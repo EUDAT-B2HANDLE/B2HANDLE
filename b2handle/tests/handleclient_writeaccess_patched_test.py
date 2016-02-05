@@ -21,6 +21,7 @@ from b2handle.handleexceptions import ReverseLookupException
 from b2handle.handleexceptions import GenericHandleError
 from mockresponses import MockResponse, MockSearchResponse
 from utilities import failure_message, replace_timestamps, sort_lists
+from b2handle.util import check_handle_syntax
 
 class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
     '''Testing methods with write access (patched server access).
@@ -40,7 +41,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
     there is a method "replace_timestamps".
     '''
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def setUp(self, username_check_patch):
 
         # Define replacement for the patched check for username existence:
@@ -64,8 +65,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # register_handle
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_register_handle(self, getpatch, putpatch):
         """Test registering a new handle with various types of values."""
 
@@ -104,9 +105,9 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_register_handle_different_owner(self, getpatch, putpatch, username_check_patch):
         """Test registering a new handle with various types of values."""
 
@@ -124,11 +125,11 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         username_check_patch.response_value = True
 
         # Make another connector, to add the handle owner:
-        cred = PIDClientCredentials('http://handle.server',
-                                   '999:user/name',
-                                   'apassword',
-                                   'myprefix',
-                                   '300:handle/owner')
+        cred = PIDClientCredentials(handle_server_url='http://handle.server',
+                                   username='999:user/name',
+                                   password='apassword',
+                                   prefix='myprefix',
+                                   handleowner='300:handle/owner')
         newInst = EUDATHandleClient.instantiate_with_credentials(cred)
 
         # Run the code to be tested:
@@ -157,8 +158,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_register_handle_already_exists(self, getpatch, putpatch):
         """Test if overwrite=False prevents handle overwriting."""
 
@@ -177,8 +178,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(putpatch.call_count, 0,
             'The method "requests.put" was called! ('+str(putpatch.call_count)+' times). It should NOT have been called.')
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_register_handle_already_exists_overwrite(self, getpatch, putpatch):
         """Test registering an existing handle with various types of values, with overwrite=True."""
 
@@ -223,8 +224,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # generate_and_register_handle
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_generate_and_register_handle(self, getpatch, putpatch):
         """Test generating and registering a new handle."""
 
@@ -258,8 +259,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # modify_handle_value
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_one(self, getpatch, putpatch):
         """Test modifying one existing handle value."""
 
@@ -292,8 +293,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_several(self, getpatch, putpatch):
         """Test modifying several existing handle values."""
 
@@ -400,8 +401,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_corrupted(self, getpatch, putpatch):
         """Test exception when trying to modify corrupted handle record."""
 
@@ -426,8 +427,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(putpatch.call_count, 0,
             'The method "requests.put" was called! ('+str(putpatch.call_count)+' times). It should NOT have been called.')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_without_authentication(self, getpatch, putpatch):
         """Test if exception when not authenticated."""
 
@@ -448,8 +449,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(HandleAuthenticationError):
             inst_readonly.modify_handle_value(testhandle, foo='bar')
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_several_inexistent(self, getpatch, putpatch):
         """Test modifying several existing handle values, one of them inexistent."""
 
@@ -487,8 +488,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  methodname='modify_handle_value'))
 
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_several_inexistent_2(self, getpatch, putpatch):
         """Test modifying several existing handle values, SEVERAL of them inexistent."""
 
@@ -526,8 +527,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_modify_handle_value_HS_ADMIN(self, getpatch, putpatch):
         """Test exception when trying to modify HS_ADMIN."""
 
@@ -550,8 +551,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # delete_handle_value:
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_value_one_entry(self, getpatch, deletepatch):
         """Test deleting one entry from a record."""
 
@@ -576,8 +577,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertIn('?index=111',passed_url,
             'The index 111 is not specified in the URL '+passed_url+'. This is serious!')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_value_several_entries(self, getpatch, deletepatch):
         """Test deleting several entries from a record."""
 
@@ -607,8 +608,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertIn('index=222',passed_url,
             'The index 2222 is not specified in the URL '+passed_url+'. This may be serious!')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_value_inexistent_entry(self, getpatch, deletepatch):
         """Test deleting one inexistent entry from a record."""
 
@@ -631,8 +632,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(deletepatch.call_count, 0,
             'The method "requests.put" was called! ('+str(deletepatch.call_count)+' times). It should NOT have been called.')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_value_several_entries_one_nonexistent(self, getpatch, deletepatch):
         """Test deleting several entries from a record, one of them does not exist."""
 
@@ -662,8 +663,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertNotIn('&index=',passed_url,
             'A second index was specified in the URL '+passed_url+'. This may be serious!')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_value_several_occurrences(self, getpatch, deletepatch):
         """Test trying to delete from a corrupted handle record."""
 
@@ -696,7 +697,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # delete_handle:
 
-    @patch('b2handle.handleclient.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
     def test_delete_handle(self, deletepatch):
 
         # Define the replacement for the patched requests.delete method:
@@ -715,8 +716,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertNotIn('index=',passed_url,
             'Indices were passed to the delete method.')
 
-    @patch('b2handle.handleclient.requests.Session.delete')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.delete')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_delete_handle_inexistent(self, getpatch, deletepatch):
 
         # Define the replacement for the patched GET method:
@@ -744,8 +745,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # remove_additional_URL
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_remove_additional_URL(self, getpatch, putpatch):
         """Test normal removal of additional URL from 10320/LOC."""
 
@@ -780,8 +781,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='remove_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_remove_additional_URL_toempty(self, getpatch, putpatch):
         """Test removing all URL, which should remove the whole 10320/LOC attribute."""
 
@@ -815,8 +816,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='remove_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_remove_additional_URL_several(self, getpatch, putpatch):
         """Test removing all URL at the same time, which should remove the whole 10320/LOC attribute."""
 
@@ -855,8 +856,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='remove_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_remove_additional_URL_inexistent_handle(self, getpatch, putpatch):
         """Test normal removal of additional URL from an inexistent handle."""
 
@@ -879,8 +880,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
     
     # exchange_additional_URL
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_exchange_additional_URL_normal(self, getpatch, putpatch):
         """Test replacing an URL."""
 
@@ -916,8 +917,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                                  passed=passed_payload,
                                  methodname='exchange_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_exchange_additional_URL_doesnotexist(self, getpatch, putpatch):
         """Test if replacing an inexistent URL has any effect."""
 
@@ -942,8 +943,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(putpatch.call_count, 0,
             'The method "requests.put" was called '+str(putpatch.call_count)+' times - it should not be called at all.')
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_exchange_additional_URL_no10320loc(self, getpatch, putpatch):
         """Test if replacing an URL has any effect if there is no 10320/LOC."""
 
@@ -970,8 +971,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # add_additional_URL
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_first(self, getpatch, putpatch):
         """Test adding the first additional URL'(created the 10320/LOC entry)."""
 
@@ -1002,8 +1003,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_another(self, getpatch, putpatch):
         """Test adding an additional URL."""
 
@@ -1030,8 +1031,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_several(self, getpatch, putpatch):
         """Test adding several (3) additional URLs."""
 
@@ -1080,8 +1081,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_to_inexistent_handle(self, getpatch, putpatch):
         """Test exception if handle does not exist."""
 
@@ -1102,8 +1103,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(putpatch.call_count, 0,
             'The method "requests.put" was called '+str(putpatch.call_count)+' times - it should not be called at all.')
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_alreadythere(self, getpatch, putpatch):
         """Test adding an URL that is already there."""
 
@@ -1125,8 +1126,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(putpatch.call_count, 0,
             'The method "requests.put" was called '+str(putpatch.call_count)+' times (should be 0).')
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_GenericHandleError(self, getpatch, putpatch):
         """Test causing a Generic Handle Exception.
 
@@ -1153,8 +1154,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             'The method "requests.put" was called '+str(putpatch.call_count)+' times. It should not have been called at all.')
 
 
-    @patch('b2handle.handleclient.requests.Session.put')
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.put')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_add_additional_URL_several_toempty(self, getpatch, putpatch):
         """Test adding several (3) additional URLs to a handle that has no 10320/LOC."""
 
@@ -1203,8 +1204,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     # search_handle
 
-    @patch('b2handle.handleclient.requests.Session.get')
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def test_search_handle_wrong_url(self, usernamepatch, getpatch):
         """Test exception when wrong search servlet URL is given."""
 
@@ -1228,8 +1229,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(ReverseLookupException):
             self.inst.search_handle(URL='*')
 
-    @patch('b2handle.handleclient.requests.Session.get')
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def test_search_handle_handleurl(self, usernamepatch, getpatch):
         """Test exception when wrong search servlet URL (Handle Server REST API URL) is given."""
 
@@ -1253,7 +1254,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(ReverseLookupException):
             self.inst.search_handle(URL='*')
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle(self, getpatch):
         """Test searching for handles with any url (server should return list of handles)."""
 
@@ -1269,10 +1270,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             '')
         self.assertTrue(len(val) > 0,
             '')
-        self.assertTrue(self.inst.check_handle_syntax(val[0]),
+        self.assertTrue(check_handle_syntax(val[0]),
             '')
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle_emptylist(self, getpatch):
         """Test empty search result."""
 
@@ -1289,7 +1290,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(len(val),0,
             '')
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle_for_url(self, getpatch):
         """Test searching for url with wildcards."""
 
@@ -1313,7 +1314,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     if False:
         # At the moment, two keywords can not be searched!
-        @patch('b2handle.handleclient.requests.Session.get')
+        @patch('b2handle.handlesystemconnector.requests.Session.get')
         def test_search_handle_for_url_and_checksum(self, getpatch):
             """Test searching for url and checksum with wildcards."""
 
@@ -1335,7 +1336,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             self.assertEqual(type(val),type([]),
                 '')
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle_prefixfilter(self, getpatch):
         """Test filtering for prefixes."""
 
@@ -1354,7 +1355,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         for item in val:
             self.assertEqual(item.split('/')[0], prefix)
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle_prefixfilter_realprefix(self, getpatch):
         """Test filtering for prefixes."""
 
@@ -1373,7 +1374,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         for item in val:
             self.assertEqual(item.split('/')[0], prefix)
 
-    @patch('b2handle.handleclient.requests.Session.get')
+    @patch('b2handle.handlesystemconnector.requests.Session.get')
     def test_search_handle_fulltext(self, getpatch):
         """Test filtering for prefixes."""
 

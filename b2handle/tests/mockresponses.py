@@ -121,7 +121,18 @@ class MockCredentials(object):
     '''
     This is a mocked credentials object.
     '''
-    def __init__(self, config=None, user=None, password=None, url=None, restapi=None, handleowner=None):
+    def __init__(self,
+        config=None,
+        user=None,
+        password=None,
+        url=None,
+        restapi=None,
+        handleowner=None,
+        private_key=None,
+        certificate_and_key=None,
+        certificate_only=None
+    ):
+
         self.config = config
 
         if restapi is not None:
@@ -131,6 +142,10 @@ class MockCredentials(object):
         self.user = '100:my/testhandle'
         if user is not None:
             self.user = user
+
+        self.key = private_key
+        self.cert = certificate_only
+        self.cert_and_key = certificate_and_key
 
         self.password = 'password123abc'
         if password is not None:
@@ -150,3 +165,6 @@ class MockCredentials(object):
         self.get_password = mock.MagicMock(return_value=self.password)
         self.get_server_URL = mock.MagicMock(return_value=self.url)
         self.get_handleowner = mock.MagicMock(return_value=self.handleowner)
+        self.get_path_to_private_key = mock.MagicMock(return_value=self.key)
+        self.get_path_to_file_certificate_only = mock.MagicMock(return_value=self.cert)
+        self.get_path_to_file_certificate_and_key = mock.MagicMock(return_value=self.cert_and_key)

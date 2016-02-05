@@ -353,9 +353,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Test variables
         testusername_inexistent = '100:john/doe'
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            testusername_inexistent,
-            'some_password')
+            handle_server_url='some/url',
+            username=testusername_inexistent,
+            password='some_password')
 
         # Run code to be tested + check exception:
         # Create instance with credentials
@@ -375,9 +375,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            'some/url',
-            '100:my/testhandle',
-            'some_password_123')
+            handle_server_url='some/url',
+            username='100:my/testhandle',
+            password='some_password_123')
 
         # Run code to be tested
         # Create instance with credentials
@@ -386,7 +386,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Check desired outcomes
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     def test_instantiate_with_credentials_config(self, checkpatch):
         """Test instantiation of client: No exception if password wrong."""
 
@@ -405,7 +405,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         inst = EUDATHandleClient.instantiate_with_credentials(credentials)
         self.assertIsInstance(inst, EUDATHandleClient)
 
-    @patch('b2handle.handleclient.EUDATHandleClient.check_if_username_exists')
+    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
     @patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials_config_override(self, getpatch, checkpatch):
         """Test instantiation of client: We pass a config value in the credentials
