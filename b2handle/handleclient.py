@@ -9,13 +9,12 @@ Last updates 2015-10-01
 from handleexceptions import *
 import hsresponses
 from handlesystemconnector import HandleSystemConnector
+from searcher import Searcher
 import requests
 import json
-import copy
 import xml.etree.ElementTree as ET
 import uuid
 import logging
-import re
 import time
 import datetime
 import util
@@ -87,29 +86,18 @@ class EUDATHandleClient(object):
         args['handle_server_url'] = handle_server_url
 
         # Args that the constructor understands:
-        #self.__username = None # TODO MAY BE USED FOR REVERSE LOOKUP
-        #self.__password = None # TODO MAY BE USED FOR REVERSE LOOKUP
         self.__handleowner = None
         self.__HS_ADMIN_permissions = None
         self.__modify_HS_ADMIN = None
         self.__10320LOC_chooseby = None
-        self.__HTTPS_verify = None
-        self.__allowed_search_keys = None
-        self.__reverselookup_baseuri = None
-        self.__reverselookup_url_extension = None
-        self.__revlookup_auth_string = None
-        #self.__HS_auth_string = None
 
         # Other attributes:
-        self.__session = requests.Session()
         self.__handlesystemconnector = HandleSystemConnector(handleclient=self, **args)
+        self.__searcher = Searcher(handleclient=self, **args)
 
         # Defaults:
         defaults = {
             'HS_ADMIN_permissions':'011111110011', # default from hdl-admintool
-            'allowed_search_keys': ['URL', 'CHECKSUM'],
-            'HTTPS_verify': True,
-            'reverselookup_url_extension': '/hrls/handles/',
             'modify_HS_ADMIN': False
         }
 
@@ -154,64 +142,6 @@ class EUDATHandleClient(object):
         else:
             self.__handleowner = None
             LOGGER.info(' - handleowner: Will be set to default for each created handle separately.')
-
-        # Needed for reverse lookup:
-
-        if 'allowed_search_keys' in args.keys():
-            self.__allowed_search_keys = args['allowed_search_keys']
-            LOGGER.info(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
-        else:
-            self.__allowed_search_keys = defaults['allowed_search_keys']
-            LOGGER.info(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
-
-        if 'reverselookup_baseuri' in args.keys():
-            self.__reverselookup_baseuri = args['reverselookup_baseuri']
-            LOGGER.info(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
-        elif args['handle_server_url'] is not None:
-            self.__reverselookup_baseuri = args['handle_server_url']
-            LOGGER.info(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
-        else:
-            LOGGER.info(' - solrbaseurl: No default.')
-
-        if 'reverselookup_url_extension' in args.keys():
-            self.__reverselookup_url_extension = args['reverselookup_url_extension']
-            LOGGER.info(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
-        else:
-            self.__reverselookup_url_extension = defaults['reverselookup_url_extension']
-            LOGGER.info(' - reverselookup_url_extension set to default: '+self.__reverselookup_url_extension)
-
-        # Authentication reverse lookup:
-        #   If specified, use it.
-        #   Else: Try using handle system authentication
-        #   Else: search_handle does not work and will raise an exception.
-
-        reverselookup_username = None
-        if 'reverselookup_username' in args.keys():
-            reverselookup_username = args['reverselookup_username']
-            LOGGER.info('" - reverselookup_username set to: '+reverselookup_username)
-        elif 'username' in args.keys() and args['username'] is not None:
-            reverselookup_username = args['username']
-            LOGGER.info(' - reverselookup_username set to handle server username: '+reverselookup_username)
-        else:
-            LOGGER.info(' - reverselookup_username: No default.')
-
-
-        reverselookup_password = None
-        if 'reverselookup_password' in args.keys():
-            reverselookup_password = args['reverselookup_password']
-            LOGGER.info(' - reverselookup_password set.')
-        elif 'password' in args.keys() and args['password'] is not None:
-            reverselookup_password = args['password']
-            LOGGER.info(' - reverselookup_password set to handle server password.')
-        else:
-            LOGGER.info(' - reverselookup_password: No default.')
-
-
-        if reverselookup_username is not None and reverselookup_password is not None:
-            self.__set_revlookup_auth_string(reverselookup_username, reverselookup_password)
-            LOGGER.info('Reverse lookup authentication is set.')
-        else:
-            LOGGER.info('No reverse lookup authentication was set.')
 
     @staticmethod
     def instantiate_for_read_access(handle_server_url=None, **config):
@@ -1071,76 +1001,7 @@ class EUDATHandleClient(object):
         '''
         LOGGER.debug('search_handle...')
 
-        if URL is None and len(key_value_pairs) == 0:
-            LOGGER.debug('search_handle: No key value pair was specified.')
-            msg = 'No search terms have been specified. Please specify'+\
-                ' at least one key-value-pair.'
-            raise ReverseLookupException(msg=msg)
-
-        kvpairs = copy.deepcopy(key_value_pairs)
-        if URL is not None:
-            kvpairs['URL'] = URL
-
-        fulltext_searchterms = []
-        if 'searchterms' in key_value_pairs:
-            fulltext_searchterms = key_value_pairs['searchterms']
-            key_value_pairs.pop('searchterms')
-
-        list_of_handles = []
-        LOGGER.debug('search_handle: key-value-pairs: '+str(kvpairs))
-        query = self.create_revlookup_query(*fulltext_searchterms, **kvpairs)
-
-        if query is None:
-            msg = 'No search query was specified'
-            raise ReverseLookupException(msg=msg)
-
-        resp = self.__send_revlookup_get_request(query)
-
-        # Check for undefined fields
-        rx = 'RemoteSolrException: Error from server at .+: undefined field .+'
-        match = re.compile(rx).search(str(resp.content))
-        if match is not None:
-            undefined_field = resp.content.split('undefined field ')[1]
-            msg = 'Tried to search in undefined field "'+undefined_field+'"..'
-            raise ReverseLookupException(msg=msg, query=query, response=resp)
-
-        if resp.status_code == 200:
-            try:
-                list_of_handles = json.loads(resp.content)
-            except ValueError:
-                msg = 'The response is not JSON.'
-                raise ReverseLookupException(msg=msg, query=query, response=resp)
-
-        elif resp.status_code == 401:
-            msg = 'Authentication failed.'
-            if self.__username is not None:
-                msg += (' If the Reverse Lookup Servlet you are'
-                    ' using does not accept the same username and password'
-                    ' as the Handle Server, please provide its username and'
-                    ' password separately when instantiating the client')
-            else:
-                msg +=' You need to specify a username and password to search'
-            raise ReverseLookupException(msg=msg, query=query, response=resp)
-        elif resp.status_code == 404:
-            msg = 'Wrong search servlet URL ('+resp.request.url+')'
-            rx = 'The handle you requested.+cannot be found'
-            match = re.compile(rx, re.DOTALL).search(str(resp.content))
-            if match is not None:
-                msg += '. It seems you reached a Handle Server'
-            raise ReverseLookupException(msg=msg, query=query, response=resp)
-
-        else:
-            raise ReverseLookupException(query=query, response=resp)
-
-        # Filter prefixes:
-        # TODO QUESTION to Robert: Is this the desired behaviour?
-        if prefix is not None:
-            LOGGER.debug('search_handle: Restricting search to prefix '+prefix)
-            filteredlist_of_handles = []
-            for i in xrange(len(list_of_handles)):
-                if list_of_handles[i].split('/')[0] == prefix:
-                    filteredlist_of_handles.append(list_of_handles[i])
-            list_of_handles = filteredlist_of_handles
+        list_of_handles = self.__searcher.search_handle(URL=URL, prefix=prefix, **key_value_pairs)
 
         return list_of_handles
 
@@ -1190,94 +1051,7 @@ class EUDATHandleClient(object):
                 indices.append(entry['index'])
         return indices
 
-    def create_revlookup_query(self, *fulltext_searchterms, **keyvalue_searchterms):
-        '''
-        Create the part of the solr request that comes after the question mark,
-        e.g. ?URL=*dkrz*&CHECKSUM=*abc*. If allowed search keys are
-        configured, only these are used. If no'allowed search keys are
-        specified, all key-value pairs are passed on to the reverse lookup
-        servlet.
-
-        :param fulltext_searchterms: Optional. Any term specified will be used
-            as search term. Not implemented yet, so will be ignored.
-        :param keyvalue_searchterms: Optional. Key-value pairs. Any key-value
-            pair will be used to search for the value in the field "key".
-            Wildcards accepted (refer to the documentation of the reverse
-            lookup servlet for syntax.)
-        :return: The query string, after the "?". If no valid search terms were
-            specified, None is returned.
-        '''
-        LOGGER.debug('create_revlookup_query...')
-
-        allowed_search_keys = self.__allowed_search_keys
-        only_search_for_allowed_keys = False
-        if len(allowed_search_keys) > 0:
-            only_search_for_allowed_keys = True
-
-        fulltext_searchterms_given = True
-        if len(fulltext_searchterms) == 0:
-            fulltext_searchterms_given = False
-        if len(fulltext_searchterms) == 1 and fulltext_searchterms[0] is None:
-            fulltext_searchterms_given = False
-        if fulltext_searchterms_given:
-            msg = 'Full-text search is not implemented yet.'+\
-                ' The provided searchterms '+str(fulltext_searchterms)+\
-                ' can not be used.'
-            raise ReverseLookupException(msg=msg)
-
-        keyvalue_searchterms_given = True
-        if len(keyvalue_searchterms) == 0:
-            keyvalue_searchterms_given = False
-        if len(keyvalue_searchterms) == 1 and\
-            keyvalue_searchterms.itervalues().next() is None:
-            keyvalue_searchterms_given = False
-
-        if not keyvalue_searchterms_given and not fulltext_searchterms_given:
-            msg = 'No search terms have been specified. Please specify'+\
-                ' at least one key-value-pair.'
-            raise ReverseLookupException(msg=msg)
-
-        counter = 0
-        query = '?'
-        for key, value in keyvalue_searchterms.iteritems():
-
-            if only_search_for_allowed_keys and key not in allowed_search_keys:
-                msg = 'Cannot search for key "'+key+'". Only searches '+\
-                    'for keys '+str(allowed_search_keys)+' are implemented.'
-                raise ReverseLookupException(msg=msg)
-            else:
-                query = query+'&'+key+'='+value
-                counter += 1
-
-        query = query.replace('?&', '?')
-        LOGGER.debug('create_revlookup_query: query: '+query)
-        if counter == 0: # unreachable?
-            msg = 'No valid search terms have been specified.'
-            raise ReverseLookupException(msg=msg)
-        return query
-
     # Private methods:
-
-    def __get_headers(self, action):
-        '''
-        Create HTTP headers for different HTTP requests. Content-type and
-            Accept are 'application/json', as the library is interacting with
-            a REST API.
-
-        :param action: Action for which to create the header ('GET', 'PUT',
-            'DELETE', 'SEARCH').
-        :return: dict containing key-value pairs, e.g. 'Accept',
-            'Content-Type', etc. (depening on the action).
-        '''
-        head = None
-        accept = 'application/json'
-        content_type = 'application/json'
-
-        if action is 'SEARCH':
-            head = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
-        else:
-            LOGGER.debug('__getHeader: ACTION is unknown ('+action+')')
-        return head
 
     def __send_handle_delete_request(self, handle, indices=None):
         '''
@@ -1330,36 +1104,6 @@ class EUDATHandleClient(object):
 
         resp = self.__handlesystemconnector.send_handle_get_request(handle, indices)
         return resp
-
-    def __send_revlookup_get_request(self, query):
-
-        solrurl = self.__reverselookup_baseuri.rstrip('/')+'/'+self.__reverselookup_url_extension.strip('/')
-        entirequery = solrurl+'?'+query.lstrip('?')
-
-        head = self.__get_headers('SEARCH')
-        veri = self.__HTTPS_verify
-        resp = self.__session.get(entirequery, headers=head, verify=veri)
-        self.__log_request_response_to_file(
-            logger=REQUESTLOGGER,
-            op='SEARCH',
-            handle='',
-            url=entirequery,
-            headers=head,
-            verify=veri,
-            resp=resp)
-        return resp
-
-    def __set_revlookup_auth_string(self, username, password):
-        '''
-        Creates and sets the authentication string for accessing the reverse
-            lookup servlet. No return, the string is set as an attribute to
-            the client instance.
-
-        :param username: Username.
-        :param password: Password.
-        '''
-        auth = util.create_authentication_string(username, password)
-        self.__revlookup_auth_string = auth
 
     def __get_handle_record_if_necessary(self, handle, handlerecord_json):
         '''
@@ -1551,7 +1295,6 @@ class EUDATHandleClient(object):
             ' times against the new url "'+newurl+'" in 10320/LOC.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
-
 
     def __remove_URL_from_10320LOC(self, url, list_of_entries, handle):
         '''
