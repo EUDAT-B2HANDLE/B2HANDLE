@@ -9,6 +9,14 @@ from b2handle.handleexceptions import CredentialsFormatError
 import util
 import json
 import os
+import logging
+
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(NullHandler())
 
 class PIDClientCredentials(object):
     '''
@@ -72,7 +80,7 @@ class PIDClientCredentials(object):
         :raises: HandleSyntaxError
         '''
         # Possible arguments:
-        useful_args = ['handle_server_url', 'username', 'password', 'private_key', 'certificate_only','certificate_and_key', 'prefix', 'handleowner']
+        useful_args = ['handle_server_url', 'username', 'password', 'private_key', 'certificate_only','certificate_and_key', 'prefix', 'handleowner', 'reverselookup_password', 'reverselookup_username', 'reverselookup_baseuri']
         util.add_missing_optional_args_with_value_none(args, useful_args)
 
         # Args that the constructor understands:
@@ -92,9 +100,9 @@ class PIDClientCredentials(object):
         self.__additional_config = self.__collect_additional_arguments(args, useful_args)
 
         # Some checks:
-        self.__check_mandatory_args()
         self.__check_handle_syntax()
         self.__check_file_existence()
+        self.__check_if_enough_arguments_for_reverselookup_authentication(args)
         self.__check_if_enough_arguments_for_authentication()
 
     def __collect_additional_arguments(self, args, used_args):
@@ -107,9 +115,16 @@ class PIDClientCredentials(object):
         else:
             return None
 
-    def __check_mandatory_args(self):
-        if self.__handle_server_url is None:
-            raise CredentialsFormatError(msg='The Handle Server\'s URL is missing in the credentials.')
+    def __check_if_enough_arguments_for_reverselookup_authentication(self, args):
+        cond1 = args['reverselookup_username'] or args['username']
+        cond2 = args['reverselookup_password'] or args['password']
+        cond3 = args['reverselookup_baseuri']  or args['handle_server_url']
+        if cond1 and cond2 and cond3:
+            self.__reverselookup = True
+            LOGGER.debug('Sufficient information given for reverselookup.')
+        else:
+            self.__reverselookup = False
+
 
     def __check_handle_syntax(self):
         if self.__handleowner:
@@ -150,16 +165,25 @@ class PIDClientCredentials(object):
 
         # None was provided:
         if authentication_method is None:
-            msg = ''
-            if self.__username and not self.__password:
-                msg += 'Username was provided, but no password. '
-            elif self.__password and not self.__username:
-                msg += 'Password was provided, but no username. '
-            if self.__certificate_only and not self.__private_key:
-                msg += 'A client certificate was provided, but no private key. '
-            elif self.__private_key and not self.__certificate_only:
-                msg += 'A private key was provided, but no client certificate. '
-            raise CredentialsFormatError(msg=msg)
+            if self.__reverselookup is True:
+                msg = ('Insufficient credentials for writing to handle '
+                    'server, but sufficient credentials for searching.')
+                LOGGER.info(msg)
+            else:
+                msg = ''
+                if self.__username and not self.__password:
+                    msg += 'Username was provided, but no password. '
+                elif self.__password and not self.__username:
+                    msg += 'Password was provided, but no username. '
+                if self.__certificate_only and not self.__private_key:
+                    msg += 'A client certificate was provided, but no private key. '
+                elif self.__private_key and not self.__certificate_only:
+                    msg += 'A private key was provided, but no client certificate. '
+                if self.__reverselookup is None:
+                    msg += 'Reverse lookup credentials not checked yet.'
+                elif self.__reverselookup is False:
+                    msg += 'Insufficient credentials for searching.'
+                raise CredentialsFormatError(msg=msg)
 
 
     def get_username(self):
