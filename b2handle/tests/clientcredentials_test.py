@@ -54,12 +54,6 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
                                     password = self.randompassword)
         self.assertIsInstance(inst, PIDClientCredentials)
 
-    def test_credentials_missing_url(self):
-        """Exception occurs when URL is missing."""
-        with self.assertRaises(CredentialsFormatError):
-            inst = PIDClientCredentials(username = self.user,
-                                        password = self.randompassword)
-
     def test_credentials_constructor4(self):
         """Test credentials instantiation. Prefix and handleowner can be passed. """
         inst = PIDClientCredentials(handle_server_url = self.url,

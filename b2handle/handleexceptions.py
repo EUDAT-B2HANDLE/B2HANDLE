@@ -4,6 +4,8 @@
 # Last updated: 2015-08-26
 import json
 from util import add_missing_optional_args_with_value_none
+import re
+
 
 class BrokenHandleRecordException(Exception):
 
@@ -120,9 +122,11 @@ class ReverseLookupException(Exception):
             self.msg += '\n\tQuery: '+self.query
 
         if self.response is not None:
+            pat = re.compile('>[\s]+<')
+            responsecontent_less_whitespace = pat.sub('><', str(self.response.content))
             self.msg += '\n\tURL: '+str(self.response.request.url)
             self.msg += '\n\tHTTP Status Code: '+str(self.response.status_code)
-            self.msg += '\n\tResponse: '+str(self.response.content)
+            self.msg += '\n\tResponse: '+responsecontent_less_whitespace
 
         super(self.__class__, self).__init__(self.msg)
       
