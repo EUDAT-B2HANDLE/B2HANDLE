@@ -23,17 +23,11 @@ import util
 #LOG_FILENAME = 'example.log'
 #logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-h = NullHandler()
-
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(h)
+LOGGER.addHandler(util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(h)
+REQUESTLOGGER.addHandler(util.NullHandler())
 
 class EUDATHandleClient(object):
     '''

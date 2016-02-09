@@ -5,15 +5,11 @@ import copy
 import requests
 from handleexceptions import *
 
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(NullHandler())
+LOGGER.addHandler(util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(NullHandler())
+REQUESTLOGGER.addHandler(util.NullHandler())
 
 class Searcher(object):
 

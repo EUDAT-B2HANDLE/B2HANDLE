@@ -11,12 +11,8 @@ import json
 import os
 import logging
 
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(NullHandler())
+LOGGER.addHandler(util.NullHandler())
 
 class PIDClientCredentials(object):
     '''
