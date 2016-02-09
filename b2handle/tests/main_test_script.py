@@ -134,11 +134,11 @@ if __name__ == '__main__':
         numtests += n
         print 'Number of tests for patched write access:\t\t\t\t\t'+str(n)
 
-        patched_write_conn = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorWriteaccessPatchedTestCase)
-        tests_to_run.append(patched_write_conn)
-        n=patched_write_conn.countTestCases()
+        patched_conn = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorAccessPatchedTestCase)
+        tests_to_run.append(patched_conn)
+        n=patched_conn.countTestCases()
         numtests += n
-        print 'Number of tests for patched write access (connector):\t\t\t\t\t'+str(n)
+        print 'Number of tests for patched access (connector):\t\t\t\t\t'+str(n)
 
 
     if read_access:
