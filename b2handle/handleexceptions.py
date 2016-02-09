@@ -7,8 +7,8 @@ Author: Merret Buurman (DKRZ), 2015-2016
 '''
 
 import json
-from util import add_missing_optional_args_with_value_none
 import re
+from util import add_missing_optional_args_with_value_none
 
 class BrokenHandleRecordException(Exception):
 

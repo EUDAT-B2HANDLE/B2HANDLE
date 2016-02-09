@@ -6,7 +6,7 @@ import logging
 import json
 import sys
 sys.path.append("../..")
-import b2handle.util
+import b2handle.utilhandle
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handlesystemconnector import HandleSystemConnector
 from b2handle.handleexceptions import HandleAlreadyExistsException
@@ -67,7 +67,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             self.password,
             HTTPS_verify=self.https_verify)
 
-        authstring = b2handle.util.create_authentication_string(self.user, self.password)
+        authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         self.headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring

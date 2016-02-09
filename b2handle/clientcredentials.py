@@ -7,11 +7,12 @@ This module provides the class PIDClientCredentials
 
 '''
 
-import util
 import json
 import os
 import logging
 from b2handle.handleexceptions import CredentialsFormatError
+import util
+import utilhandle
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -138,9 +139,9 @@ class PIDClientCredentials(object):
 
     def __check_handle_syntax(self):
         if self.__handleowner:
-            util.check_handle_syntax_with_index(self.__handleowner)
+            utilhandle.check_handle_syntax_with_index(self.__handleowner)
         if self.__username:
-            util.check_handle_syntax_with_index(self.__username)
+            utilhandle.check_handle_syntax_with_index(self.__username)
 
     def __check_file_existence(self):
         if self.__certificate_only:

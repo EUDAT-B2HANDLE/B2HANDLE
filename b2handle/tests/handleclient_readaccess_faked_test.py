@@ -9,7 +9,7 @@ else:
 import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
-from b2handle.util import check_handle_syntax
+from b2handle.utilhandle import check_handle_syntax
 
 class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
     '''Testing methods for retrieving values and indices.'''

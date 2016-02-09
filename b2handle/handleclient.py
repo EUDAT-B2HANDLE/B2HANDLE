@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 import uuid
 import logging
 import datetime
+import utilhandle
 import util
 import requests # This import is needed for mocking in unit tests.
 from handleexceptions import HandleNotFoundException
@@ -23,8 +24,6 @@ from handleexceptions import IllegalOperationException
 from handlesystemconnector import HandleSystemConnector
 from searcher import Searcher
 import hsresponses
-
-
 
 # parameters for debugging
 #LOG_FILENAME = 'example.log'
@@ -266,7 +265,7 @@ class EUDATHandleClient(object):
         '''
         LOGGER.debug('retrieve_handle_record_json...')
 
-        util.check_handle_syntax(handle)
+        utilhandle.check_handle_syntax(handle)
         response = self.__send_handle_get_request(handle)
         if hsresponses.handle_not_found(response):
             return None
@@ -652,7 +651,7 @@ class EUDATHandleClient(object):
 
         LOGGER.debug('delete_handle...')
 
-        util.check_handle_syntax(handle)
+        utilhandle.check_handle_syntax(handle)
 
         # Safety check. In old epic client, the method could be used for
         # deleting handle values (not entire handle) by specifying more
@@ -1156,7 +1155,7 @@ class EUDATHandleClient(object):
             prefix = handle.split('/')[0]
             adminhandle = '0.NA/'+prefix
         else:
-            adminindex, adminhandle = util.remove_index_from_handle(handleowner)
+            adminindex, adminhandle = utilhandle.remove_index_from_handle(handleowner)
 
         data = {
             'value':{

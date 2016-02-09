@@ -8,15 +8,16 @@ Author: Merret Buurman (DKRZ), 2015-2016
 '''
 
 import json
+import logging
+import requests
+import os
 from handleexceptions import HandleNotFoundException
 from handleexceptions import GenericHandleError
 from handleexceptions import HandleAuthenticationError
 from handleexceptions import CredentialsFormatError
 import hsresponses
 import util
-import logging
-import requests
-import os
+import utilhandle
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -175,7 +176,7 @@ class HandleSystemConnector(object):
     def __setup_for_auth_by_user_and_pw(self):
 
         # Check username:
-        util.check_handle_syntax_with_index(self.__username)
+        utilhandle.check_handle_syntax_with_index(self.__username)
         self.check_if_username_exists(self.__username)
 
         # Make Basic Auth String:
@@ -244,7 +245,7 @@ class HandleSystemConnector(object):
         :param password: The password contained in the index of the username
             handle.
         '''
-        auth = util.create_authentication_string(username, password)
+        auth = utilhandle.create_authentication_string(username, password)
         self.__basic_authentication_string = auth
 
 
@@ -438,7 +439,7 @@ class HandleSystemConnector(object):
         '''
         LOGGER.debug('check_if_username_exists...')
 
-        _, handle = util.remove_index_from_handle(username)
+        _, handle = utilhandle.remove_index_from_handle(username)
 
         resp = self.send_handle_get_request(handle)
         if hsresponses.does_handle_exist(resp):
@@ -539,5 +540,5 @@ class HandleSystemConnector(object):
         return url
 
     def __log_request_response_to_file(self, **args):
-        message = util.make_request_log_message(**args)
+        message = utilhandle.make_request_log_message(**args)
         args['logger'].info(message)

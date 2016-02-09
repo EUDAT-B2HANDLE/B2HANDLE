@@ -8,10 +8,11 @@ Author: Merret Buurman (DKRZ), 2015-2016
 '''
 
 import logging
-import json
-import util
 import re
 import requests
+import json
+import utilhandle
+import util
 from handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
@@ -332,7 +333,7 @@ class Searcher(object):
         :param username: Username.
         :param password: Password.
         '''
-        auth = util.create_authentication_string(username, password)
+        auth = utilhandle.create_authentication_string(username, password)
         self.__revlookup_auth_string = auth
 
     def __send_revlookup_get_request(self, query):
@@ -354,8 +355,7 @@ class Searcher(object):
         )
         return resp
 
-
     def __log_request_response_to_file(self, **args):
-        message = util.make_request_log_message(**args)
+        message = utilhandle.make_request_log_message(**args)
         args['logger'].info(message)
 

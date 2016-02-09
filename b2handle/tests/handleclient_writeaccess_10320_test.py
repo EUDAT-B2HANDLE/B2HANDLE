@@ -6,7 +6,7 @@ import json
 import logging
 import sys
 sys.path.append("../..")
-import b2handle.util
+import b2handle.utilhandle
 import b2handle.clientcredentials
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handlesystemconnector import HandleSystemConnector
@@ -91,7 +91,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
             }
         ]
 
-        authstring = b2handle.util.create_authentication_string(self.user, self.password)
+        authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring
@@ -113,7 +113,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
     def tearDown(self):
 
         veri = self.https_verify
-        authstring = b2handle.util.create_authentication_string(self.user, self.password)
+        authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring

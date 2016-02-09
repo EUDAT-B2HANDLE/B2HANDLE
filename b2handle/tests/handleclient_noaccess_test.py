@@ -9,7 +9,7 @@ import json
 sys.path.append("../..")
 import b2handle.handleclient as b2handle
 from b2handle.handleexceptions import HandleSyntaxError
-from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle, create_authentication_string
+from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle, create_authentication_string
 
 class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 

@@ -11,7 +11,7 @@ from mock import patch
 sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError, GenericHandleError, HandleNotFoundException
-from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
+from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
 from mockresponses import MockResponse, MockSearchResponse
 from utilities import replace_timestamps, failure_message
 
