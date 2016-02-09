@@ -1,5 +1,17 @@
+'''
+This moodule contains the class HandleSystemConnector which is
+    responsible for the library's interaction with the Handle
+    Server.
+
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
 import json
-from handleexceptions import *
+from handleexceptions import HandleNotFoundException
+from handleexceptions import GenericHandleError
+from handleexceptions import HandleAuthenticationError
+from handleexceptions import CredentialsFormatError
 import hsresponses
 import util
 import logging
@@ -14,7 +26,14 @@ REQUESTLOGGER.addHandler(util.NullHandler())
 
 
 class HandleSystemConnector(object):
-    
+    '''
+    HandleSystemConnector handles the interaction of the b2handle
+    library with the handle server. It holds the necessary
+    information (URL, credentials, defaults) and handles
+    some exceptions.
+
+    '''
+
     def __init__(self, **args):
 
         LOGGER.debug('Instantiating handle system connector.')
@@ -23,12 +42,21 @@ class HandleSystemConnector(object):
                 LOGGER.debug('Param '+argname+'='+str(args[argname]))
 
         # Possible arguments:
-        optional_args = ['handle_server_url', 'REST_API_url_extension','HTTPS_verify','username', 'password', 'private_key', 'certificate_only','certificate_and_key']
+        optional_args = [
+            'handle_server_url',
+            'REST_API_url_extension',
+            'HTTPS_verify',
+            'username',
+            'password',
+            'private_key',
+            'certificate_only',
+            'certificate_and_key'
+        ]
         util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Defaults for args:
         defaults = {
-            'handle_server_url':'https://hdl.handle.net',
+            'handle_server_url': 'https://hdl.handle.net',
             'REST_API_url_extension': '/api/handles/',
             'HTTPS_verify': True,
         }
@@ -134,11 +162,11 @@ class HandleSystemConnector(object):
             raise TypeError('No handle_server_url given. Default URL not ok for write access.')
 
         # Find out authentication method:
-        self.__authentication_method = self.__which_authentication_method(args)
+        self.__authentication_method = self.__which_authentication_method()
 
         # Authentication method dependent settings:
         if self.__authentication_method == self.__auth_methods['user_pw']:
-            self.__setup_for_auth_by_user_and_pw(args)
+            self.__setup_for_auth_by_user_and_pw()
         elif self.__authentication_method == self.__auth_methods['cert']:
             self.__setup_for_auth_by_clientcertificate()
         elif self.__authentication_method is None:
@@ -147,7 +175,7 @@ class HandleSystemConnector(object):
             msg = 'Unknown authentication method: "'+self.__authentication_method+'".'
             self.__has_write_access = False
 
-    def __setup_for_auth_by_user_and_pw(self, args):
+    def __setup_for_auth_by_user_and_pw(self):
 
         # Check username:
         util.check_handle_syntax_with_index(self.__username)
@@ -174,7 +202,7 @@ class HandleSystemConnector(object):
             if msg is not '':
                 raise CredentialsFormatError(msg=msg)
 
-    def __which_authentication_method(self, args):
+    def __which_authentication_method(self):
 
         authentication_method = None
 
@@ -285,7 +313,7 @@ class HandleSystemConnector(object):
         indices = args['indices']
         op = args['op']
         overwrite = args['overwrite'] or False
-        
+
         # Overwrite by index:
         if indices is not None:
             message = 'Writing handle values by index is not implemented'+\
@@ -330,10 +358,9 @@ class HandleSystemConnector(object):
                 operation=op,
                 handle=handle,
                 response=resp,
-                msg=msg,
                 username=self.__username
             )
-            
+
         return resp, payload
 
     def send_handle_delete_request(self, **args):
@@ -361,7 +388,7 @@ class HandleSystemConnector(object):
         handle = args['handle']
         indices = args['indices']
         op = args['op']
-        
+
         # Make necessary values:
         url = self.make_handle_URL(handle, indices)
         if indices is not None and len(indices) > 0:
@@ -394,7 +421,6 @@ class HandleSystemConnector(object):
                 operation=op,
                 handle=handle,
                 response=resp,
-                msg=msg,
                 username=self.__username
             )
 

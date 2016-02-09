@@ -1,9 +1,18 @@
+'''
+This module provides the class Searcher
+which interacts with a Handle Search
+Servlet.
+
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
 import logging
+import json
 import util
 import re
-import copy
 import requests
-from handleexceptions import *
+from handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -12,6 +21,15 @@ REQUESTLOGGER.propagate = False
 REQUESTLOGGER.addHandler(util.NullHandler())
 
 class Searcher(object):
+    '''
+    This class interacts with a Handle Search
+        Servlet.
+
+    As such a Search Servlet is not provided by
+    the Handle System, this class caters to a
+    custom Search Servlet.
+
+    '''
 
     def __init__(self, **args):
 
@@ -27,7 +45,8 @@ class Searcher(object):
             'password',
             'allowed_search_keys',
             'HTTPS_verify'
-            ]
+        ]
+        util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Args that the constructor understands:
         self.__reverselookup_baseuri = None
@@ -41,7 +60,7 @@ class Searcher(object):
         self.__has_search_access = False
         self.__handle_system_username_used = False
         self.__handle_system_password_used = False
-        self.__revlookup_auth_string= None
+        self.__revlookup_auth_string = None
         self.__header = None
         self.__session = None
 
@@ -55,11 +74,11 @@ class Searcher(object):
         # Set them:
         self.__store_args_or_set_to_defaults(args, defaults)
         if self.__has_search_access:
-            self.__setup_search_access(**args)
+            self.__setup_search_access()
 
         LOGGER.debug('End of instantiation of the search module.')
 
-    def __setup_search_access(self, **args):
+    def __setup_search_access(self):
         self.__session = requests.Session()
         self.__set_revlookup_auth_string(self.__user, self.__password)
         LOGGER.info('Reverse lookup authentication is set.')
@@ -70,21 +89,21 @@ class Searcher(object):
 
         LOGGER.debug('Setting the attributes:')
 
-        if 'HTTPS_verify' in args.keys() and args['HTTPS_verify'] is not None:
+        if args['HTTPS_verify'] is not None: # Without this check, a passed "False" is not found!
             self.__HTTPS_verify = util.string_to_bool(args['HTTPS_verify'])
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
             LOGGER.info(' - https_verify set to default: '+str(self.__HTTPS_verify))
 
-        if 'allowed_search_keys' in args.keys():
+        if args['allowed_search_keys'] is not None: # Without this check, empty lists are not found!
             self.__allowed_search_keys = args['allowed_search_keys']
             LOGGER.info(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
         else:
             self.__allowed_search_keys = defaults['allowed_search_keys']
             LOGGER.info(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
 
-        if 'reverselookup_baseuri' in args.keys():
+        if args['reverselookup_baseuri']:
             self.__reverselookup_baseuri = args['reverselookup_baseuri']
             LOGGER.info(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
         elif 'handle_server_url' in args.keys() and args['handle_server_url'] is not None:
@@ -93,7 +112,7 @@ class Searcher(object):
         else:
             LOGGER.info(' - solrbaseurl: No default.')
 
-        if 'reverselookup_url_extension' in args.keys():
+        if args['reverselookup_url_extension']:
             self.__reverselookup_url_extension = args['reverselookup_url_extension']
             LOGGER.info(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
         else:
@@ -105,26 +124,25 @@ class Searcher(object):
         #   Else: Try using handle system authentication
         #   Else: search_handle does not work and will raise an exception.
 
-        if 'reverselookup_username' in args.keys():
+        if args['reverselookup_username']:
             self.__user = args['reverselookup_username']
             LOGGER.info('" - reverselookup_username set to: '+self.__user)
-        elif 'username' in args.keys() and args['username'] is not None:
+        elif args['username']:
             self.__user = args['username']
             self.__handle_system_username_used = True
             LOGGER.info(' - reverselookup_username set to handle server username: '+self.__user)
         else:
             LOGGER.info(' - reverselookup_username: No default.')
 
-        if 'reverselookup_password' in args.keys():
+        if args['reverselookup_password']:
             self.__password = args['reverselookup_password']
             LOGGER.info(' - reverselookup_password set.')
-        elif 'password' in args.keys() and args['password'] is not None:
+        elif args['password']:
             self.__password = args['password']
             self.__handle_system_password_used = True
             LOGGER.info(' - reverselookup_password set to handle server password.')
         else:
             LOGGER.info(' - reverselookup_password: No default.')
-
 
         if self.__user is not None and self.__password is not None:
             self.__has_search_access = True
@@ -136,7 +154,7 @@ class Searcher(object):
         value. The search terms are passed on to the reverse lookup servlet
         as-is. The servlet is supposed to be case-insensitive, but if it
         isn't, the wrong case will cause a :exc:`~b2handle.handleexceptions.ReverseLookupException`.
-        
+
         *Note:* If allowed search keys are configured, only these are used. If
         no allowed search keys are specified, all key-value pairs are
         passed on to the reverse lookup servlet, possibly causing a
@@ -146,7 +164,7 @@ class Searcher(object):
           * list_of_handles = search_handle('http://www.foo.com')
           * list_of_handles = search_handle('http://www.foo.com', CHECKSUM=99999)
           * list_of_handles = search_handle(URL='http://www.foo.com', CHECKSUM=99999)
-          
+
         :param URL: Optional. The URL to search for (reverse lookup). [This is
             NOT the URL of the search servlet!]
         :param prefix: Optional. The Handle prefix to which the search should
@@ -167,7 +185,7 @@ class Searcher(object):
         prefix = None
         if 'prefix' in args.keys():
             prefix = args.pop('prefix')
- 
+
         # Any fulltext search terms specified? Remove them from the key value pairs to be searched.
         fulltext_searchterms = []
         if 'searchterms' in args.keys():
@@ -192,8 +210,8 @@ class Searcher(object):
         resp = self.__send_revlookup_get_request(query)
 
         # Check for undefined fields
-        rx = 'RemoteSolrException: Error from server at .+: undefined field .+'
-        match = re.compile(rx).search(str(resp.content))
+        regex = 'RemoteSolrException: Error from server at .+: undefined field .+'
+        match = re.compile(regex).search(str(resp.content))
         if match is not None:
             undefined_field = resp.content.split('undefined field ')[1]
             msg = 'Tried to search in undefined field "'+undefined_field+'"..'
@@ -210,17 +228,17 @@ class Searcher(object):
             msg = 'Authentication failed.'
             if self.__handle_system_username_used or self.__handle_system_password_used:
                 msg += (' If the Reverse Lookup Servlet you are'
-                    ' using does not accept the same username and/or password'
-                    ' as the Handle Server, please provide its username and/or'
-                    ' password separately when instantiating the client')
+                        ' using does not accept the same username and/or password'
+                        ' as the Handle Server, please provide its username and/or'
+                        ' password separately when instantiating the client')
             else:
-                msg +=' You need to specify a username and password to search'
+                msg += ' You need to specify a username and password to search'
             raise ReverseLookupException(msg=msg, query=query, response=resp)
-            
+
         elif resp.status_code == 404:
             msg = 'Wrong search servlet URL ('+resp.request.url+')'
-            rx = 'The handle you requested.+cannot be found'
-            match = re.compile(rx, re.DOTALL).search(str(resp.content))
+            regex = 'The handle you requested.+cannot be found'
+            match = re.compile(regex, re.DOTALL).search(str(resp.content))
             if match is not None:
                 msg += '. It seems you reached a Handle Server'
             raise ReverseLookupException(msg=msg, query=query, response=resp)
@@ -340,3 +358,4 @@ class Searcher(object):
     def __log_request_response_to_file(self, **args):
         message = util.make_request_log_message(**args)
         args['logger'].info(message)
+

@@ -1,15 +1,17 @@
 '''
-Created on 2015-07-02
-Started implementing 2015-07-15
-Last updated: 2015-08-26
+This module provides the class PIDClientCredentials
+    which handles the credentials for Handle server
+    Interaction and for the Search Servlet.
+
+    Author: Merret Buurman (DKRZ), 2015-2016
+
 '''
 
-from b2handle.handleclient import EUDATHandleClient
-from b2handle.handleexceptions import CredentialsFormatError
 import util
 import json
 import os
 import logging
+from b2handle.handleexceptions import CredentialsFormatError
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -21,9 +23,6 @@ class PIDClientCredentials(object):
         the relevant information.
 
     '''
-    # QUESTION: Old epic client had an (unimplemented) option to "...getting
-    #   credential store in iRODS". Needed?
-    # QUESTION: Specify accept_format? Catch IO Exception?
 
     @staticmethod
     def load_from_JSON(json_filename):
@@ -44,7 +43,7 @@ class PIDClientCredentials(object):
             If 'prefix' is not given, the prefix has to be specified each time a handle is
             created or modified.
             If 'handleowner' is given, it is written into the created handles' HS_ADMIN.
-            If it is not given, the username is given. This parameter allows a user to create 
+            If it is not given, the username is given. This parameter allows a user to create
             handles that are then modifiable by a larger user group than just himself, e.g.
             user John Doe creates the handle, but wants all his colleagues to be able to
             modify it.
@@ -76,7 +75,19 @@ class PIDClientCredentials(object):
         :raises: HandleSyntaxError
         '''
         # Possible arguments:
-        useful_args = ['handle_server_url', 'username', 'password', 'private_key', 'certificate_only','certificate_and_key', 'prefix', 'handleowner', 'reverselookup_password', 'reverselookup_username', 'reverselookup_baseuri']
+        useful_args = [
+            'handle_server_url',
+            'username',
+            'password',
+            'private_key',
+            'certificate_only',
+            'certificate_and_key',
+            'prefix',
+            'handleowner',
+            'reverselookup_password',
+            'reverselookup_username',
+            'reverselookup_baseuri'
+        ]
         util.add_missing_optional_args_with_value_none(args, useful_args)
 
         # Args that the constructor understands:
@@ -98,8 +109,8 @@ class PIDClientCredentials(object):
         # Some checks:
         self.__check_handle_syntax()
         self.__check_file_existence()
-        self.__check_if_enough_arguments_for_reverselookup_authentication(args)
-        self.__check_if_enough_arguments_for_authentication()
+        self.__check_if_enough_args_for_revlookup_auth(args)
+        self.__check_if_enough_args_for_hs_auth()
 
     def __collect_additional_arguments(self, args, used_args):
         temp_additional_config = {}
@@ -111,7 +122,7 @@ class PIDClientCredentials(object):
         else:
             return None
 
-    def __check_if_enough_arguments_for_reverselookup_authentication(self, args):
+    def __check_if_enough_args_for_revlookup_auth(self, args):
         cond1 = args['reverselookup_username'] or args['username']
         cond2 = args['reverselookup_password'] or args['password']
         cond3 = args['reverselookup_baseuri']  or args['handle_server_url']
@@ -142,7 +153,7 @@ class PIDClientCredentials(object):
                 msg = 'The private key file was not found at the specified path: '+self.__private_key
                 raise CredentialsFormatError(msg=msg)
 
-    def __check_if_enough_arguments_for_authentication(self):
+    def __check_if_enough_args_for_hs_auth(self):
 
         # Which authentication method?
         authentication_method = None
@@ -163,7 +174,7 @@ class PIDClientCredentials(object):
         if authentication_method is None:
             if self.__reverselookup is True:
                 msg = ('Insufficient credentials for writing to handle '
-                    'server, but sufficient credentials for searching.')
+                       'server, but sufficient credentials for searching.')
                 LOGGER.info(msg)
             else:
                 msg = ''
@@ -221,3 +232,4 @@ class PIDClientCredentials(object):
     def get_path_to_file_certificate_and_key(self):
         # pylint: disable=missing-docstring
         return self.__certificate_and_key
+
