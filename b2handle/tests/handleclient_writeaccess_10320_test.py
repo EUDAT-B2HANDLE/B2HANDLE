@@ -6,8 +6,10 @@ import json
 import logging
 import sys
 sys.path.append("../..")
+import b2handle.util
 import b2handle.clientcredentials
 from b2handle.handleclient import EUDATHandleClient
+from b2handle.handlesystemconnector import HandleSystemConnector
 from b2handle.handleexceptions import HandleSyntaxError
 from b2handle.handleexceptions import HandleNotFoundException
 from b2handle.handleexceptions import GenericHandleError
@@ -53,6 +55,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         prefix = self.handle.split('/')[0]
         self.inexistent_handle = prefix+'/07e1fbf3-2b72-430a-a035-8584d4eada41'
         self.headers = None
+        self.connector = HandleSystemConnector(handle_server_url = self.url)
 
     def setUp(self):
 
@@ -88,7 +91,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
             }
         ]
 
-        authstring = self.inst.create_authentication_string(self.user, self.password)
+        authstring = b2handle.util.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring
@@ -96,13 +99,13 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         veri = self.https_verify
 
         testhandle = self.handle_withloc
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         data = json.dumps({'values':list_of_all_entries_with})
         resp = requests.put(url, data=data, headers=head, verify=veri)
         log_request_response_to_file('PUT', testhandle, url, head, veri, resp)
 
         testhandle = self.handle_withoutloc
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         data = json.dumps({'values':list_of_all_entries_without})
         requests.put(url, data=data, headers=head, verify=veri)
         log_request_response_to_file('PUT', testhandle, url, head, veri, resp)
@@ -110,19 +113,19 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
     def tearDown(self):
 
         veri = self.https_verify
-        authstring = self.inst.create_authentication_string(self.user, self.password)
+        authstring = b2handle.util.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring
         }
 
         testhandle = self.handle_withloc
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         resp = requests.delete(url, headers=head, verify=veri)
         log_request_response_to_file('DELETE', testhandle, url, head, veri, resp)
 
         testhandle = self.handle_withoutloc
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         requests.delete(url, headers=head, verify=veri)
         log_request_response_to_file('DELETE', testhandle, url, head, veri, resp)
 

@@ -20,7 +20,6 @@ REQUESTLOGGER.addHandler(h)
 
 
 class HandleSystemConnector(object):
-
     
     def __init__(self, **args):
 
