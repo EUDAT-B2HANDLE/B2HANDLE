@@ -36,10 +36,7 @@ class HandleSystemConnector(object):
 
     def __init__(self, **args):
 
-        LOGGER.debug('Instantiating handle system connector.')
-        for argname in args:
-            if args[argname]:
-                LOGGER.debug('Param '+argname+'='+str(args[argname]))
+        util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password','reverselookup_password'])
 
         # Possible arguments:
         optional_args = [

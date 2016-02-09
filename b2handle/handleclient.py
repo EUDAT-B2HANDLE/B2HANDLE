@@ -80,9 +80,9 @@ class EUDATHandleClient(object):
             Defaults to '/hrls/handles/'
         '''
 
-        LOGGER.info('Instantiation at '+datetime.datetime.now().strftime('%Y-%m-%d_%H:%M'))
-        LOGGER.debug('\n'+60*'*'+'\nInstantiation with these params:'+\
-            '\n'+'handle_server_url,'+', '.join(args.keys())+'\n'+60*'*')
+        util.log_instantiation(LOGGER, 'EUDATHandleClient', args, ['password','reverselookup_password'], with_date=True)
+
+        LOGGER.debug('\n'+60*'*'+'\nInstantiation of EUDATHandleClient\n'+60*'*')
 
         args['handle_server_url'] = handle_server_url
 

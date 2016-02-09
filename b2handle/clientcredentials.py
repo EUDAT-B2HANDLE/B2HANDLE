@@ -74,6 +74,9 @@ class PIDClientCredentials(object):
         :param config: Any key-value pairs added are stored as config.
         :raises: HandleSyntaxError
         '''
+
+        util.log_instantiation(LOGGER, 'PIDClientCredentials', args, ['password','reverselookup_password'])
+
         # Possible arguments:
         useful_args = [
             'handle_server_url',

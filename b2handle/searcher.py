@@ -33,7 +33,7 @@ class Searcher(object):
 
     def __init__(self, **args):
 
-        LOGGER.debug('Instantiating search module.')
+        util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
 
         optional_args = [
             'reverselookup_baseuri',
