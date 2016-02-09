@@ -20,7 +20,7 @@ from handleconnector_access_patched_test import EUDATHandleConnectorAccessPatche
 # Logging:
 log_b2handle = False
 if log_b2handle == True:
-    LOGGER = logging.getLogger('b2handle.handleclient')
+    LOGGER = logging.getLogger()
     LOGGER.setLevel("DEBUG")
     LOGGER.addHandler(
         logging.FileHandler(
