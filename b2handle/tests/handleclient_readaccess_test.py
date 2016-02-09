@@ -3,6 +3,7 @@
 import unittest
 import requests
 import json
+import logging
 import sys
 from mock import MagicMock
 sys.path.append("../..")
@@ -16,6 +17,13 @@ from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import ReverseLookupException
 
 RESOURCES_FILE = 'resources/testvalues_for_integration_tests_IGNORE.json'
+
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(NullHandler())
 
 class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
@@ -191,9 +199,9 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
         # Test variables
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            self.url,
-            self.user,
-            self.randompassword)
+            handle_server_url=self.url,
+            username=self.user,
+            password=self.randompassword)
 
         # Run code to be tested
         # Create instance with credentials
@@ -210,9 +218,9 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         # Test variables
         testusername_inexistent = '100:'+self.inexistent_handle
         credentials = b2handle.clientcredentials.PIDClientCredentials(
-            self.url,
-            testusername_inexistent,
-            self.randompassword)
+            handle_server_url=self.url,
+            username=testusername_inexistent,
+            password=self.randompassword)
 
         # Run code to be tested + check exception:
         # Create instance with credentials
@@ -235,6 +243,9 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         credentials.get_username = MagicMock(return_value=self.user)
         credentials.get_password = MagicMock(return_value=self.randompassword)
         credentials.get_server_URL = MagicMock(return_value=self.url)
+        credentials.get_path_to_private_key = MagicMock(return_value=None)
+        credentials.get_path_to_file_certificate_only = MagicMock(return_value=None)
+        credentials.get_path_to_file_certificate_and_key = MagicMock(return_value=None)
 
         self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
             'Config: '+str(credentials.get_config()))
@@ -268,6 +279,10 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         credentials.get_username = MagicMock(return_value=self.user)
         credentials.get_password = MagicMock(return_value=self.randompassword)
         credentials.get_server_URL = MagicMock(return_value=self.url)
+        credentials.get_handleowner = MagicMock(return_value=None)
+        credentials.get_path_to_private_key = MagicMock(return_value=None)
+        credentials.get_path_to_file_certificate_only = MagicMock(return_value=None)
+        credentials.get_path_to_file_certificate_and_key = MagicMock(return_value=None)
 
         self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
             'Config: '+str(credentials.get_config()))
