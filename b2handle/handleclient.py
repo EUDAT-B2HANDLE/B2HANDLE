@@ -560,25 +560,15 @@ class EUDATHandleClient(object):
         else:
             # TODO FIXME: Implement overwriting by index (less risky),
             # once HS have fixed the issue with the indices.
+            op = 'modifying handle values'
             resp, put_payload = self.__send_handle_put_request(
                 handle,
                 new_list_of_entries,
-                overwrite=True)
+                overwrite=True,
+                op=op)
             if hsresponses.handle_success(resp):
                 LOGGER.info('Handle modified: '+handle)
-                pass
-            elif hsresponses.not_authenticated(resp):
-                op = 'modifying handle values'
-                msg = None
-                raise HandleAuthenticationError(
-                    operation=op,
-                    handle=handle,
-                    response=resp,
-                    msg=msg,
-                    username=self.__username
-                )
             else:
-                op = 'modifying handle values'
                 msg = 'Values: '+str(kvpairs)
                 raise GenericHandleError(
                     operation=op,
@@ -631,29 +621,19 @@ class EUDATHandleClient(object):
 
         # Important: If key not found, do not continue, as deleting without indices would delete the entire handle!!
         if not len(indices) > 0:
-            LOGGER.debug('delete_handle_value: No values for key '+str(keys))
+            LOGGER.debug('delete_handle_value: No values for key(s) '+str(keys))
             return None
         else:
 
             # delete and process response:
-            resp = self.__send_handle_delete_request(handle, indices)
+            op = 'deleting "'+str(keys)+'"'
+            resp = self.__send_handle_delete_request(handle, indices=indices, op=op)
             if hsresponses.handle_success(resp):
                 LOGGER.debug("delete_handle_value: Deleted handle values "+str(keys)+"of handle "+handle)
                 pass
             elif hsresponses.values_not_found(resp):
                 pass
-            elif hsresponses.not_authenticated(resp):
-                op = 'deleting "'+str(key)+'"'
-                msg = None
-                raise HandleAuthenticationError(
-                    operation=op,
-                    handle=handle,
-                    response=resp,
-                    msg=msg,
-                    username=self.__username
-                )
             else:
-                op = 'deleting "'+str(keys)+'"'
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -684,16 +664,16 @@ class EUDATHandleClient(object):
                 ' new method "delete_handle_value()".'
             raise TypeError(message)
 
-        resp = self.__send_handle_delete_request(handle)
+        op = 'deleting handle'
+        resp = self.__send_handle_delete_request(handle, op=op)
         if hsresponses.handle_success(resp):
             LOGGER.info('Handle '+handle+' deleted.')
         elif hsresponses.handle_not_found(resp):
-            message = 'delete_handle: Handle '+handle+' did not exist, so'+\
-                ' it could not be deleted.'
-            LOGGER.debug(message)
+            msg = ('delete_handle: Handle '+handle+' did not exist, '
+                   'so it could not be deleted.')
+            LOGGER.debug(msg)
         else:
-            op = 'deleting handle'
-            raise GenericHandleError(op, handle, resp)
+            raise GenericHandleError(op=op, handle=handle, response=resp)
 
     def exchange_additional_URL(self, handle, old, new):
         '''
@@ -721,28 +701,19 @@ class EUDATHandleClient(object):
         else:
             self.__exchange_URL_in_13020loc(old, new, list_of_entries, handle)
 
+            op = 'exchanging URLs'
             resp, put_payload = self.__send_handle_put_request(
                 handle,
                 list_of_entries,
-                overwrite=True
+                overwrite=True,
+                op=op
             )
             # TODO FIXME (one day): Implement overwriting by index (less risky),
             # once HS have fixed the issue with the indices.
             if hsresponses.handle_success(resp):
                 pass
-            elif hsresponses.not_authenticated(resp):
-                msg = 'Could not exchange URLs '+str(urls)
-                op = 'exchanging URLs'
-                raise HandleAuthenticationError(
-                    operation=op,
-                    handle=handle,
-                    response=resp,
-                    msg=msg,
-                    username=self.__username
-                )
             else:
-                op = 'exchanging "'+str(urls)+'"'
-                msg = None
+                msg = 'Could not exchange URLs '+str(urls)
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -787,25 +758,14 @@ class EUDATHandleClient(object):
             for url in urls:
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
-            resp, put_payload = self.__send_handle_put_request(handle, list_of_entries, overwrite=True)
+            op = 'adding URLs'
+            resp, put_payload = self.__send_handle_put_request(handle, list_of_entries, overwrite=True, op=op)
             # TODO FIXME (one day) Overwrite by index.
 
             if hsresponses.handle_success(resp):
                 pass
-            elif hsresponses.not_authenticated(resp):
-                msg = 'Could not add URLs '+str(urls)
-                op = 'adding URLs'
-                raise HandleAuthenticationError(
-                    operation=op,
-                    handle=handle,
-                    response=resp,
-                    msg=msg,
-                    username=self.__username
-                )
-
             else:
-                op = 'adding "'+str(urls)+'"'
-                msg = None
+                msg = 'Could not add URLs '+str(urls)
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -836,29 +796,20 @@ class EUDATHandleClient(object):
         for url in urls:
             self.__remove_URL_from_10320LOC(url, list_of_entries, handle)
 
-
+        op = 'removing URLs'
         resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
-            overwrite=True
+            overwrite=True,
+            op=op
         )
         # TODO FIXME (one day): Implement overwriting by index (less risky),
         # once HS have fixed the issue with the indices.
         if hsresponses.handle_success(resp):
             pass
-        elif hsresponses.not_authenticated(resp):
-            msg = 'Could not remove URLs '+str(urls)
-            op = 'removing URLs'
-            raise HandleAuthenticationError(
-                operation=op,
-                handle=handle,
-                response=resp,
-                msg=msg,
-                username=self.__username
-            )
         else:
             op = 'removing "'+str(urls)+'"'
-            msg = None
+            msg = 'Could not remove URLs '+str(urls)
             raise GenericHandleError(
                 operation=op,
                 handle=handle,
@@ -934,37 +885,24 @@ class EUDATHandleClient(object):
                 self.__add_URL_to_10320LOC(url, list_of_entries, handle)
 
         # Create record itself and put to server
+        op = 'registering handle'
         resp, put_payload = self.__send_handle_put_request(
             handle,
             list_of_entries,
-            overwrite=overwrite
+            overwrite=overwrite,
+            op=op
         )
 
         if hsresponses.was_handle_created(resp) or hsresponses.handle_success(resp):
             LOGGER.info("Handle registered: "+handle)
             return json.loads(resp.content)['handle']
         else:
-            if hsresponses.not_authenticated(resp):
-                op = 'registering handle'
-                msg = None
-                resp = None
-                raise HandleAuthenticationError(
-                    operation=op,
-                    handle=handle,
-                    response=resp,
-                    msg=msg,
-                    username=self.__username
-                )
-            else:
-                op = 'registering handle'
-                msg = None
-                raise GenericHandleError(
-                    operation=op,
-                    handle=handle,
-                    reponse=resp,
-                    msg=msg,
-                    payload=put_payload
-                )
+            raise GenericHandleError(
+                operation=op,
+                handle=handle,
+                reponse=resp,
+                payload=put_payload
+            )
 
     # No HS access:
 
@@ -1053,7 +991,7 @@ class EUDATHandleClient(object):
 
     # Private methods:
 
-    def __send_handle_delete_request(self, handle, indices=None):
+    def __send_handle_delete_request(self, handle, indices=None, op=None):
         '''
         Send a HTTP DELETE request to the handle server to delete either an
             entire handle or to some specified values from a handle record,
@@ -1066,10 +1004,13 @@ class EUDATHandleClient(object):
         :return: The server's response.
         '''
 
-        resp = self.__handlesystemconnector.send_handle_delete_request(handle, indices)
+        resp = self.__handlesystemconnector.send_handle_delete_request(
+            handle=handle,
+            indices=indices,
+            op=op)
         return resp
 
-    def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
+    def __send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False, op=None):
         '''
         Send a HTTP PUT request to the handle server to write either an entire
             handle or to some specified values to an handle record, using the
@@ -1086,7 +1027,13 @@ class EUDATHandleClient(object):
         :return: The server's response.
         '''
 
-        resp, payload = self.__handlesystemconnector.send_handle_put_request(handle, list_of_entries, indices, overwrite)
+        resp, payload = self.__handlesystemconnector.send_handle_put_request(
+            handle=handle,
+            list_of_entries=list_of_entries,
+            indices=indices,
+            overwrite=overwrite,
+            op=op
+        )
         return resp, payload
 
     def __send_handle_get_request(self, handle, indices=None):
