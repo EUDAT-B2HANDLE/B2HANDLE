@@ -16,7 +16,7 @@ from mockresponses import MockResponse, MockSearchResponse
 from utilities import replace_timestamps, failure_message
 
 
-class EUDATHandleConnectorWriteaccessPatchedTestCase(unittest.TestCase):
+class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     def setUp(self):
 
