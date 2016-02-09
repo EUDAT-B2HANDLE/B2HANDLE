@@ -567,7 +567,7 @@ class EUDATHandleClient(object):
             if hsresponses.handle_success(resp):
                 LOGGER.info('Handle modified: '+handle)
                 pass
-            elif self.not_authenticated(resp):
+            elif hsresponses.not_authenticated(resp):
                 op = 'modifying handle values'
                 msg = None
                 raise HandleAuthenticationError(
@@ -640,9 +640,9 @@ class EUDATHandleClient(object):
             if hsresponses.handle_success(resp):
                 LOGGER.debug("delete_handle_value: Deleted handle values "+str(keys)+"of handle "+handle)
                 pass
-            elif self.values_not_found(resp):
+            elif hsresponses.values_not_found(resp):
                 pass
-            elif self.not_authenticated(resp):
+            elif hsresponses.not_authenticated(resp):
                 op = 'deleting "'+str(key)+'"'
                 msg = None
                 raise HandleAuthenticationError(
@@ -730,7 +730,7 @@ class EUDATHandleClient(object):
             # once HS have fixed the issue with the indices.
             if hsresponses.handle_success(resp):
                 pass
-            elif self.not_authenticated(resp):
+            elif hsresponses.not_authenticated(resp):
                 msg = 'Could not exchange URLs '+str(urls)
                 op = 'exchanging URLs'
                 raise HandleAuthenticationError(
@@ -792,7 +792,7 @@ class EUDATHandleClient(object):
 
             if hsresponses.handle_success(resp):
                 pass
-            elif self.not_authenticated(resp):
+            elif hsresponses.not_authenticated(resp):
                 msg = 'Could not add URLs '+str(urls)
                 op = 'adding URLs'
                 raise HandleAuthenticationError(
@@ -846,7 +846,7 @@ class EUDATHandleClient(object):
         # once HS have fixed the issue with the indices.
         if hsresponses.handle_success(resp):
             pass
-        elif self.not_authenticated(resp):
+        elif hsresponses.not_authenticated(resp):
             msg = 'Could not remove URLs '+str(urls)
             op = 'removing URLs'
             raise HandleAuthenticationError(
@@ -944,7 +944,7 @@ class EUDATHandleClient(object):
             LOGGER.info("Handle registered: "+handle)
             return json.loads(resp.content)['handle']
         else:
-            if self.not_authenticated(resp):
+            if hsresponses.not_authenticated(resp):
                 op = 'registering handle'
                 msg = None
                 resp = None
