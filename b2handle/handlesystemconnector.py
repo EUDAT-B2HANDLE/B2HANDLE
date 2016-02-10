@@ -1,41 +1,60 @@
+'''
+This moodule contains the class HandleSystemConnector which is
+    responsible for the library's interaction with the Handle
+    Server.
+
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
 import json
-from handleexceptions import *
-import hsresponses
-import util
 import logging
 import requests
 import os
-
-class NullHandler(logging.Handler):
-    def emit(self, record):
-        pass
-
-h = NullHandler()
+from handleexceptions import HandleNotFoundException
+from handleexceptions import GenericHandleError
+from handleexceptions import HandleAuthenticationError
+from handleexceptions import CredentialsFormatError
+import hsresponses
+import util
+import utilhandle
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(h)
+LOGGER.addHandler(util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(h)
+REQUESTLOGGER.addHandler(util.NullHandler())
 
 
 class HandleSystemConnector(object):
+    '''
+    HandleSystemConnector handles the interaction of the b2handle
+    library with the handle server. It holds the necessary
+    information (URL, credentials, defaults) and handles
+    some exceptions.
 
-    
+    '''
+
     def __init__(self, **args):
 
-        LOGGER.debug('Instantiating handle system connector.')
-        for argname in args:
-            if args[argname]:
-                LOGGER.debug('Param '+argname+'='+str(args[argname]))
+        util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password','reverselookup_password'])
 
         # Possible arguments:
-        optional_args = ['handle_server_url', 'REST_API_url_extension','HTTPS_verify','username', 'password', 'private_key', 'certificate_only','certificate_and_key']
+        optional_args = [
+            'handle_server_url',
+            'REST_API_url_extension',
+            'HTTPS_verify',
+            'username',
+            'password',
+            'private_key',
+            'certificate_only',
+            'certificate_and_key'
+        ]
         util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Defaults for args:
         defaults = {
-            'handle_server_url':'https://hdl.handle.net',
+            'handle_server_url': 'https://hdl.handle.net',
             'REST_API_url_extension': '/api/handles/',
             'HTTPS_verify': True,
         }
@@ -141,11 +160,11 @@ class HandleSystemConnector(object):
             raise TypeError('No handle_server_url given. Default URL not ok for write access.')
 
         # Find out authentication method:
-        self.__authentication_method = self.__which_authentication_method(args)
+        self.__authentication_method = self.__which_authentication_method()
 
         # Authentication method dependent settings:
         if self.__authentication_method == self.__auth_methods['user_pw']:
-            self.__setup_for_auth_by_user_and_pw(args)
+            self.__setup_for_auth_by_user_and_pw()
         elif self.__authentication_method == self.__auth_methods['cert']:
             self.__setup_for_auth_by_clientcertificate()
         elif self.__authentication_method is None:
@@ -154,10 +173,10 @@ class HandleSystemConnector(object):
             msg = 'Unknown authentication method: "'+self.__authentication_method+'".'
             self.__has_write_access = False
 
-    def __setup_for_auth_by_user_and_pw(self, args):
+    def __setup_for_auth_by_user_and_pw(self):
 
         # Check username:
-        util.check_handle_syntax_with_index(self.__username)
+        utilhandle.check_handle_syntax_with_index(self.__username)
         self.check_if_username_exists(self.__username)
 
         # Make Basic Auth String:
@@ -181,7 +200,7 @@ class HandleSystemConnector(object):
             if msg is not '':
                 raise CredentialsFormatError(msg=msg)
 
-    def __which_authentication_method(self, args):
+    def __which_authentication_method(self):
 
         authentication_method = None
 
@@ -226,7 +245,7 @@ class HandleSystemConnector(object):
         :param password: The password contained in the index of the username
             handle.
         '''
-        auth = util.create_authentication_string(username, password)
+        auth = utilhandle.create_authentication_string(username, password)
         self.__basic_authentication_string = auth
 
 
@@ -261,7 +280,7 @@ class HandleSystemConnector(object):
             )
         return resp
 
-    def send_handle_put_request(self, handle, list_of_entries, indices=None, overwrite=False):
+    def send_handle_put_request(self, **args):
         '''
         Send a HTTP PUT request to the handle server to write either an entire
             handle or to some specified values to an handle record, using the
@@ -277,8 +296,23 @@ class HandleSystemConnector(object):
          if it exists already.
         :return: The server's response.
         '''
-        payload = json.dumps({'values':list_of_entries})
 
+        # Check if we have write access at all:
+        if not self.__has_write_access:
+            raise HandleAuthenticationError(msg=self.__no_auth_message)
+
+        # Check args:
+        mandatory_args = ['handle', 'list_of_entries']
+        optional_args = ['indices', 'op', 'overwrite']
+        util.add_missing_optional_args_with_value_none(args, optional_args)
+        util.check_presence_of_mandatory_args(args, mandatory_args)
+        handle = args['handle']
+        list_of_entries = args['list_of_entries']
+        indices = args['indices']
+        op = args['op']
+        overwrite = args['overwrite'] or False
+
+        # Overwrite by index:
         if indices is not None:
             message = 'Writing handle values by index is not implemented'+\
                 ' yet because the way the indices are interpreted by the'+\
@@ -292,31 +326,42 @@ class HandleSystemConnector(object):
             # to corrupt handle records, so we wait until the issue is fixed by
             # the Handle System.
 
+        # Make necessary values:
         url = self.make_handle_URL(handle, overwrite=overwrite)
         LOGGER.debug('PUT Request to '+url)
+        payload = json.dumps({'values':list_of_entries})
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
         veri = self.__HTTPS_verify
+
+        # Make request:
         resp = None
-        if self.__has_write_access:
-            if self.__authentication_method == self.__auth_methods['user_pw']:
-                resp = self.__session.put(url, data=payload, headers=head, verify=veri)
-            elif self.__authentication_method == self.__auth_methods['cert']:
-                resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
-            self.__log_request_response_to_file(
-                logger=REQUESTLOGGER,
-                op='PUT',
+        if self.__authentication_method == self.__auth_methods['user_pw']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri)
+        elif self.__authentication_method == self.__auth_methods['cert']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='PUT',
+            handle=handle,
+            url=url,
+            headers=head,
+            verify=veri,
+            resp=resp,
+            payload=payload)
+
+        # Check response for authentication issues:
+        if hsresponses.not_authenticated(resp):
+            raise HandleAuthenticationError(
+                operation=op,
                 handle=handle,
-                url=url,
-                headers=head,
-                verify=veri,
-                resp=resp,
-                payload=payload)
-        else:
-            raise HandleAuthenticationError(msg=self.__no_auth_message)
+                response=resp,
+                username=self.__username
+            )
+
         return resp, payload
 
-    def send_handle_delete_request(self, handle, indices=None):
+    def send_handle_delete_request(self, **args):
         '''
         Send a HTTP DELETE request to the handle server to delete either an
             entire handle or to some specified values from a handle record,
@@ -329,6 +374,20 @@ class HandleSystemConnector(object):
         :return: The server's response.
         '''
 
+        # Check if we have write access at all:
+        if not self.__has_write_access:
+            raise HandleAuthenticationError(msg=self.__no_auth_message)
+
+        # Check args:
+        mandatory_args = ['handle']
+        optional_args = ['indices', 'op']
+        util.add_missing_optional_args_with_value_none(args, optional_args)
+        util.check_presence_of_mandatory_args(args, mandatory_args)
+        handle = args['handle']
+        indices = args['indices']
+        op = args['op']
+
+        # Make necessary values:
         url = self.make_handle_URL(handle, indices)
         if indices is not None and len(indices) > 0:
             LOGGER.debug('__send_handle_delete_request: Deleting values '+str(indices)+' from handle '+handle+'.')
@@ -336,25 +395,33 @@ class HandleSystemConnector(object):
             LOGGER.debug('__send_handle_delete_request: Deleting handle '+handle+'.')
         LOGGER.debug('DELETE Request to '+url)
         head = self.__get_headers('DELETE')
- 
         veri = self.__HTTPS_verify
+
+        # Make request:
         resp = None
-        if self.__has_write_access:
-            if self.__authentication_method == self.__auth_methods['user_pw']:
-                resp = self.__session.delete(url, headers=head, verify=veri)
-            elif self.__authentication_method == self.__auth_methods['cert']:
-                resp = self.__session.delete(url, headers=head, verify=veri, cert=self.__cert_object)
-            self.__log_request_response_to_file(
-                logger=REQUESTLOGGER,
-                op='DELETE',
+        if self.__authentication_method == self.__auth_methods['user_pw']:
+            resp = self.__session.delete(url, headers=head, verify=veri)
+        elif self.__authentication_method == self.__auth_methods['cert']:
+            resp = self.__session.delete(url, headers=head, verify=veri, cert=self.__cert_object)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='DELETE',
+            handle=handle,
+            url=url,
+            headers=head,
+            verify=veri,
+            resp=resp
+        )
+
+        # Check response for authentication issues:
+        if hsresponses.not_authenticated(resp):
+            raise HandleAuthenticationError(
+                operation=op,
                 handle=handle,
-                url=url,
-                headers=head,
-                verify=veri,
-                resp=resp
+                response=resp,
+                username=self.__username
             )
-        else:
-            raise HandleAuthenticationError(msg=self.__no_auth_message)
+
         return resp
 
     def check_if_username_exists(self, username):
@@ -372,7 +439,7 @@ class HandleSystemConnector(object):
         '''
         LOGGER.debug('check_if_username_exists...')
 
-        _, handle = util.remove_index_from_handle(username)
+        _, handle = utilhandle.remove_index_from_handle(username)
 
         resp = self.send_handle_get_request(handle)
         if hsresponses.does_handle_exist(resp):
@@ -473,5 +540,5 @@ class HandleSystemConnector(object):
         return url
 
     def __log_request_response_to_file(self, **args):
-        message = util.make_request_log_message(**args)
+        message = utilhandle.make_request_log_message(**args)
         args['logger'].info(message)

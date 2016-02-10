@@ -11,7 +11,7 @@ from mock import patch
 sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError, GenericHandleError, HandleNotFoundException
-from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
+from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
 from mockresponses import MockResponse, MockSearchResponse
 from utilities import replace_timestamps, failure_message
 
@@ -76,7 +76,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         list_of_entries = [{"index":2, "type":"XYZ", "data":"xyz"}]
 
         # Run code to be tested
-        self.inst.send_handle_put_request(handle, list_of_entries)
+        self.inst.send_handle_put_request(handle=handle, list_of_entries=list_of_entries)
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
@@ -101,7 +101,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         handle = '123/456'
 
         # Run code to be tested
-        self.inst.send_handle_delete_request(handle)
+        self.inst.send_handle_delete_request(handle=handle)
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,
@@ -126,7 +126,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         indices = [1,4,5]
 
         # Run code to be tested
-        self.inst.send_handle_delete_request(handle, indices)
+        self.inst.send_handle_delete_request(handle=handle, indices=indices)
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,
@@ -163,7 +163,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         handle = '123/456'
 
         # Run code to be tested
-        inst.send_handle_delete_request(handle)
+        inst.send_handle_delete_request(handle=handle)
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,

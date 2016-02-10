@@ -9,7 +9,7 @@ import json
 sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError
-from b2handle.util import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
+from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
 
 class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 

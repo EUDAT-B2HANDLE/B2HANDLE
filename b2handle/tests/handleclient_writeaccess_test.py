@@ -6,7 +6,9 @@ import logging
 import json
 import sys
 sys.path.append("../..")
+import b2handle.utilhandle
 from b2handle.handleclient import EUDATHandleClient
+from b2handle.handlesystemconnector import HandleSystemConnector
 from b2handle.handleexceptions import HandleAlreadyExistsException
 from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import IllegalOperationException
@@ -53,6 +55,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         self.inexistent_handle = self.prefix+'/07e1fbf3-2b72-430a-a035-8584d4eada41'
         self.randompassword = 'some_random_password_shrgfgh345345'
         self.headers = None
+        self.connector = HandleSystemConnector(handle_server_url=self.url)
 
     def setUp(self):
 
@@ -64,7 +67,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             self.password,
             HTTPS_verify=self.https_verify)
 
-        authstring = self.inst.create_authentication_string(self.user, self.password)
+        authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         self.headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring
@@ -106,7 +109,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         ]
 
         testhandle = self.handle
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         veri = self.https_verify
         head = self.headers
         data = json.dumps({'values':list_of_all_entries})
@@ -125,7 +128,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Test variables
         testhandle = self.handle
         head = self.headers
-        url = self.inst.make_handle_URL(testhandle)
+        url = self.connector.make_handle_URL(testhandle)
         # Create corrupted record:
         list_of_all_entries = [
             {
@@ -170,9 +173,9 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         log_start_test_code()
         with self.assertRaises(BrokenHandleRecordException):
             self.inst.modify_handle_value(testhandle,
-                                          test4='new4',
-                                          test2='new2',
-                                          test3='new3')
+                                          TEST4='new4',
+                                          TEST2='new2',
+                                          TEST3='new3')
         log_end_test_code()
 
     def test_modify_handle_value_one(self):
@@ -184,23 +187,23 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Run code to be tested:
         log_start_test_code()
-        self.inst.modify_handle_value(testhandle, test4='newvalue')
+        self.inst.modify_handle_value(testhandle, TEST4='newvalue')
         log_end_test_code()
 
         # Check desired effects on handle:
         # check if one was modified:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val = self.inst.get_value_from_handle(testhandle, 'test4', rec)
+        val = self.inst.get_value_from_handle(testhandle, 'TEST4', rec)
         self.assertEqual(val, 'newvalue',
             'The value did not change.')
 
         # check if others still there:
-        val1 = self.inst.get_value_from_handle(testhandle, 'test1', rec)
-        val2 = self.inst.get_value_from_handle(testhandle, 'test2', rec)
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
+        val2 = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
         self.assertEqual(val1, 'val1',
-            'The value of "test1" should still be "val1".')
+            'The value of "TEST1" should still be "val1".')
         self.assertEqual(val2, 'val2',
-            'The value of "test2" should still be "val2".')
+            'The value of "TEST2" should still be "val2".')
 
     def test_modify_handle_value_several(self):
         """Test modifying several existing handle values."""
@@ -212,28 +215,28 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Run code to be tested:
         log_start_test_code()
         self.inst.modify_handle_value(testhandle,
-                                      test4='new4',
-                                      test2='new2',
-                                      test3='new3')
+                                      TEST4='new4',
+                                      TEST2='new2',
+                                      TEST3='new3')
         log_end_test_code()
 
         # Check desired effects on handle:
         # check if three values were modified:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val2 = self.inst.get_value_from_handle(testhandle, 'test2', rec)
-        val3 = self.inst.get_value_from_handle(testhandle, 'test3', rec)
-        val4 = self.inst.get_value_from_handle(testhandle, 'test4', rec)
+        val2 = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
+        val3 = self.inst.get_value_from_handle(testhandle, 'TEST3', rec)
+        val4 = self.inst.get_value_from_handle(testhandle, 'TEST4', rec)
         self.assertEqual(val2, 'new2',
-            'The value of "test2" was not changed to "new2".')
+            'The value of "TEST2" was not changed to "new2".')
         self.assertEqual(val3, 'new3',
-            'The value of "test3" was not changed to "new3".')
+            'The value of "TEST3" was not changed to "new3".')
         self.assertEqual(val4, 'new4',
-            'The value of "test4" was not changed to "new4".')
+            'The value of "TEST4" was not changed to "new4".')
 
         # check if one value remained unchanged:
-        val1 = self.inst.get_value_from_handle(testhandle, 'test1', rec)
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
         self.assertEqual(val1, 'val1',
-            'The value of "test1" should still be "val1".')
+            'The value of "TEST1" should still be "val1".')
 
     def test_modify_handle_value_several_inexistent(self):
         """Test modifying several existing handle values, one of them inexistent."""
@@ -245,29 +248,29 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Run code to be tested:
         log_start_test_code()
         self.inst.modify_handle_value(testhandle,
-                                      test4='new4',
-                                      test2='new2',
-                                      test100='new100')
+                                      TEST4='new4',
+                                      TEST2='new2',
+                                      TEST100='new100')
         log_end_test_code()
 
         # Check desired effects on handle:
         # check if three values were modified:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val2   = self.inst.get_value_from_handle(testhandle, 'test2', rec)
-        val100 = self.inst.get_value_from_handle(testhandle, 'test100', rec)
-        val4   = self.inst.get_value_from_handle(testhandle, 'test4', rec)
+        val2   = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
+        val100 = self.inst.get_value_from_handle(testhandle, 'TEST100', rec)
+        val4   = self.inst.get_value_from_handle(testhandle, 'TEST4', rec)
         self.assertEqual(val100, 'new100',
-            'The value of "test100" was not created and set to "new100".')
+            'The value of "TEST100" was not created and set to "new100".')
         self.assertEqual(val2, 'new2',
-            'The value of "test2" was not changed to "new2".')
+            'The value of "TEST2" was not changed to "new2".')
         self.assertEqual(val4, 'new4',
-            'The value of "test4" was not changed to "new4".')
+            'The value of "TEST4" was not changed to "new4".')
 
         # check if one value remained unchanged:
-        val1 = self.inst.get_value_from_handle(testhandle, 'test1', rec)
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
         self.assertEqual(val1, 'val1',
-            'The value of "test1" should still be "val1".')
-    
+            'The value of "TEST1" should still be "val1".')
+
     def test_modify_handle_value_without_authentication(self):
         """Test if exception when not authenticated."""
         log_new_test_case("test_modify_handle_value_without_authentication")
@@ -311,17 +314,17 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
                                                     location='http://foo.bar',
                                                     checksum='123456',
                                                     additional_URLs=additional_URLs,
-                                                    foo='foo',
-                                                    bar='bar')
+                                                    FOO='foo',
+                                                    BAR='bar')
         log_end_test_code()
 
         # Check desired effects on handle:
         # Check if content was written ok:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val1 = self.inst.get_value_from_handle(testhandle, 'bar', rec)
-        val2 = self.inst.get_value_from_handle(testhandle, 'foo', rec)
+        val1 = self.inst.get_value_from_handle(testhandle, 'BAR', rec)
+        val2 = self.inst.get_value_from_handle(testhandle, 'FOO', rec)
         val3 = self.inst.get_value_from_handle(testhandle, 'URL', rec)
-        val4 = self.inst.get_value_from_handle(testhandle, 'checksum', rec)
+        val4 = self.inst.get_value_from_handle(testhandle, 'CHECKSUM', rec)
         contained1 = self.inst.is_URL_contained_in_10320LOC(testhandle, 'http://bar.bar', rec)
         contained2 = self.inst.is_URL_contained_in_10320LOC(testhandle, 'http://foo.foo', rec)
 
@@ -342,7 +345,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Delete again (and check if was deleted):
         handle = self.newhandle
-        url = self.inst.make_handle_URL(self.newhandle)
+        url = self.connector.make_handle_URL(self.newhandle)
         head = self.headers
         veri = self.https_verify
         resp = requests.delete(url, headers=head, verify=veri)
@@ -366,12 +369,12 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         with self.assertRaises(HandleAlreadyExistsException):
             self.inst.register_handle(testhandle,
                                       'http://foo.foo',
-                                      test1='I am just an illusion.')
+                                      TEST1='I am just an illusion.')
         log_end_test_code()
 
         # Check if nothing was changed:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val1 = self.inst.get_value_from_handle(testhandle, 'test1', rec)
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
         self.assertEqual(val1, 'val1',
             'The handle should not be overwritten, thus this value should have stayed the same.')
 
@@ -389,16 +392,16 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
                                                     location='http://foo.bar',
                                                     checksum='123456',
                                                     additional_URLs=additional_URLs,
-                                                    foo='foo',
-                                                    bar='bar')
+                                                    FOO='foo',
+                                                    BAR='bar')
         log_end_test_code()
 
         # Check desired effects on handle:
         rec = self.inst.retrieve_handle_record_json(handle_returned)
-        val1 = self.inst.get_value_from_handle(handle_returned, 'bar', rec)
-        val2 = self.inst.get_value_from_handle(handle_returned, 'foo', rec)
+        val1 = self.inst.get_value_from_handle(handle_returned, 'BAR', rec)
+        val2 = self.inst.get_value_from_handle(handle_returned, 'FOO', rec)
         val3 = self.inst.get_value_from_handle(handle_returned, 'URL', rec)
-        val4 = self.inst.get_value_from_handle(handle_returned, 'checksum', rec)
+        val4 = self.inst.get_value_from_handle(handle_returned, 'CHECKSUM', rec)
         contained1 = self.inst.is_URL_contained_in_10320LOC(handle_returned, 'http://bar.bar', rec)
         contained2 = self.inst.is_URL_contained_in_10320LOC(handle_returned, 'http://foo.foo', rec)
 
@@ -418,7 +421,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             'The returned handle does not contain the given prefix.')
 
         # Delete again (and check if was deleted):
-        url = self.inst.make_handle_URL(handle_returned)
+        url = self.connector.make_handle_URL(handle_returned)
         head = self.headers
         veri = self.https_verify
         resp = requests.delete(url, headers=head, verify=veri)
@@ -441,13 +444,13 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Run code to be tested:
         log_start_test_code()
-        self.inst.delete_handle_value(testhandle, 'test1')
+        self.inst.delete_handle_value(testhandle, 'TEST1')
         log_end_test_code()
 
         # Check desired effects on handle:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val = self.inst.get_value_from_handle(testhandle, 'test1', rec)
-        indices = self.inst.get_handlerecord_indices_for_key('test1', rec['values'])
+        val = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
+        indices = self.inst.get_handlerecord_indices_for_key('TEST1', rec['values'])
         self.assertIsNone(val,
             'The value for the deleted entry should be None.')
         self.assertEqual(len(indices), 0,
@@ -462,13 +465,13 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Call the method to be tested:
         log_start_test_code()
-        self.inst.delete_handle_value(testhandle, 'test2')
+        self.inst.delete_handle_value(testhandle, 'TEST2')
         log_end_test_code()
 
         # Check desired effects on handle:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val1 = self.inst.get_value_from_handle(testhandle, 'test2', rec)
-        indices1 = self.inst.get_handlerecord_indices_for_key('test2', rec['values'])
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
+        indices1 = self.inst.get_handlerecord_indices_for_key('TEST2', rec['values'])
 
         self.assertIsNone(val1,
             'The value for the deleted entry should be None.')
@@ -484,15 +487,15 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Run code to be tested:
         log_start_test_code()
-        self.inst.delete_handle_value(testhandle, ['test1', 'test2'])
+        self.inst.delete_handle_value(testhandle, ['TEST1', 'TEST2'])
         log_end_test_code()
 
         # Check desired effects on handle:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val1 = self.inst.get_value_from_handle(testhandle, 'test1', rec)
-        val2 = self.inst.get_value_from_handle(testhandle, 'test2', rec)
-        indices1 = self.inst.get_handlerecord_indices_for_key('test1', rec['values'])
-        indices2 = self.inst.get_handlerecord_indices_for_key('test2', rec['values'])
+        val1 = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
+        val2 = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
+        indices1 = self.inst.get_handlerecord_indices_for_key('TEST1', rec['values'])
+        indices2 = self.inst.get_handlerecord_indices_for_key('TEST2', rec['values'])
 
         self.assertIsNone(val1,
             'The value for the deleted entry should be None.')
@@ -509,7 +512,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Test variables
         testhandle = self.handle
-        key = 'test100'
+        key = 'TEST100'
 
         # Run code to be tested:
         log_start_test_code()
@@ -535,13 +538,13 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Run code to be tested:
         log_start_test_code()
-        self.inst.delete_handle_value(testhandle, ['test1', 'test100'])
+        self.inst.delete_handle_value(testhandle, ['TEST1', 'TEST100'])
         log_end_test_code()
 
         # Check desired effects on handle:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val = self.inst.get_value_from_handle(testhandle, 'test1', rec)
-        indices = self.inst.get_handlerecord_indices_for_key('test1', rec['values'])
+        val = self.inst.get_value_from_handle(testhandle, 'TEST1', rec)
+        indices = self.inst.get_handlerecord_indices_for_key('TEST1', rec['values'])
         self.assertIsNone(val,
             'The index for the deleted entry should be None.')
         self.assertEqual(len(indices), 0,
@@ -577,7 +580,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Run code to be tested + check exception:
         log_start_test_code()
         with self.assertRaises(TypeError):
-            self.inst.delete_handle(testhandle, 'test1')
+            self.inst.delete_handle(testhandle, 'TEST1')
         log_end_test_code()
 
     def test_delete_handle_inexistent(self):

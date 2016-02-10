@@ -20,7 +20,7 @@ from handleconnector_access_patched_test import EUDATHandleConnectorAccessPatche
 # Logging:
 log_b2handle = False
 if log_b2handle == True:
-    LOGGER = logging.getLogger('b2handle.handleclient')
+    LOGGER = logging.getLogger()
     LOGGER.setLevel("DEBUG")
     LOGGER.addHandler(
         logging.FileHandler(
@@ -90,9 +90,9 @@ if __name__ == '__main__':
         numtests += n
         print 'Number of tests for client (no access required):\t\t\t\t'+str(n)
 
-        noaccess = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorNoaccessTestCase)
-        tests_to_run.append(noaccess)
-        n = noaccess.countTestCases()
+        noaccess_connector = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorNoaccessTestCase)
+        tests_to_run.append(noaccess_connector)
+        n = noaccess_connector.countTestCases()
         numtests += n
         print 'Number of tests for handle system connector (no access required):\t\t\t\t'+str(n)
         

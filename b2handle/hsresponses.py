@@ -1,6 +1,17 @@
+'''
+This module provides little helper functions that interpret
+    the Handle Server's response codes and the HTTP status codes.
+    All helpers functions test one possible outcome and return
+    True or False.
+
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
 import json
 
 def handle_success(response):
+    # TODO May be misleading - 201 Created is also success!
     if response.status_code == 200 and json.loads(response.content)["responseCode"] == 1:
         return True
     return False

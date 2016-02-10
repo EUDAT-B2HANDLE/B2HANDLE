@@ -1,11 +1,14 @@
-# This module contains the exceptions that may occur in libraries interacting with the Handle System.
-# 
-# Merret Buurman (DKRZ), 2015-07-14
-# Last updated: 2015-08-26
-import json
-from util import add_missing_optional_args_with_value_none
-import re
+'''
+This module contains the exceptions that may occur in
+    libraries interacting with the Handle System.
 
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
+import json
+import re
+from util import add_missing_optional_args_with_value_none
 
 class BrokenHandleRecordException(Exception):
 
