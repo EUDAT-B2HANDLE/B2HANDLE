@@ -45,19 +45,19 @@ class EUDATHandleClient(object):
 
     def __init__(self, handle_server_url=None, **args):
         '''
-        Initialize the client in read-only mode. Access is anonymous,
-        thus no credentials are required.
-        Note: With read-only access, searching for handles is not possible.
+        Initialize the client. Depending on the arguments passed, it is set to
+            read-only, write and/or search mode. All arguments are optional.
+            If none is set, the client is in read-only mode, reading from
+            the global handle resolver.
 
         :param handle_server_url: Optional. The URL of the Handle System
             server to read from. Defaults to 'https://hdl.handle.net'
-        :param username: This must be a handle value reference in the format
-            "index:prefix/suffix". The method will throw an exception upon bad
-            syntax or non-existing Handle. The existence or validity of the
-            password in the handle is not checked at this moment.
-        :param password: This is the password stored as secret key in the
-            actual Handle value the username points to.
-
+        :param username: Optional. This must be a handle value reference in
+            the format "index:prefix/suffix". The method will throw an exception
+            upon bad syntax or non-existing Handle. The existence or validity
+            of the password in the handle is not checked at this moment.
+        :param password: Optional. This is the password stored as secret key
+            in the actual Handle value the username points to.
         :param REST_API_url_extension: Optional. The extension of a Handle
             Server's URL to access its REST API. Defaults to '/api/handles/'.
         :param allowed_search_keys: Optional. The keys that can be used for
@@ -67,16 +67,30 @@ class EUDATHandleClient(object):
         :param 10320LOC_chooseby: Optional. The value to give to a handle
             record's 10320/LOC entry's 'chooseby' attribute as string (e.g.
             'locatt,weighted'). Defaults to None (attribute not set).
-        :param modify_HS_ADMIN: Optional. Determines whether the HS_ADMIN
-            handle record entry can be modified using this library. Defaults to
-            False.
+        :param modify_HS_ADMIN: Optional. Advanced usage. Determines whether
+            the HS_ADMIN handle record entry can be modified using this library.
+            Defaults to False and should not be modified.
         :param HTTPS_verify: Optional. If set to False, the certificate is not
             verified in HTTP requests. Defaults to True.
         :param reverselookup_baseuri: Optional. The base URL of the reverse
             lookup service. If not set, the handle server base URL is used.
         :param reverselookup_url_extension: Optional. The path to append to
             the reverse lookup base URL to reach the reverse lookup service.
-            Defaults to '/hrls/handles/'
+            Defaults to '/hrls/handles/'.
+        :param handleowner: Optional. The username that will be given admin
+            permissions over every newly created handle. By default, it is
+            '200:0.NA/xyz' (where xyz is the prefix of the handle being created.
+        :param HS_ADMIN_permissions: Optional. Advanced usage. This indicates
+            the permissions that are given to the handle owner of newly
+            created handles in the HS_ADMIN entry.
+        :param private_key: Optional. The path to a file containing the private
+            key that will be used for authentication in write mode. If this is
+            specified, a certificate needs to be specified too.
+        :param certificate_only: Optional. The path to a file containing the
+            client certificate that will be used for authentication in write
+            mode. If this is specified, a private key needs to be specified too.
+        :param certificate_and_key: Optional. The path to a file containing both
+            certificate and private key, used for authentication in write mode.
         '''
 
         util.log_instantiation(LOGGER, 'EUDATHandleClient', args, ['password','reverselookup_password'], with_date=True)
