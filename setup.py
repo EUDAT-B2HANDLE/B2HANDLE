@@ -1,27 +1,33 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1'
+version = '0.9.9'
+
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(name='b2handle',
       version=version,
-      description="b2handle interface library",
-      long_description="""\
-this interface will replace the current epic api""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='',
-      author='eudat subtask 5.3.3',
-      author_email='weigel@dkrz.de',
-      url='dkrz.de',
-      license='',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-      include_package_data=True,
+      long_description=read('README.md'),
+      description=('Library for management of handles '
+                   'in the EUDAT project.'),
+      classifiers=['Development Status :: 4 - Beta'],
+      keywords=['handles', 'PIDs'],
+      author='EUDAT project, subtask 5.3.3',
+      author_email='buurman@dkrz.de',
+      url='http://eudat-b2safe.github.io/B2HANDLE',
+      download_url='https://github.com/EUDAT-B2SAFE/B2HANDLE',
+      packages=['b2handle','tests'],
       zip_safe=False,
       install_requires=[
-          'nose',
-          'requests'
-      ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
-      )
+          'requests',
+          'logging',
+          'uuid',
+          'datetime',
+          'mock',
+          'unittest2', # only for py 2.6?
+          'unittest',
+          'argparse'
+      ]
+)
