@@ -164,7 +164,7 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
             'Username not the same as in json file.')
         self.assertEqual(inst.get_password(), jsonfilecontent['password'],
             'Password not the same as in json file.')
-        self.assertEqual(inst.get_server_URL(), jsonfilecontent['baseuri'],
+        self.assertEqual(inst.get_server_URL(), jsonfilecontent['handle_server_url'],
             'Server URL not the same as in json file.')
         self.assertEqual(inst.get_prefix(), jsonfilecontent['prefix'],
             'Server URL not the same as in json file.')
