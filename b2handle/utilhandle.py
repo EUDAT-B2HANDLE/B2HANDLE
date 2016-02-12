@@ -1,7 +1,7 @@
 '''
 This module provides some handle-related functions
-    that are needed across various modules of the
-    b2handle library.
+that are needed across various modules of the
+b2handle library.
 '''
 
 import base64
@@ -32,7 +32,7 @@ def remove_index_from_handle(handle_with_index):
 def check_handle_syntax(string):
     '''
     Checks the syntax of a handle without an index (are prefix
-        and suffix there, are there too many slashes?).
+    and suffix there, are there too many slashes?).
 
     :string: The handle without index, as string prefix/suffix.
     :raise: :exc:`~b2handle.handleexceptions.handleexceptions.HandleSyntaxError`
@@ -70,7 +70,7 @@ def check_handle_syntax(string):
 def check_handle_syntax_with_index(string, base_already_checked=False):
     '''
     Checks the syntax of a handle with an index (is index there, is it an
-        integer?), and of the handle itself.
+    integer?), and of the handle itself.
 
     :string: The handle with index, as string index:prefix/suffix.
     :raise: :exc:`~b2handle.handleexceptions.handleexceptions.HandleSyntaxError`
@@ -120,8 +120,8 @@ def create_authentication_string(username, password):
 def make_request_log_message(**args):
     '''
     Creates a string containing all relevant information
-        about a request made to the Handle System, for
-        logging purposes.
+    about a request made to the Handle System, for
+    logging purposes.
 
     :handle: The handle that the request is about.
     :url: The url the request is sent to.

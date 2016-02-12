@@ -1,6 +1,6 @@
 '''
 This module contains the exceptions that may occur in
-    libraries interacting with the Handle System.
+libraries interacting with the Handle System.
 
 Author: Merret Buurman (DKRZ), 2015-2016
 

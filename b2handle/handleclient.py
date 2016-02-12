@@ -46,9 +46,9 @@ class EUDATHandleClient(object):
     def __init__(self, handle_server_url=None, **args):
         '''
         Initialize the client. Depending on the arguments passed, it is set to
-            read-only, write and/or search mode. All arguments are optional.
-            If none is set, the client is in read-only mode, reading from
-            the global handle resolver.
+        read-only, write and/or search mode. All arguments are optional.
+        If none is set, the client is in read-only mode, reading from
+        the global handle resolver.
 
         :param handle_server_url: Optional. The URL of the Handle System
             server to read from. Defaults to 'https://hdl.handle.net'
@@ -165,7 +165,7 @@ class EUDATHandleClient(object):
 
         :param handle_server_url: Optional. The URL of the Handle System
             server to read from. Defaults to 'https://hdl.handle.net'
-        :param **config: More key-value pairs may be passed that will be passed
+        :param \**config: More key-value pairs may be passed that will be passed
             on to the constructor as config. Config options from the
             credentials object are overwritten by this.
         :return: An instance of the client.
@@ -185,7 +185,7 @@ class EUDATHandleClient(object):
             reverse lookup servlet.
         :param reverselookup_password: The password to authenticate at the
             reverse lookup servlet.
-        :param **config: More key-value pairs may be passed that will be passed
+        :param \**config: More key-value pairs may be passed that will be passed
             on to the constructor as config. Config options from the
             credentials object are overwritten by this.
         :return: An instance of the client.
@@ -217,7 +217,7 @@ class EUDATHandleClient(object):
             "index:prefix/suffix".
         :param password: This is the password stored as secret key in the
             actual Handle value the username points to.
-        :param **config: More key-value pairs may be passed that will be passed
+        :param \**config: More key-value pairs may be passed that will be passed
             on to the constructor as config.
         :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
         :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
@@ -235,7 +235,7 @@ class EUDATHandleClient(object):
 
         :param credentials: A credentials object, see separate class
             PIDClientCredentials.
-        :param **config: More key-value pairs may be passed that will be passed
+        :param \**config: More key-value pairs may be passed that will be passed
             on to the constructor as config. Config options from the
             credentials object are overwritten by this.
         :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
@@ -929,9 +929,13 @@ class EUDATHandleClient(object):
         :exc:`~b2handle.handleexceptions.ReverseLookupException`.
 
         Example calls:
-          * list_of_handles = search_handle('http://www.foo.com')
-          * list_of_handles = search_handle('http://www.foo.com', CHECKSUM=99999)
-          * list_of_handles = search_handle(URL='http://www.foo.com', CHECKSUM=99999)
+
+            .. code:: python
+
+                list_of_handles = search_handle('http://www.foo.com')
+                list_of_handles = search_handle('http://www.foo.com', CHECKSUM=99999)
+                list_of_handles = search_handle(URL='http://www.foo.com', CHECKSUM=99999)
+
 
         :param URL: Optional. The URL to search for (reverse lookup). [This is
             NOT the URL of the search servlet!]

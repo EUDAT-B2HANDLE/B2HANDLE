@@ -1,9 +1,9 @@
 '''
 This module provides the class PIDClientCredentials
-    which handles the credentials for Handle server
-    Interaction and for the Search Servlet.
+which handles the credentials for Handle server
+Interaction and for the Search Servlet.
 
-    Author: Merret Buurman (DKRZ), 2015-2016
+Author: Merret Buurman (DKRZ), 2015-2016
 
 '''
 
@@ -20,8 +20,8 @@ LOGGER.addHandler(util.NullHandler())
 class PIDClientCredentials(object):
     '''
     Provides authentication information to access a Handle server, either by
-        specifying username and password or by providing a json file containing
-        the relevant information.
+    specifying username and password or by providing a json file containing
+    the relevant information.
 
     '''
 
@@ -29,29 +29,25 @@ class PIDClientCredentials(object):
     def load_from_JSON(json_filename):
         '''
         Create a new instance of a PIDClientCredentials with information read
-            from a local JSON file.
+        from a local JSON file.
 
         :param json_filename: The path to the json credentials file. The json
             file should have the following format:
-            {
-                "baseuri": "https://url.to.your.handle.server",
-                "username": "index:prefix/suffix",
-                "password": "ZZZZZZZ",
-                "prefix": "prefix_to_use_for_writing_handles",
-                "handleowner": "username_to_own_handles"
-            }
-            The parameters 'prefix' and 'handleowner' are optional and default to None.
-            If 'prefix' is not given, the prefix has to be specified each time a handle is
-            created or modified.
-            If 'handleowner' is given, it is written into the created handles' HS_ADMIN.
-            If it is not given, the username is given. This parameter allows a user to create
-            handles that are then modifiable by a larger user group than just himself, e.g.
-            user John Doe creates the handle, but wants all his colleagues to be able to
-            modify it.
+
+                .. code:: json
+
+                    {
+                        "baseuri": "https://url.to.your.handle.server",
+                        "username": "index:prefix/suffix",
+                        "password": "ZZZZZZZ",
+                        "prefix": "prefix_to_use_for_writing_handles",
+                        "handleowner": "username_to_own_handles"
+                    }
+
             Any additional key-value-pairs are stored in the instance as
             config.
-        :raises: CredentialsFormatError
-        :raises: HandleSyntaxError
+        :raises: :exc:`~b2handle.handleexceptions.CredentialsFormatError`
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: An instance.
         '''
 
@@ -65,15 +61,43 @@ class PIDClientCredentials(object):
 
     def __init__(self, **args):
         '''
-        Initialize client credentials instance with Handle server url,
-            username and password.
+        Initialize client credentials instance.
 
-        :param handle_server_url: URL to your handle server
-        :param username: User information in the format "index:prefix/suffix"
-        :param password: Password.
-        :param prefix: Prefix.
-        :param config: Any key-value pairs added are stored as config.
-        :raises: HandleSyntaxError
+        The constructor checks if enough arguments are passed to
+        authenticate at a handle server or search servlet. For this,
+        the following parameters are checked. Depending on the
+        chosen authentication method, only a subset of them are
+        required.
+
+        All other parameters passed are stored and can be retrieved
+        using 'get_config()'. If a credentials objects is used to
+        initialize the client, these key-value pairs are passed on
+        to the client constructor.
+
+        :param handle_server_url: Optional. The URL of the Handle System
+            server to read from. Defaults to 'https://hdl.handle.net'
+        :param username: Optional. This must be a handle value reference in
+            the format "index:prefix/suffix". The method will throw an exception
+            upon bad syntax or non-existing Handle. The existence or validity
+            of the password in the handle is not checked at this moment.
+        :param password: Optional. This is the password stored as secret key
+            in the actual Handle value the username points to.
+        :param handleowner: Optional. The username that will be given admin
+            permissions over every newly created handle. By default, it is
+            '200:0.NA/xyz' (where xyz is the prefix of the handle being created.
+        :param private_key: Optional. The path to a file containing the private
+            key that will be used for authentication in write mode. If this is
+            specified, a certificate needs to be specified too.
+        :param certificate_only: Optional. The path to a file containing the
+            client certificate that will be used for authentication in write
+            mode. If this is specified, a private key needs to be specified too.
+        :param certificate_and_key: Optional. The path to a file containing both
+            certificate and private key, used for authentication in write mode.
+        :param prefix: Prefix. This is not used by the library, but may be
+            retrieved by the user.
+        :param \**args: Any other key-value pairs are stored and can be accessed
+            using 'get_config()'.
+        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
 
         util.log_instantiation(LOGGER, 'PIDClientCredentials', args, ['password','reverselookup_password'])
