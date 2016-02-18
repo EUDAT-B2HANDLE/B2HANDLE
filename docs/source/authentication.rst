@@ -58,7 +58,7 @@ Creating the client certificate
     
       bash /.../handlesystem_software/hsj-8.x.x/bin/hdl-keygen 
                     -alg dsa
-                    -keysize 1024 
+                    -keysize 2048 
                      301_foo_bar_privkey.bin 301_foo_bar_pubkey.bin
     
     Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!
@@ -142,7 +142,7 @@ Now, the certificate_only.pem file and the private_key.pem file can be used for 
 The paths to these files should be entered into the JSON credentials file asfollows::
 
   {
-    "baseuri": "https://my.handle.server",
+    "handle_server_url": "https://my.handle.server",
     "private_key": "301_foo_bar_privkey.pem",
     "certificate_only": "301_certificate_only.pem"
   }
