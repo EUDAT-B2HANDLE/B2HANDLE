@@ -155,7 +155,7 @@ as it is most easily modified and extended (without having to contact the prefix
 
 These are three ways to grant admin permissions to users **300:foo/bar** and **301:foo/bar**:
 
-1.  By creating a ``HS_ADMIN`` entry for this username in the prefix owner handle record (i.e. somewhere in the record **0.NA/foo**).
+1.  By creating a ``HS_ADMIN`` entry for each username in the prefix owner handle record (i.e. somewhere in the record **0.NA/foo**).
 
     **Handle record 0.NA/foo:**
 
@@ -177,7 +177,7 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     ===== ========= ==========
 
-2. By adding **300:foo/bar** and **301:foo/bar** to a ``HS_VLIST`` entry in the prefix owner handle record
+2. By adding the usernames (**300:foo/bar** and **301:foo/bar**) to a ``HS_VLIST`` entry in the prefix owner handle record
    (i.e. somewhere in the record **0.NA/foo**), which was referenced in a ``HS_ADMIN`` entry in **0.NA/foo**.
 
     **Handle record 0.NA/foo:**
@@ -201,10 +201,9 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     ===== ========= ==========
 
-3. By adding **300:foo/bar** to any ``HS_VLIST`` entry referenced somewhere in **0.NA/foo**. For example, if there is
-   a ``HS_ADMIN`` at index 101 of **0.NA/foo** which points to a ``HS_VLIST`` at the index 200 in **0.NA/foo**, which points
-   to a ``HS_VLIST`` at index 200 in 'foo/admin', which points to a ``HS_SECKEY`` at index 300 in 'foo/bar' - then **300:foo/bar**
-   is a username with all the permissions stated in the ``HS_ADMIN`` entry at the index 101 of **0.NA/foo**.
+3. By adding the usernames (**300:foo/bar** and **301:foo/bar**) to any ``HS_VLIST`` entry referenced somewhere in **0.NA/foo**.
+   For example, if there is a ``HS_ADMIN`` at index 101 of **0.NA/foo** which points to a ``HS_VLIST`` at the index 200 in 
+   **0.NA/foo**, which points to a ``HS_VLIST`` at index 200 in 'foo/admin', which points to a ``HS_SECKEY`` at index 300 in 'foo/bar' - then **300:foo/bar** is a username with all the permissions stated in the ``HS_ADMIN`` entry at the index 101 of **0.NA/foo**.
 
     **Handle record 0.NA/foo:**
 
