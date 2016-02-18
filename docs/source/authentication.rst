@@ -59,9 +59,9 @@ Creating the client certificate
       bash /.../handlesystem_software/hsj-8.x.x/bin/hdl-keygen 
                     -alg dsa
                     -keysize 1024 
-                     300_foo_bar_privkey.bin 300_foo_bar_pubkey.bin
+                     301_foo_bar_privkey.bin 301_foo_bar_pubkey.bin
     
-    Note: We put 300_foo_bar into the name to remember for which username this keypair is generated!
+    Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!
 
   * When it asks whether you want to encrypt the key, type 'n' [TODO: Does it work with encrypted ones, too?]:
 
@@ -81,10 +81,10 @@ Creating the client certificate
   * Lookup the handle where you want to store the user's public key (foo/bar)
   * "Edit"
   * "Add" > "Blank Value"
-  * Index: In this example, we use 300. As a convention, take the lowest value >= 300 that is not in use yet.
-  * "Load from file" > Choose the file "300_foo_bar_pubkey.bin"
+  * Index: In this example, we use 301. As a convention, take the lowest value >= 301 that is not in use yet.
+  * "Load from file" > Choose the file "301_foo_bar_pubkey.bin"
   * The value type should have set itself to *"Hex"* now.
-  * Don't forget to give admin permissions to the username 300:foo/bar, where you just uploaded the public key!
+  * Don't forget to give admin permissions to the username 301:foo/bar, where you just uploaded the public key!
 
 3. Transforming the binary private key (.bin) to a .pem file:
 
@@ -93,8 +93,8 @@ Creating the client certificate
       .. code:: json
 
         bash /.../handlesystem_software/hsj-8.x.x/bin/hdl-convert-key 
-                                            /.../300_foo_bar_privkey.bin 
-                                         -o /.../my_privatekey.pem
+                                            /.../301_foo_bar_privkey.bin 
+                                         -o /.../301_foo_bar_privkey.pem
 
 4. Creating the certificate file:
   
@@ -102,8 +102,8 @@ Creating the client certificate
 
       .. code:: json
   
-        openssl req -pubkey -x509 -new  -key /.../my_privatekey.pem 
-                                        -out /.../my_certificate_and_publickey.pem
+        openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
+                                        -out /.../301_certificate_and_publickey.pem
   
   * The tool is then going to prompt for some information. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
     However, it is very important to enter the username as Common Name and *leave the Email address blank*, as it is going to be appended to the username otherwise. This will look like
@@ -131,16 +131,16 @@ Creating the client certificate
 
     .. code:: json
     
-      openssl x509 -inform PEM -in /.../my_certificate_and_publickey.pem
-                               -out /.../my_certificate_only.pem
+      openssl x509 -inform PEM -in /.../301_certificate_and_publickey.pem
+                               -out /.../301_certificate_only.pem
 
 Now, the certificate_only.pem file and the private_key.pem file can be used for authentication.
 The paths to these files should be entered into the JSON credentials file asfollows::
 
   {
     "baseuri": "https://my.handle.server",
-    "private_key": "my_privatekey.pem",
-    "certificate_only": "my_certificate_only.pem"
+    "private_key": "301_foo_bar_privkey.pem",
+    "certificate_only": "301_certificate_only.pem"
   }
 
 Please follow the client documentation to see how a user can use this JSON file to authenticate while using the b2handle library.
