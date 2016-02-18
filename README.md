@@ -43,3 +43,12 @@ The library can also be used in combination with Docker. The [Dockerfile](Docker
     Type "help", "copyright", "credits" or "license" for more information.
     >>> from b2handle.handleclient import EUDATHandleClient
     >>>
+
+# Building the documentation
+
+B2Handle uses [Sphinx](http://www.sphinx-doc.org) for documentation, requiring at least version 1.3. To build HTML documentation locally, run:
+```bash
+cd docs
+make html
+```
+
