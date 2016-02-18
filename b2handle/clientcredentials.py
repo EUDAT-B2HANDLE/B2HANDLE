@@ -37,7 +37,7 @@ class PIDClientCredentials(object):
                 .. code:: json
 
                     {
-                        "baseuri": "https://url.to.your.handle.server",
+                        "handle_server_url": "https://url.to.your.handle.server",
                         "username": "index:prefix/suffix",
                         "password": "ZZZZZZZ",
                         "prefix": "prefix_to_use_for_writing_handles",
@@ -52,9 +52,6 @@ class PIDClientCredentials(object):
         '''
 
         jsonfilecontent = json.loads(open(json_filename, 'r').read())
-        if 'baseuri' in jsonfilecontent:
-            jsonfilecontent['handle_server_url'] = jsonfilecontent['baseuri']
-            del jsonfilecontent['baseuri']
         instance = PIDClientCredentials(**jsonfilecontent)
         return instance
 
