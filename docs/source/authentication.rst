@@ -63,11 +63,15 @@ Creating the client certificate
     
     Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!
 
-  * When it asks whether you want to encrypt the key, type 'n' [TODO: Does it work with encrypted ones, too?]:
+  * When it asks whether you want to encrypt the key, type 'n':
 
       .. code:: json
   
         Would you like to encrypt your private key? (y/n) [y] n
+
+    Why? The b2handle library uses the python library *requests* which does not support encrypted private keys:
+    *"The private key to your local certificate must be unencrypted. Currently, requests does not support 
+    using encrypted keys."* (see `requests documentation on this topic <http://docs.python-requests.org/en/latest/user/advanced/#ssl-cert-verification>`__).
 
 2. Upload the user's public key to the ``HS_PUBKEY`` entry:
 
