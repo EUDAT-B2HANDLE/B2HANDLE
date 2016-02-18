@@ -46,9 +46,12 @@ The library can also be used in combination with Docker. The [Dockerfile](Docker
 
 # Building the documentation
 
-B2Handle uses [Sphinx](http://www.sphinx-doc.org) for documentation, requiring at least version 1.3. To build HTML documentation locally, run:
+B2Handle uses [Sphinx](http://www.sphinx-doc.org) for documentation, requiring at least version 1.3. Sphinx can be installed via pip. To build HTML documentation locally, then run:
 ```bash
-cd docs
-make html
+python setup.py build_sphinx
 ```
+
+
+
+
 
