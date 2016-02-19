@@ -53,20 +53,15 @@ python setup.py build_sphinx
 
 # Developer team
 
-The developer team consists of:
-* Merret Buurman (DKRZ), lead developer
-* Christos Kanellopoulos (GRNET)
-* Nicolas Liampotis (GRNET)
-* Robert Verkerk (SURFsara)
-* Tobias Weigel (DKRZ)
-* Themis Zamani (GRNET)
+Machines don't write software, people do. Please refer to [CONTRIBUTORS.md](CONTRIBUTORS.md) for those who spent effort in creating this product.
 
 # License
 
 Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
+   The B2Handle library is licensed under the Apache License,
+   Version 2.0 (the "License"); you may not use this product except in 
+   compliance with the License.
    You may obtain a copy of the License at
 
    http://www.apache.org/licenses/LICENSE-2.0
