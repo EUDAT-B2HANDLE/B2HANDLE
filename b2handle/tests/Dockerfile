@@ -2,7 +2,10 @@
 FROM       eudat-b2handle
 
 RUN        easy_install pip
-RUN        pip install coverage mock
+RUN        pip install \
+           mock \
+           coverage \
+           nose
 
 VOLUME     /opt/B2HANDLE/b2handle/tests
 
