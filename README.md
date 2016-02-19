@@ -53,7 +53,7 @@ python setup.py build_sphinx
 
 # Developer team
 
-Machines don't write software, people do. Please refer to [CONTRIBUTORS.md](CONTRIBUTORS.md) for those who spent effort in creating this product.
+Machines don't write software, people do. Please refer to [CONTRIBUTORS.md](CONTRIBUTORS.md) to learn about those who spent effort in creating this product.
 
 # License
 
