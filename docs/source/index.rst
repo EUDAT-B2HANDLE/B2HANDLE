@@ -13,10 +13,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
-   handleserverconfig
    handleclient
    authentication
-
+   handleserverconfig
 
 
 Indices and tables
