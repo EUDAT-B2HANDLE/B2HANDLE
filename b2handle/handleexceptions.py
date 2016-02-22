@@ -1,15 +1,27 @@
-# This module contains the exceptions that may occur in libraries interacting with the Handle System.
-# 
-# Merret Buurman (DKRZ), 2015-07-14
-# Last updated: 2015-08-26
+'''
+This module contains the exceptions that may occur in
+libraries interacting with the Handle System.
+
+Author: Merret Buurman (DKRZ), 2015-2016
+
+'''
+
 import json
+import re
+from util import add_missing_optional_args_with_value_none
 
 class BrokenHandleRecordException(Exception):
 
-    def __init__(self, handle=None, custom_message=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Ill-formatted handle record'
-        self.handle = handle
-        self.custom_message = custom_message
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
 
         if self.custom_message is not None:
             self.msg += ': '+self.custom_message
@@ -27,11 +39,17 @@ class IllegalOperationException(Exception):
     when he wants to create or remove 10320/loc entries using the
     wrong method, ...
     '''
-    def __init__(self, operation=None, handle=None, custom_message=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = "Illegal Operation"
-        self.handle = handle
-        self.custom_message = custom_message
-        self.operation = operation
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle', 'operation']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
+        self.operation = args['operation']
 
         if self.operation is not None:
             self.msg += ' ('+self.operation+')'
@@ -49,13 +67,19 @@ class GenericHandleError(Exception):
     To be raised when the Handle Server returned an unexpected status code
     that does not map to any other specific exception.
     '''
-    def __init__(self, operation=None, handle=None, response=None, custom_message=None, payload=None):
+    def __init__(self,**args):
+
+        # Default message:
         self.msg = 'Error during interaction with Handle Server'
-        self.handle = handle
-        self.custom_message = custom_message
-        self.operation = operation
-        self.response = response
-        self.payload = payload
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle','response', 'payload', 'operation']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
+        self.response = args['response']
+        self.operation = args['operation']
+        self.payload = args['payload']
 
         if self.operation is not None:
             self.msg += ' ('+self.operation+')'
@@ -81,11 +105,17 @@ class ReverseLookupException(Exception):
     '''
     To be raised if the reverse lookup servlet returns an error.
     '''
-    def __init__(self, custom_message=None, query=None, response=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Error during Reverse Lookup'
-        self.response = response
-        self.query = query
-        self.custom_message = custom_message
+
+        # Possible arguments:
+        optional_args = ['msg', 'query','response']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.query = args['query']
+        self.custom_message = args['msg']
+        self.response = args['response']
 
         if self.custom_message is not None:
             self.msg += ': '+self.custom_message
@@ -95,9 +125,11 @@ class ReverseLookupException(Exception):
             self.msg += '\n\tQuery: '+self.query
 
         if self.response is not None:
+            pat = re.compile('>[\s]+<')
+            responsecontent_less_whitespace = pat.sub('><', str(self.response.content))
             self.msg += '\n\tURL: '+str(self.response.request.url)
             self.msg += '\n\tHTTP Status Code: '+str(self.response.status_code)
-            self.msg += '\n\tResponse: '+str(self.response.content)
+            self.msg += '\n\tResponse: '+responsecontent_less_whitespace
 
         super(self.__class__, self).__init__(self.msg)
       
@@ -106,11 +138,17 @@ class HandleNotFoundException(Exception):
     '''
     To be raised if the self.handle was not found on the Handle Server.
     '''
-    def __init__(self, handle=None, custom_message=None, response=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg ='Handle not found on server'
-        self.handle = handle
-        self.custom_message = custom_message
-        self.response = response
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle','response']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
+        self.response = args['response']
 
         if self.handle is not None:
             self.msg = self.msg.replace('andle', 'andle '+self.handle)
@@ -119,7 +157,7 @@ class HandleNotFoundException(Exception):
             self.msg += ': '+self.custom_message
         self.msg += '.'
 
-        if response is not None:
+        if self.response is not None:
             self.msg += '\n\tURL: '+str(self.response.request.url)
             self.msg += '\n\tHTTP Status Code: '+str(self.response.status_code)
             self.msg += '\n\tResponse: '+str(self.response.content)
@@ -130,11 +168,17 @@ class HandleSyntaxError(Exception):
     '''
     To be raised if the Handle does not have correct syntax.
     '''
-    def __init__(self, custom_message=None, handle=None, expected_syntax=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Handle does not have expected syntax'
-        self.handle = handle
-        self.custom_message = custom_message
-        self.expected_syntax = expected_syntax
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle','expected_syntax']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
+        self.expected_syntax = args['expected_syntax']
 
         if self.handle is not None:
             self.msg = self.msg.replace('andle', 'andle '+self.handle)
@@ -152,10 +196,16 @@ class HandleAlreadyExistsException(Exception):
     '''
     To be raised if self.handle already exists.
     '''
-    def __init__(self, handle=None, custom_message=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Handle already exists'
-        self.handle = handle
-        self.custom_message = custom_message
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
 
         if self.handle is not None:
             self.msg = self.msg.replace('andle', 'andle '+self.handle)
@@ -172,13 +222,19 @@ class HandleAuthenticationError(Exception):
     write permission for creating, modifying, deleting.
     '''
 
-    def __init__(self, operation=None, handle=None, response=None, custom_message=None, username=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Insufficient permission'
-        self.handle = handle
-        self.custom_message = custom_message
-        self.operation = operation
-        self.response = response
-        self.username = username
+
+        # Possible arguments:
+        optional_args = ['msg', 'handle', 'operation', 'response', 'username']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.handle = args['handle']
+        self.custom_message = args['msg']
+        self.operation = args['operation']
+        self.response = args['response']
+        self.username = args['username']
 
         if self.operation is not None:
             self.msg += ' for '+self.operation
@@ -203,9 +259,15 @@ class HandleAuthenticationError(Exception):
 class CredentialsFormatError(Exception):
     '''
     To be raised if credentials are ill-formatted or miss essential items.'''
-    def __init__(self, custom_message=None):
+    def __init__(self, **args):
+
+        # Default message:
         self.msg = 'Ill-formatted credentials'
-        self.custom_message = custom_message
+
+        # Possible arguments:
+        optional_args = ['msg']
+        add_missing_optional_args_with_value_none(args, optional_args)
+        self.custom_message = args['msg']
 
         if self.custom_message is not None:
             self.msg += ': '+self.custom_message

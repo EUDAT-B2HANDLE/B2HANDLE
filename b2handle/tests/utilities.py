@@ -21,10 +21,8 @@ def replace_timestamps(jsonobject):
 
     # Replace:
     if type(jsonobject) == type({}):
-        try:
+        if 'timestamp' in jsonobject:
             jsonobject['timestamp'] = 'xxx'
-        except KeyError:
-            pass
 
     # Recursion:
     if type(jsonobject) == type({'b':2}):

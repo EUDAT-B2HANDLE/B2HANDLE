@@ -5,12 +5,14 @@ import time
 
 # Unit tests:
 from handleclient_noaccess_test import EUDATHandleClientNoaccessTestCase
+from handleconnector_noaccess_test import EUDATHandleConnectorNoaccessTestCase
 from handleclient_readaccess_faked_test import EUDATHandleClientReadaccessFakedTestCase
 from handleclient_readaccess_patched_test import EUDATHandleClientReadaccessPatchedTestCase
 from handleclient_writeaccess_patched_test import EUDATHandleClientWriteaccessPatchedTestCase
 from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccessFaked10320LOCTestCase
 from clientcredentials_test import PIDClientCredentialsTestCase
 from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
+from handleconnector_access_patched_test import EUDATHandleConnectorAccessPatchedTestCase
 
 # Integration tests:
 # Imports below!
@@ -18,7 +20,7 @@ from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTes
 # Logging:
 log_b2handle = False
 if log_b2handle == True:
-    LOGGER = logging.getLogger('b2handle.handleclient')
+    LOGGER = logging.getLogger()
     LOGGER.setLevel("DEBUG")
     LOGGER.addHandler(
         logging.FileHandler(
@@ -87,6 +89,12 @@ if __name__ == '__main__':
         n = noaccess.countTestCases()
         numtests += n
         print 'Number of tests for client (no access required):\t\t\t\t'+str(n)
+
+        noaccess_connector = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorNoaccessTestCase)
+        tests_to_run.append(noaccess_connector)
+        n = noaccess_connector.countTestCases()
+        numtests += n
+        print 'Number of tests for handle system connector (no access required):\t\t\t\t'+str(n)
         
         credentials = unittest.TestLoader().loadTestsFromTestCase(PIDClientCredentialsTestCase)
         tests_to_run.append(credentials)
@@ -125,6 +133,12 @@ if __name__ == '__main__':
         n=patched_write.countTestCases()
         numtests += n
         print 'Number of tests for patched write access:\t\t\t\t\t'+str(n)
+
+        patched_conn = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleConnectorAccessPatchedTestCase)
+        tests_to_run.append(patched_conn)
+        n=patched_conn.countTestCases()
+        numtests += n
+        print 'Number of tests for patched access (connector):\t\t\t\t\t'+str(n)
 
 
     if read_access:

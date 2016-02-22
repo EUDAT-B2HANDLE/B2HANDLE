@@ -8,7 +8,7 @@
             "data":{"format":"string", "value":"<locations chooseby = \"locatt,weighted\">\n<location weight = \"1\" href = \"http://foo.bar\" />\n<location http_role = \"conneg\" weight = \"0\" href = \"http://foo.foo\" />\n<location http_role = \"no_conneg\" weight = \"0\" href = \"http://clipc-services.ceda.ac.uk/testdata/v1/novar_fx_dummy_historical_r5i1p1_CHECKCONNEG.nc\" />\n</locations> "}, "ttl":86400, "timestamp":"2015-06-16T08:08:31Z"
         }, {
             "index":3,
-            "type":"creation_date",
+            "type":"CREATION_DATE",
             "data":{"format":"string", "value":"2015-05-01"}, "ttl":86400, "timestamp":"2015-06-10T11:54:35Z"
         }
     ]

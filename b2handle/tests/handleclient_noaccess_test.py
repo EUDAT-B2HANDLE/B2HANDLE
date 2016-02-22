@@ -9,6 +9,7 @@ import json
 sys.path.append("../..")
 import b2handle.handleclient as b2handle
 from b2handle.handleexceptions import HandleSyntaxError
+from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle, create_authentication_string
 
 class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 
@@ -81,78 +82,78 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 
     def test_check_handle_syntax_normal(self):
         """Test check handle syntax"""
-        syntax_checked = self.inst.check_handle_syntax("foo/bar")
+        syntax_checked = check_handle_syntax("foo/bar")
         self.assertTrue(syntax_checked)
 
     def test_check_handle_syntax_two_slashes(self):
         """Handle Syntax: Exception if too many slashes in handle."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax("foo/bar/foo")
+            check_handle_syntax("foo/bar/foo")
 
     def test_check_handle_syntax_no_slashes(self):
         """Handle Syntax: Exception if too many slashes in handle."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax("foobar")
+            check_handle_syntax("foobar")
 
     def test_check_handle_syntax_no_prefix(self):
         """Handle Syntax: Exception if no prefix."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax("/bar")
+            check_handle_syntax("/bar")
 
     def test_check_handle_syntax_no_suffix(self):
         """Handle Syntax: Exception if no suffix."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax("foo/")
+            check_handle_syntax("foo/")
 
     def test_check_handle_syntax_with_index(self):
         """Test check handle syntax with index."""
-        syntax_checked = self.inst.check_handle_syntax("300:foo/bar")
+        syntax_checked = check_handle_syntax("300:foo/bar")
         self.assertTrue(syntax_checked,
             'The syntax of the handle is not index:prefix/suffix.')
 
     def test_check_handle_syntax_none(self):
         """Test check handle syntax where handle is None"""
         with self.assertRaises(HandleSyntaxError):
-            syntax_checked = self.inst.check_handle_syntax(None)
+            syntax_checked = check_handle_syntax(None)
 
     def test_check_handle_syntax_with_index_nan(self):
         """Handle Syntax: Exception if index not a number."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax_with_index("nonumber:foo/bar")
+            check_handle_syntax_with_index("nonumber:foo/bar")
 
     def test_check_handle_syntax_with_index_noindex(self):
         """Handle Syntax: Exception if index not existent."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax_with_index("index/missing")
+            check_handle_syntax_with_index("index/missing")
 
     def test_check_handle_syntax_with_index_twocolons(self):
         """Handle Syntax: Exception if two colons."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax_with_index("too:many:colons")
+            check_handle_syntax_with_index("too:many:colons")
 
     def test_check_handle_syntax_with_index_onlyindex(self):
         """Handle Syntax: Exception if no prefix and suffix."""
         with self.assertRaises(HandleSyntaxError):
-            self.inst.check_handle_syntax_with_index("onlyindex:")
+            check_handle_syntax_with_index("onlyindex:")
 
-    def test_remove_index(self):
+    def test_remove_index_from_handle(self):
         handle_with_index = "300:foo/bar"
-        syntax_checked = self.inst.check_handle_syntax(handle_with_index)
+        syntax_checked = check_handle_syntax(handle_with_index)
         self.assertTrue(syntax_checked,
             'Test precondition failed!')
-        index, handle = self.inst.remove_index(handle_with_index)
-        syntax_checked = self.inst.check_handle_syntax(handle)
+        index, handle = remove_index_from_handle(handle_with_index)
+        syntax_checked = check_handle_syntax(handle)
         self.assertTrue(syntax_checked,
             'After removing the index, the syntax of the handle should '+\
             'be prefix/suffix.')
 
     def test_remove_index_noindex(self):
         handle_with_index = "foo/bar"
-        syntax_checked = self.inst.check_handle_syntax(handle_with_index)
+        syntax_checked = check_handle_syntax(handle_with_index)
         self.assertTrue(syntax_checked,
             'Test precondition failed!')
-        index, handle = self.inst.remove_index(handle_with_index)
-        syntax_checked = self.inst.check_handle_syntax(handle)
+        index, handle = remove_index_from_handle(handle_with_index)
+        syntax_checked = check_handle_syntax(handle)
         self.assertTrue(syntax_checked,
             'After removing the index, the syntax of the handle should '+\
             'be prefix/suffix.')
@@ -160,7 +161,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
     def test_remove_index_toomany(self):
         handle_with_index = "100:100:foo/bar"
         with self.assertRaises(HandleSyntaxError):
-            index, handle = self.inst.remove_index(handle_with_index)
+            index, handle = remove_index_from_handle(handle_with_index)
 
     # retrieve handle record (failing before any server access)
 
@@ -180,66 +181,9 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
     # make_authentication_string
 
     def test_create_authentication_string(self):
-        auth = self.inst.create_authentication_string('100:user/name', 'password123')
+        auth = create_authentication_string('100:user/name', 'password123')
         expected = 'MTAwJTNBdXNlci9uYW1lOnBhc3N3b3JkMTIz'
         self.assertEquals(expected, auth,
             'Authentication string is: '+auth+', but should be: '+expected)
 
-    # make_handle_url
-
-    def test_make_handle_url(self):
-
-        url = self.inst.make_handle_URL('testhandle')
-        self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
-        self.assertIn('handle.net', url,
-            'handle.net missing in URL: '+url)
-        self.assertNotIn('index=', url,
-            'Index specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
-        #    'overwrite=false is missing: '+url)
-
-    def test_make_handle_url_with_indices(self):
-
-        url = self.inst.make_handle_URL('testhandle', [2,3,5])
-        self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
-        self.assertIn('index=2', url,
-            'Index 2 specified in URL: '+url)
-        self.assertIn('index=3', url,
-            'Index 3 specified in URL: '+url)
-        self.assertIn('index=5', url,
-            'Index 5 specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
-        #    'overwrite=false is missing: '+url)
-
-    def test_make_handle_url_overwrite_true(self):
-
-        url = self.inst.make_handle_URL('testhandle', overwrite=True)
-        self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
-        self.assertIn('overwrite=true', url,
-            'overwrite=true is missing: '+url)
-
-    def test_make_handle_url_overwrite_false(self):
-
-        url = self.inst.make_handle_URL('testhandle', overwrite=False)
-        self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
-        self.assertIn('overwrite=false', url,
-            'overwrite=false is missing: '+url)
-
-    def test_make_handle_url_otherurl(self):
-
-        other = 'http://foo.foo'
-        url = self.inst.make_handle_URL('testhandle', other_url=other)
-        self.assertNotIn('/api/handles/', url,
-            'REST API path should not be specified in URL: '+url)
-        self.assertIn(other, url,
-            'Other URL missing in URL: '+url)
-        self.assertNotIn('handle.net', url,
-            'handle.net should not be in URL: '+url)
-        self.assertNotIn('index=', url,
-            'Index specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
-        #    'overwrite=false is missing: '+url)
+    

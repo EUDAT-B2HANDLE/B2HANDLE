@@ -9,6 +9,7 @@ else:
 import json
 sys.path.append("../..")
 from b2handle.handleclient import EUDATHandleClient
+from b2handle.utilhandle import check_handle_syntax
 
 class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
     '''Testing methods for retrieving values and indices.'''
@@ -28,10 +29,10 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         val = self.inst.get_value_from_handle(handle,
-                                              'test1',
+                                              'TEST1',
                                               handlerecord)
         self.assertEquals(val, 'val1',
-            'The value of "test1" should be "val1".')
+            'The value of "TEST1" should be "val1".')
 
     def test_get_value_from_handle_inexistentvalue(self):
         """Test retrieving an inexistent value from a handle record."""
@@ -40,10 +41,10 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         val = self.inst.get_value_from_handle(handle,
-                                              'test100',
+                                              'TEST100',
                                               handlerecord)
         self.assertIsNone(val,
-            'The value of "test100" should be None.')
+            'The value of "TEST100" should be None.')
 
     def test_get_value_from_handle_HS_ADMIN(self):
         """Test retrieving an HS_ADMIN value from a handle record."""
@@ -60,7 +61,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
             'The HS_ADMIN has no entry "index".')
         self.assertIn('permissions', val,
             'The HS_ADMIN has no entry "permissions".')
-        syntax_ok = self.inst.check_handle_syntax(val['handle'])
+        syntax_ok = check_handle_syntax(val['handle'])
         self.assertTrue(syntax_ok,
             'The handle in HS_ADMIN is not well-formatted.')
         self.assertIsInstance(val['index'], (int, long),
@@ -75,10 +76,10 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         val = self.inst.get_value_from_handle(handle,
-                                              'testdup',
+                                              'TESTDUP',
                                               handlerecord)
         self.assertIn(val, ("dup1", "dup2"),
-            'The value of the duplicate key "testdup" should be "dup1" or "dup2".')
+            'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
 
     # retrieve_handle_record
 
@@ -89,21 +90,21 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
 
         dict_record = self.inst.retrieve_handle_record(handle, handlerecord)
 
-        self.assertIn('test1', dict_record,
+        self.assertIn('TEST1', dict_record,
             'Key "test1" not in handlerecord dictionary!')
-        self.assertIn('test2', dict_record,
+        self.assertIn('TEST2', dict_record,
             'Key "test2" not in handlerecord dictionary!')
-        self.assertIn('testdup', dict_record,
+        self.assertIn('TESTDUP', dict_record,
             'Key "testdup" not in handlerecord dictionary!')
         self.assertIn('HS_ADMIN', dict_record,
             'Key "HS_ADMIN" not in handlerecord dictionary!')
 
-        self.assertEqual(dict_record['test1'], 'val1',
-            'The value of "test1" is not "val1.')
-        self.assertEqual(dict_record['test2'], 'val2',
-            'The value of "test2" is not "val2.')
-        self.assertIn(dict_record['testdup'], ("dup1", "dup2"),
-            'The value of the duplicate key "testdup" should be "dup1" or "dup2".')
+        self.assertEqual(dict_record['TEST1'], 'val1',
+            'The value of "TEST1" is not "val1.')
+        self.assertEqual(dict_record['TEST2'], 'val2',
+            'The value of "TEST2" is not "val2.')
+        self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
+            'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
             'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
 
@@ -119,7 +120,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handlerecord = json.load(open('resources/handlerecord_for_reading.json'))
         handle = handlerecord['handle']
 
-        indices = self.inst.get_handlerecord_indices_for_key('test1', handlerecord['values'])
+        indices = self.inst.get_handlerecord_indices_for_key('TEST1', handlerecord['values'])
         self.assertEqual(len(indices),1,
             'There is more or less than 1 index!')
         self.assertEqual(indices[0], 3,
@@ -131,7 +132,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handlerecord = json.load(open('resources/handlerecord_for_reading.json'))
         handle = handlerecord['handle']
 
-        indices = self.inst.get_handlerecord_indices_for_key('testdup', handlerecord['values'])
+        indices = self.inst.get_handlerecord_indices_for_key('TESTDUP', handlerecord['values'])
         self.assertEqual(len(indices),2,
             'There is more or less than 2 indices!')
         self.assertIn(5, indices,
