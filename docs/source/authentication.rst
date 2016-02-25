@@ -247,10 +247,16 @@ HTTP 403
     * Handle Server responseCode: 400 (*Other authentication errors*)
     * HTTP status code 403 (*Forbidden*).
 
-  **Possible solution:**
+  **Possible solution 1:**
   
     This error occurs if the username does not have admin permissions yet. Make sure it is referred to in a
     HS_ADMIN or HS_VLIST that has admin permissions.
+
+  **Possible solution 2:**
+  
+    This error also occurs if the username did not get permissions for this specific handle in its HS_ADMIN entry. Each user
+    can only modify handles whose HS_ADMIN entry (or one of its HS_ADMIN entries) gives write permissions to him, either directly
+    or by pointing to a HS_VLIST that has admin permissions and that contains the username.
 
 
 Handshake Failure
