@@ -78,6 +78,7 @@ class HandleSystemConnector(object):
         self.__authentication_method = None
         self.__session = requests.Session()
         self.__no_auth_message = 'No credentials passed. Read access only.'
+        self.__first_request = True
 
         # Needed for read and write access:
         self.__store_args_or_set_to_defaults(args, defaults)
@@ -264,11 +265,23 @@ class HandleSystemConnector(object):
         :return: The server's response.
         '''
 
+
+        # Assemble required info:
         url = self.make_handle_URL(handle, indices)
         LOGGER.debug('GET Request to '+url)
         head = self.__get_headers('GET')
         veri = self.__HTTPS_verify
-        resp = self.__session.get(url, headers=head, verify=veri)
+
+        # Send the request
+        if self.__cert_needed_for_get_request():
+            # If this is the first request and the connector uses client cert authentication, we need to send the cert along
+            # in the first request that builds the session.
+            resp = self.__session.get(url, headers=head, verify=veri, cert=self.__cert_object)
+        else:
+            # Normal case:
+            resp = self.__session.get(url, headers=head, verify=veri)
+    
+        # Log and return
         self.__log_request_response_to_file(
             logger=REQUESTLOGGER,
             op='GET',
@@ -278,7 +291,15 @@ class HandleSystemConnector(object):
             verify=veri,
             resp=resp
             )
+        self.__first_request = False
         return resp
+
+    def __cert_needed_for_get_request(self):
+        if (self.__first_request) and (self.__has_write_access) and (self.__authentication_method == self.__auth_methods['cert']):
+            return True
+        else:
+            return False
+
 
     def send_handle_put_request(self, **args):
         '''
@@ -359,7 +380,7 @@ class HandleSystemConnector(object):
                 response=resp,
                 username=self.__username
             )
-
+        self.__first_request = False
         return resp, payload
 
     def send_handle_delete_request(self, **args):
@@ -422,7 +443,7 @@ class HandleSystemConnector(object):
                 response=resp,
                 username=self.__username
             )
-
+        self.__first_request = False
         return resp
 
     def check_if_username_exists(self, username):
