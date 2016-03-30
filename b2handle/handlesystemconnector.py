@@ -332,6 +332,7 @@ class HandleSystemConnector(object):
         payload = json.dumps({'values':list_of_entries})
         LOGGER.debug('PUT Request payload: '+payload)
         head = self.__get_headers('PUT')
+        LOGGER.debug('PUT Request headers: '+str(head))
         veri = self.__HTTPS_verify
 
         # Make request:

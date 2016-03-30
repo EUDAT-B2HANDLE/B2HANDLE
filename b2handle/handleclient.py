@@ -856,6 +856,7 @@ class EUDATHandleClient(object):
             handlerecord_json = self.retrieve_handle_record_json(handle)
             if handlerecord_json is not None:
                 msg = 'Could not register handle'
+                LOGGER.error(msg+', as it already exists.')
                 raise HandleAlreadyExistsException(handle=handle, msg=msg)
 
         # Create admin entry
