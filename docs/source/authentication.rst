@@ -107,7 +107,7 @@ Creating the client certificate
       .. code:: json
   
         openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
-                                        -out /.../301_certificate_and_publickey.pem
+                                        -out /.../301_certificate_and_publickey.pem -sha1
   
   * The tool is then going to prompt for some information. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
     However, it is very important to enter the username as Common Name and *leave the Email address blank*, as it is going to be appended to the username otherwise. This will look like
