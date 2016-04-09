@@ -73,25 +73,6 @@ def check_presence_of_mandatory_args(args, mandatory_args):
     else:
         return True
 
-def get_valid_https_verify(value):
-    '''
-    Get a value that can be the boolean representation of a string
-    or a boolean itself and returns It as a boolean.
-    If this is not the case, It returns a string.
-
-    :value: The HTTPS_verify input value
-    :returns: True, False or a string.
-    '''
-    http_verify_value = value
-    bool_values = {'false': False, 'true': True}
-
-    if isinstance(value, bool):
-        http_verify_value = value
-    elif isinstance(value, str) and value.lower() in bool_values.keys():
-        http_verify_value = bool_values[value.lower()]
-
-    return http_verify_value
-
 def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
     '''
     Log the instantiation of an object to the given logger.
