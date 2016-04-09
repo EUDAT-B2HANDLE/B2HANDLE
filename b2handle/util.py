@@ -73,24 +73,24 @@ def check_presence_of_mandatory_args(args, mandatory_args):
     else:
         return True
 
-def string_to_bool(string):
+def get_valid_https_verify(value):
     '''
-    Parses a string to a boolean. Accepts the words
-        "true" and "false" in any mixture of capital
-        andnon-capital letters. If the word is neither
-        "true" nor "false", a KeyError is raised.
+    Get a value that can be the boolean representation of a string
+    or a boolean itself and returns It as a boolean.
+    If this is not the case, It returns a string.
 
-    :string: The string to parse. Passing a boolean
-        does not harm.
-    :returns: True or False.
-    :raise: :exc:`~KeyError`
+    :value: The HTTPS_verify input value
+    :returns: True, False or a string.
     '''
+    http_verify_value = value
+    bool_values = {'false': False, 'true': True}
 
-    dic = {'false':False, 'true':True}
-    if string is True or string is False:
-        return string
-    else:
-        return dic[string.lower()]
+    if isinstance(value, bool):
+        http_verify_value = value
+    elif isinstance(value, str) and value.lower() in bool_values.keys():
+        http_verify_value = bool_values[value.lower()]
+
+    return http_verify_value
 
 def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
     '''
@@ -120,4 +120,3 @@ def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
                 LOGGER.debug('Param '+argname+'*******')
             else:
                 LOGGER.debug('Param '+argname+'='+str(args[argname]))
-
