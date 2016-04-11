@@ -57,8 +57,8 @@ Creating the client certificate
     .. code:: json
     
       bash /.../handlesystem_software/hsj-8.x.x/bin/hdl-keygen 
-                    -alg dsa
-                    -keysize 2048 
+                    -alg rsa
+                    -keysize 4096 
                      301_foo_bar_privkey.bin 301_foo_bar_pubkey.bin
     
     Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!
@@ -107,14 +107,14 @@ Creating the client certificate
       .. code:: json
   
         openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
-                                        -out /.../301_certificate_and_publickey.pem -sha1
+                                        -out /.../301_certificate_and_publickey.pem -sha256
 
 
   * This can be done using openssl with specifying a subject:
 
       .. code:: json
 
-        openssl req -pubkey -x509 -new -sha1 -subj "/CN=301:foo\/bar"
+        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar"
                                         -key /.../301_foo_bar_privkey.pem 
                                         -out /.../301_certificate_and_publickey.pem
 
