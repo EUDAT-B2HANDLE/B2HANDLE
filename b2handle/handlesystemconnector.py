@@ -18,6 +18,7 @@ from handleexceptions import CredentialsFormatError
 import hsresponses
 import util
 import utilhandle
+import utilconfig
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -115,7 +116,9 @@ class HandleSystemConnector(object):
 
 
         if args['HTTPS_verify'] is not None:
-            self.__HTTPS_verify = util.string_to_bool(args['HTTPS_verify'])
+            self.__HTTPS_verify = utilconfig.get_valid_https_verify(
+                args['HTTPS_verify']
+            )
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']

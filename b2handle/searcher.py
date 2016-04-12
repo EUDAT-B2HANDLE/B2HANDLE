@@ -13,6 +13,7 @@ import requests
 import json
 import utilhandle
 import util
+import utilconfig
 from handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
@@ -91,7 +92,9 @@ class Searcher(object):
         LOGGER.debug('Setting the attributes:')
 
         if args['HTTPS_verify'] is not None: # Without this check, a passed "False" is not found!
-            self.__HTTPS_verify = util.string_to_bool(args['HTTPS_verify'])
+            self.__HTTPS_verify = utilconfig.get_valid_https_verify(
+                args['HTTPS_verify']
+            )
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
