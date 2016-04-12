@@ -57,8 +57,8 @@ Creating the client certificate
     .. code:: json
     
       bash /.../handlesystem_software/hsj-8.x.x/bin/hdl-keygen 
-                    -alg dsa
-                    -keysize 2048 
+                    -alg rsa
+                    -keysize 4096 
                      301_foo_bar_privkey.bin 301_foo_bar_pubkey.bin
     
     Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!
@@ -102,14 +102,25 @@ Creating the client certificate
 
 4. Creating the certificate file:
   
-  * This can be done using openssl:
+  * This can be done using openssl without specifying a subject:
 
       .. code:: json
   
         openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
+                                        -out /.../301_certificate_and_publickey.pem -sha256
+
+
+  * This can be done using openssl with specifying a subject:
+
+      .. code:: json
+
+        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar"
+                                        -key /.../301_foo_bar_privkey.pem 
                                         -out /.../301_certificate_and_publickey.pem
+
+
   
-  * The tool is then going to prompt for some information. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
+  * The tool is then going to prompt for some information if you don not specify a subject. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
     However, it is very important to enter the username as Common Name and *leave the Email address blank*, as it is going to be appended to the username otherwise. This will look like
     this:
 
