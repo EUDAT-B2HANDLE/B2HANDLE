@@ -7,7 +7,9 @@ RUN        apt-get update && apt-get install -y --no-install-recommends \
         && rm -rf /var/lib/apt/lists/*
 
 RUN        easy_install pip
-RUN        pip install sphinx
+RUN        pip install \
+           sphinx \
+           sphinx_rtd_theme
 
 VOLUME     /opt/B2HANDLE/docs
 
