@@ -20,6 +20,7 @@ def remove_index_from_handle(handle_with_index):
 
     split = handle_with_index.split(':')
     if len(split) == 2:
+        split[0] = int(split[0])
         return split
     elif len(split) == 1:
         return (None, handle_with_index)

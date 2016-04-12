@@ -73,25 +73,6 @@ def check_presence_of_mandatory_args(args, mandatory_args):
     else:
         return True
 
-def string_to_bool(string):
-    '''
-    Parses a string to a boolean. Accepts the words
-        "true" and "false" in any mixture of capital
-        andnon-capital letters. If the word is neither
-        "true" nor "false", a KeyError is raised.
-
-    :string: The string to parse. Passing a boolean
-        does not harm.
-    :returns: True or False.
-    :raise: :exc:`~KeyError`
-    '''
-
-    dic = {'false':False, 'true':True}
-    if string is True or string is False:
-        return string
-    else:
-        return dic[string.lower()]
-
 def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
     '''
     Log the instantiation of an object to the given logger.
@@ -120,4 +101,3 @@ def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
                 LOGGER.debug('Param '+argname+'*******')
             else:
                 LOGGER.debug('Param '+argname+'='+str(args[argname]))
-
