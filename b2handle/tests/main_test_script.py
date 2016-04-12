@@ -13,6 +13,7 @@ from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccess
 from clientcredentials_test import PIDClientCredentialsTestCase
 from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
 from handleconnector_access_patched_test import EUDATHandleConnectorAccessPatchedTestCase
+from utilconfig_test import UtilConfigTestCase
 
 # Integration tests:
 # Imports below!
@@ -81,6 +82,10 @@ if __name__ == '__main__':
     print '\nCollecting tests:'
     tests_to_run = []
     numtests = 0
+
+    utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
+    tests_to_run.append(utilconfig_testcase)
+    numtests += utilconfig_testcase.countTestCases()
 
     if no_access:
 
