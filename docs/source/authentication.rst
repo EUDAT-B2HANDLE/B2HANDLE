@@ -157,7 +157,7 @@ No matter which of the methods is used, in both cases the Handle Server admin (o
 the user. The admin can do that in several ways. Note that while the third method looks most complex, it may be the easiest one,
 as it is most easily modified and extended (without having to contact the prefix provider to make changes in the **0.NA/foo** record).
 
-These are three ways to grant admin permissions to users **300:foo/bar** and **301:foo/bar**:
+These are three ways to grant admin permissions to users **300:foo/bar** and **301:foo/bar** and **300:foo/doe**:
 
 1.  By creating a ``HS_ADMIN`` entry for each username in the prefix owner handle record (i.e. somewhere in the record **0.NA/foo**).
 
@@ -168,6 +168,7 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     100   HS_ADMIN  (refers to 300:foo/bar)
     101   HS_ADMIN  (refers to 301:foo/bar)
+    102   HS_ADMIN  (refers to 300:foo/doe)
      ...  ...       ...
     ===== ========= =======================
 
@@ -181,7 +182,16 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     ===== ========= ==========
 
-2. By adding the usernames (**300:foo/bar** and **301:foo/bar**) to a ``HS_VLIST`` entry in the prefix owner handle record
+    **Handle record foo/doe:**
+
+    ===== ========= ==========
+    Index Key       Value
+     ...  ...       ...
+    300   HS_SECKEY *mypassword*
+     ...  ...       ...
+    ===== ========= ==========
+
+2. By adding the usernames (**300:foo/bar**, **301:foo/bar** and **300:foo/doe**) to a ``HS_VLIST`` entry in the prefix owner handle record
    (i.e. somewhere in the record **0.NA/foo**), which was referenced in a ``HS_ADMIN`` entry in **0.NA/foo**.
 
     **Handle record 0.NA/foo:**
@@ -192,6 +202,7 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
     100   HS_ADMIN  (refers to 200:0.NA/foo)
     200   HS_VLIST  300:foo/bar
                     301:foo/bar
+                    300:foo/doe
      ...  ...       ...
     ===== ========= =======================
 
@@ -205,9 +216,24 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     ===== ========= ==========
 
-3. By adding the usernames (**300:foo/bar** and **301:foo/bar**) to any ``HS_VLIST`` entry referenced somewhere in **0.NA/foo**.
+    **Handle record foo/doe:**
+
+    ===== ========= ==========
+    Index Key       Value
+     ...  ...       ...
+    300   HS_SECKEY *mypassword*
+     ...  ...       ...
+    ===== ========= ==========
+
+3. By adding the usernames (**300:foo/bar**, **301:foo/bar** and **300:foo/doe**) to any ``HS_VLIST`` entry referenced somewhere in **0.NA/foo**.
+   The difference to the previous method is: This ``HS_VLIST`` does not have to be inside the **0.NA/foo** record, it only has 
+   to be referenced there - it can be put into a different handle,
+   e.g. **foo/admin**, so changes to the ``HS_VLIST`` can be made without having to ask the prefix provider (who is usually the only one
+   able to change entries in **0.NA/foo**).
+
    For example, if there is a ``HS_ADMIN`` at index 101 of **0.NA/foo** which points to a ``HS_VLIST`` at the index 200 in 
-   **0.NA/foo**, which points to a ``HS_VLIST`` at index 200 in 'foo/admin', which points to a ``HS_SECKEY`` at index 300 in 'foo/bar' - then **300:foo/bar** is a username with all the permissions stated in the ``HS_ADMIN`` entry at the index 101 of **0.NA/foo**.
+   **0.NA/foo**, which points to a ``HS_VLIST`` at index 200 in 'foo/admin', which points to a ``HS_SECKEY`` at index 300 in 'foo/bar' -
+   then **300:foo/bar** is a username with all the permissions stated in the ``HS_ADMIN`` entry at the index 101 of **0.NA/foo**.
 
     **Handle record 0.NA/foo:**
 
@@ -215,7 +241,18 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
     Index Key       Value
      ...  ...       ...
     100   HS_ADMIN  (refers to 200:0.NA/foo)
-    200   HS_VLIST  200:foo/bar
+    200   HS_VLIST  200:foo/admin
+     ...  ...       ...
+    ===== ========= =======================
+
+    **Handle record foo/admin:**
+
+    ===== ========= =======================
+    Index Key       Value
+     ...  ...       ...
+    200   HS_VLIST  300:foo/bar
+                    301:foo/bar
+                    300:foo/doe
      ...  ...       ...
     ===== ========= =======================
 
@@ -224,10 +261,17 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
     ===== ========= =======================
     Index Key       Value
      ...  ...       ...
-    200   HS_VLIST  300:foo/bar
-                    301:foo/bar
     300   HS_SECKEY *mypassword*
     301   HS_PUBKEY 0000A552100
+     ...  ...       ...
+    ===== ========= =======================
+
+    **Handle record foo/doe:**
+
+    ===== ========= =======================
+    Index Key       Value
+     ...  ...       ...
+    300   HS_SECKEY *mypassword*
      ...  ...       ...
     ===== ========= =======================
 
