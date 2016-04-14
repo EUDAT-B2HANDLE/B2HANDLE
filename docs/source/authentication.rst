@@ -26,7 +26,7 @@ Index Key       Value
  ...  ...       ...
 ===== ========= ==========
 
-The handle server admin has to add the ``HS_SECKEY`` entry with the user's password to an existing handle (e.g. '<prefix>/allusers') or create a new handle for this purpose (e.g. '<prefix>/johndoe'. He or she also has to grant write permissions to the user (see below).
+The handle server admin has to add the ``HS_SECKEY`` entry with the user's password to an existing handle (e.g. '<prefix>/allusers') or create a new handle for this purpose (e.g. '<prefix>/johndoe'). He or she also has to grant write permissions to the user (see below).
 
 
 Using client certificates
@@ -155,7 +155,7 @@ Giving admin permissions to users
 
 No matter which of the methods is used, in both cases the Handle Server admin (or prefix owner) has to give write permissions to
 the user. The admin can do that in several ways. Note that while the third method looks most complex, it may be the easiest one,
-as it is most easily modified and extended (without having to contact the prefix provider to changes in the **0.NA/foo** record).
+as it is most easily modified and extended (without having to contact the prefix provider to make changes in the **0.NA/foo** record).
 
 These are three ways to grant admin permissions to users **300:foo/bar** and **301:foo/bar**:
 
