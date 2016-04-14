@@ -275,6 +275,62 @@ These are three ways to grant admin permissions to users **300:foo/bar** and **3
      ...  ...       ...
     ===== ========= =======================
 
+    Note: This setting gives admin permissions to users foo/bar and foo/doe. You should also make sure that those users
+    are not able to change other people's admin permissions. For this, make sure the ``HS_ADMIN`` of the handles concerned with
+    user administration points to a username or ``HS_VLIST`` that only you can access.
+    As an example, we add a ``HS_VLIST`` to the foo/admin handle that contains the admin's usernames (index 201). Only the users in this list
+    can administer users.
+
+
+    **Handle record 0.NA/foo:**
+
+    ===== ========= =======================
+    Index Key       Value
+    ...   ...       ...
+    100   HS_ADMIN  (refers to 200:0.NA/foo)
+    200   HS_VLIST  200:foo/admin
+     ...  ...       ...
+    ===== ========= =======================
+
+    **Handle record foo/admin:**
+
+    ===== ========= =======================
+    Index Key       Value
+    ...   ...       ...
+    100   HS_ADMIN  (refers to 201:foo/admin)
+    200   HS_VLIST  300:foo/bar
+                    301:foo/bar
+                    300:foo/doe
+    201   HS_VLIST  300:foo/admin
+                    301:foo/admin
+    300   HS_SECKEY *myadminpassword*
+    301   HS_PUBKEY 0000B652300
+     ...  ...       ...
+    ===== ========= =======================
+
+    **Handle record foo/bar:**
+
+    ===== ========= =======================
+    Index Key       Value
+    ...   ...       ...
+    100   HS_ADMIN  (refers to 201:foo/admin)
+    300   HS_SECKEY *mypassword*
+    301   HS_PUBKEY 0000A552100
+     ...  ...       ...
+    ===== ========= =======================
+
+    **Handle record foo/doe:**
+
+    ===== ========= =======================
+    Index Key       Value
+    ...   ...       ...
+    100   HS_ADMIN  (refers to 201:foo/admin)
+    300   HS_SECKEY *mypassword*
+     ...  ...       ...
+    ===== ========= =======================
+
+
+
 Common problems
 ===============
 
