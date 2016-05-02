@@ -142,7 +142,7 @@ Creating the client certificate
           Common Name (eg, your name or your server's hostname) []:300:foo/bar
           Email Address []:
 
-5. Optional: Removing the public key from the certificate file:
+5. Removing the public key from the certificate file:
 
     .. code:: json
     
