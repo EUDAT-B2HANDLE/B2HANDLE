@@ -189,6 +189,27 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
         self.assertEqual(val1, [], 'val1 is: '+str(val1)+', instead of []')
         self.assertEqual(val2, [], 'val2 is: '+str(val2)+', instead of []')
 
+    def test_search_handle_for_checksum(self):
+        """Test searching for checksum with wildcards."""
+        log_new_test_case("test_search_handle_for_checksum")
+
+        log_start_test_code()
+        val1 = self.inst.search_handle(None, CHECKSUM='*1111111111111*')
+
+        log_end_test_code()
+        log_start_test_code()
+        val2 = self.inst.search_handle(URL=None, CHECKSUM='*1111111111111*')
+        log_end_test_code()
+
+        # Check desired outcome:
+        self.assertEqual(type(val1),type([]),
+            'Searching did not return a list, but: '+str(val1)+', type: '+str(type(val1)))
+        self.assertEqual(val1, val2,
+            'Searching with or without keyword did not return the same result:'+\
+            '\nwith keyword: '+str(val1)+'\nwithout: '+str(val2))
+        self.assertEqual(val1, [], 'val1 is: '+str(val1)+', instead of []')
+        self.assertEqual(val2, [], 'val2 is: '+str(val2)+', instead of []')
+
     def test_search_handle_prefixfilter(self):
         """Test filtering for prefixes."""
         log_new_test_case("test_search_handle_prefixfilter")
