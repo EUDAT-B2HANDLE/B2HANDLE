@@ -249,6 +249,22 @@ Some common problems when authenticating, together with possible solutions. Plea
 causes are causes we observed. Of course it is possible that other reasons may cause the same problems, in that case
 these solutions may not work.
 
+HTTP 401
+--------
+
+  **Problem:**
+
+    * The handle server returns a JSON object that looks like this: ``{"responseCode":402,"handle":"myprefix/123456"}``
+    * Handle Server responseCode 402 (*Authentication needed*)
+    * HTTP status code 401 (*Unauthorized*)
+
+  **Possible Solution:**
+
+    This error occurs if the client certificate was not correctly passed to the handle server. Possibly the server
+    forwards the request internally to a different port and loses the certificate information on the way (e.g. using httpd ProxyPass).
+    Please ask your handle server administrator about this. Testing the same request directly on the port of the handle server (if
+    that is open for external access) can help finding out whether this is the problem.
+
 HTTP 403
 --------
 
@@ -285,22 +301,6 @@ Handshake Failure
   **Possible Solution 2:**
 
     Make sure that openssl version 1.0.1 or higher is used. Openssl 0.98 gives handshake errors.
-
-HTTP 401
---------
-
-  **Problem:**
-
-    * HTTP status code 401 (*Unauthorized*)
-    * HS response code 402 (*Authentication needed*)
-    * The handle server returns a JSON object that looks like this: ``{"responseCode":402,"handle":"myprefix/123456"}``
-
-  **Possible Solution:**
-
-    This error occurs if the client certificate was not correctly passed to the handle server. Possibly the server
-    forwards the request internally to a different port and loses the certificate information on the way (e.g. using httpd ProxyPass).
-    Please ask your handle server administrator about this. Testing the same request directly on the port of the handle server (if
-    that is open for external access) can help finding out whether this is the problem.
 
 SSL Error
 ---------
