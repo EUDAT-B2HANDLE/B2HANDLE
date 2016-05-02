@@ -73,6 +73,35 @@ def check_presence_of_mandatory_args(args, mandatory_args):
     else:
         return True
 
+def return_keys_of_value_none(dictionary):
+    isnone = []
+    for key,value in dictionary.iteritems():
+        if value is None:
+            isnone.append(key)
+    return isnone
+
+def remove_value_none_from_dict(dictionary):
+    isnone = return_keys_of_value_none(dictionary)
+    if len(isnone) > 0:
+        for nonekey in isnone:
+            dictionary.pop(nonekey)
+    return dictionary
+
+def return_indices_of_value_none(mylist):
+    isnone = []
+    for i in xrange(len(mylist)):
+        if mylist[i] is None:
+            isnone.append(i)
+    return isnone
+
+def remove_value_none_from_list(mylist):
+    isnone = return_indices_of_value_none(mylist)
+    if len(isnone) > 0:
+        for index in isnone:
+            mylist.pop(index)
+    return mylist
+
+
 def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
     '''
     Log the instantiation of an object to the given logger.
