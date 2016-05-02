@@ -277,10 +277,14 @@ Handshake Failure
 
     ``SSL routines:SSL3_READ_BYTES:ssl handshake failure``
 
-  **Possible Solution:**
 
-    Sometimes, this error occurs if the private key was encrypted. Please try with an unencrypted private key.
-    This can occur with unencrypted keys, too. We have no proposed solution for that.
+  **Possible Solution 1:**
+
+    This error can occure if the private key was encrypted. Please try with an unencrypted private key.
+
+  **Possible Solution 2:**
+
+    Make sure that openssl version 1.0.1 or higher is used. Openssl 0.98 gives handshake errors.
 
 HTTP 401
 --------
