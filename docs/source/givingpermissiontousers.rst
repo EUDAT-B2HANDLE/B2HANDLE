@@ -1,14 +1,18 @@
 .. _givingpermissiontousers:
 
 =================================
-Giving admin permissions to users
+Giving write permissions to users
 =================================
 
-No matter which of the methods for authentication is used, in both cases the
+No matter which of the methods for *authentication* is used, in both cases the
 Handle Server admin (or prefix owner) has to give write permissions to
-the user (authorisation). The admin can do that in several ways
+the user (*authorisation*):
 
-These are several ways to grant admin permissions to users **300:foo/bar** and **301:foo/bar** and **300:foo/doe**:
+* Authentication: Are you who you claim to be?
+* Authorisation: Are you allowed to do what you are trying to do?
+
+These are several ways to grant write permissions to users **300:foo/bar**
+and **301:foo/bar** and **300:foo/doe**:
 
 1. :ref:`method1`.
 2. :ref:`method2`.
@@ -23,8 +27,10 @@ having to contact the prefix provider to make changes in the **0.NA/foo** record
 HS_ADMIN entry for each username in the prefix owner handle record
 ==================================================================
 
-We can give users permissions by creating a ``HS_ADMIN`` entry for each username
-in the prefix owner handle record (i.e. somewhere in the record **0.NA/foo**).
+We can give users write permissions by creating a ``HS_ADMIN`` entry
+for each username in the prefix owner handle record (i.e. somewhere
+in the record **0.NA/foo**).
+
 
     **Handle record 0.NA/foo:**
 
@@ -63,7 +69,7 @@ in the prefix owner handle record (i.e. somewhere in the record **0.NA/foo**).
 HS_VLIST entry containing usernames in the prefix owner handle record
 =====================================================================
 
-We can grant users permissions by adding the usernames (**300:foo/bar**,
+We can grant users write permissions by adding the usernames (**300:foo/bar**,
 **301:foo/bar** and **300:foo/doe**) to a ``HS_VLIST`` entry in the
 prefix owner handle record (i.e. somewhere in the record **0.NA/foo**),
 which was referenced in a ``HS_ADMIN`` entry in **0.NA/foo**.
@@ -105,11 +111,13 @@ which was referenced in a ``HS_ADMIN`` entry in **0.NA/foo**.
 HS_VLIST entry containing usernames in another place
 ====================================================
 
-We can give users permissions by adding the usernames (**300:foo/bar**, **301:foo/bar**
+We can give users write permissions by adding the usernames (**300:foo/bar**, **301:foo/bar**
 and **300:foo/doe**) to any ``HS_VLIST`` entry referenced somewhere in **0.NA/foo**.
+
+
 The difference to the previous method is: This ``HS_VLIST`` does not have to be inside
-the **0.NA/foo** record, it only has    to be referenced there - it can be put into
-a different handle,    e.g. **foo/admin**, so changes to the ``HS_VLIST`` can be made
+the **0.NA/foo** record, it only has to be referenced there - it can be put into
+a different handle, e.g. **foo/admin**, so changes to the ``HS_VLIST`` can be made
 without having to ask the prefix provider (who is usually the only one able to change
 entries in **0.NA/foo**).
 
@@ -160,13 +168,16 @@ entry at the index 101 of **0.NA/foo**.
      ...  ...       ...
     ===== ========= =======================
 
-    .. important:: This setting gives admin permissions to users foo/bar and foo/doe.
+    .. important:: This setting gives write permissions to users foo/bar and foo/doe.
       You should also make sure that those users are not able to change other people's
-      admin permissions. For this, make sure the ``HS_ADMIN`` of the handles concerned
-      with user administration points to a username or ``HS_VLIST`` that only you can
+      write permissions. For this, make sure the ``HS_ADMIN`` entries of the handles concerned
+      with user administration point to a username or ``HS_VLIST`` that only you can
       access.
-      As an example, we add a ``HS_VLIST`` to the foo/admin handle that contains the
-      admin's usernames (index 201). Only the users in this list can administer users.
+
+To ensure that only you (or your admin colleagues) can change users' write permissions,
+we add a list of admins (another ``HS_VLIST``) to the admin handle record (foo/admin)
+and reference it in the ``HS_ADMIN`` entry of the admin handle record. Only the users
+in this list can administer users.
 
     **Handle record 0.NA/foo:**
 
