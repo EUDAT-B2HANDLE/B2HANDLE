@@ -201,6 +201,16 @@ class Searcher(object):
             msg = 'No search terms have been specified. Please specify'+\
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg=msg)
+        else:
+            isnone = util.return_keys_of_value_none(args)
+            if len(isnone) > 0:
+                LOGGER.debug('search_handle: These keys had value None: '+str(isnone))
+                args = util.remove_value_none_from_dict(args)
+                if len(args) == 0:
+                    LOGGER.debug('search_handle: No key value pair with valid value was specified.')
+                    msg = ('No search terms have been specified. Please specify'
+                           ' at least one key-value-pair.')
+                    raise ReverseLookupException(msg=msg)
 
         # Perform the search:
         list_of_handles = []
@@ -286,10 +296,10 @@ class Searcher(object):
             only_search_for_allowed_keys = True
 
         fulltext_searchterms_given = True
+        fulltext_searchterms = util.remove_value_none_from_list(fulltext_searchterms)
         if len(fulltext_searchterms) == 0:
             fulltext_searchterms_given = False
-        if len(fulltext_searchterms) == 1 and fulltext_searchterms[0] is None:
-            fulltext_searchterms_given = False
+        
         if fulltext_searchterms_given:
             msg = 'Full-text search is not implemented yet.'+\
                 ' The provided searchterms '+str(fulltext_searchterms)+\
@@ -297,10 +307,8 @@ class Searcher(object):
             raise ReverseLookupException(msg=msg)
 
         keyvalue_searchterms_given = True
+        keyvalue_searchterms = util.remove_value_none_from_dict(keyvalue_searchterms)
         if len(keyvalue_searchterms) == 0:
-            keyvalue_searchterms_given = False
-        if len(keyvalue_searchterms) == 1 and\
-            keyvalue_searchterms.itervalues().next() is None:
             keyvalue_searchterms_given = False
 
         if not keyvalue_searchterms_given and not fulltext_searchterms_given:
