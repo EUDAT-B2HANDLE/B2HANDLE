@@ -4,7 +4,7 @@
 The b2handle Python library is a client library for interaction with a [Handle System](https://handle.net) server, using the native REST interface introduced in Handle System 8. The library offers methods to create, update and delete Handles as well as advanced functionality such as searching over Handles using an additional search servlet and managing multiple location entries per Handle.
 
 The library currently supports Python 2.6 and Python 2.7 and requires at least a Handle System server 8.1.
-The library requires openssl v1.0.1 or higher
+The library requires OpenSSL v1.0.1 or higher.
 
 # Installation and use
 
