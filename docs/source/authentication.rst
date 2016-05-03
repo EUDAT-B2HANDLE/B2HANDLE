@@ -142,7 +142,7 @@ Creating the client certificate
           Common Name (eg, your name or your server's hostname) []:300:foo/bar
           Email Address []:
 
-5. Optional: Removing the public key from the certificate file:
+5. Removing the public key from the certificate file:
 
     .. code:: json
     
@@ -349,6 +349,22 @@ Some common problems when authenticating, together with possible solutions. Plea
 causes are causes we observed. Of course it is possible that other reasons may cause the same problems, in that case
 these solutions may not work.
 
+HTTP 401
+--------
+
+  **Problem:**
+
+    * The handle server returns a JSON object that looks like this: ``{"responseCode":402,"handle":"myprefix/123456"}``
+    * Handle Server responseCode 402 (*Authentication needed*)
+    * HTTP status code 401 (*Unauthorized*)
+
+  **Possible Solution:**
+
+    This error occurs if the client certificate was not correctly passed to the handle server. Possibly the server
+    forwards the request internally to a different port and loses the certificate information on the way (e.g. using httpd ProxyPass).
+    Please ask your handle server administrator about this. Testing the same request directly on the port of the handle server (if
+    that is open for external access) can help finding out whether this is the problem.
+
 HTTP 403
 --------
 
@@ -377,26 +393,14 @@ Handshake Failure
 
     ``SSL routines:SSL3_READ_BYTES:ssl handshake failure``
 
-  **Possible Solution:**
 
-    Sometimes, this error occurs if the private key was encrypted. Please try with an unencrypted private key.
-    This can occur with unencrypted keys, too. We have no proposed solution for that.
+  **Possible Solution 1:**
 
-HTTP 401
---------
+    This error can occure if the private key was encrypted. Please try with an unencrypted private key.
 
-  **Problem:**
+  **Possible Solution 2:**
 
-    * HTTP status code 401 (*Unauthorized*)
-    * HS response code 402 (*Authentication needed*)
-    * The handle server returns a JSON object that looks like this: ``{"responseCode":402,"handle":"myprefix/123456"}``
-
-  **Possible Solution:**
-
-    This error occurs if the client certificate was not correctly passed to the handle server. Possibly the server
-    forwards the request internally to a different port and loses the certificate information on the way (e.g. using httpd ProxyPass).
-    Please ask your handle server administrator about this. Testing the same request directly on the port of the handle server (if
-    that is open for external access) can help finding out whether this is the problem.
+    Make sure that openssl version 1.0.1 or higher is used. Openssl 0.98 gives handshake errors.
 
 SSL Error
 ---------
@@ -408,5 +412,21 @@ SSL Error
   **Possible Solution:**
 
     This error occurs if the private key was not provided, for example if a single file instead of two was provided,
-    but the private key was not contained. FOr this reason, we only recommend and describe passing certificate and
+    but the private key was not contained. For this reason, we only recommend and describe passing certificate and
     private key in two separate files.
+
+SSL Error
+---------
+
+  **Problem:**
+
+    ``SSLError: SSL3_GET_SERVER_CERTIFICATE:certificate verify failed``
+
+  **Possible Solution:**
+
+    This error occurs if the server certificate at the handle server can not be verified at the client side. The library
+    default is to verify the certificate. This is normally done with a certificate from a CA authority. The credentials
+    file can have an optional parameter ``HTTPS_verify`` to change the behaviour. The problem can be solved in several ways.
+    By adding the correct CA certificate to the bundle on the system. By setting a path to the correct CA certificate as follows:
+    ``"HTTPS_verify": "/path_to_ca_certificate/ca_certificate"``. Or by disabling the checking of the certificate:
+    ``"HTTPS_verify": "False"``. The last option is the least desired option.
