@@ -104,7 +104,7 @@ Handshake Failure
 
   **Possible Solution 1:**
 
-    This error can occure if the private key was encrypted. Please try with an unencrypted private key.
+    This error can occur if the private key was encrypted. Please try with an unencrypted private key.
 
   **Possible Solution 2:**
 
