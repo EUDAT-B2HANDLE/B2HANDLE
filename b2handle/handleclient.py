@@ -61,8 +61,8 @@ class EUDATHandleClient(object):
         :param REST_API_url_extension: Optional. The extension of a Handle
             Server's URL to access its REST API. Defaults to '/api/handles/'.
         :param allowed_search_keys: Optional. The keys that can be used for
-            reverse lookup of handles, as a list of strings. Defaults to 'URL'
-            and 'CHECKSUM'. If the list is empty, all keys are passed to the
+            reverse lookup of handles, as a list of strings. Defaults to 'url'
+            and 'checksum'. If the list is empty, all keys are passed to the
             reverse lookup servlet and exceptions are passed on to the user.
         :param 10320LOC_chooseby: Optional. The value to give to a handle
             record's 10320/LOC entry's 'chooseby' attribute as string (e.g.
@@ -70,10 +70,8 @@ class EUDATHandleClient(object):
         :param modify_HS_ADMIN: Optional. Advanced usage. Determines whether
             the HS_ADMIN handle record entry can be modified using this library.
             Defaults to False and should not be modified.
-        :param HTTPS_verify: Optional. This parameter can have three values.
-            'True', 'False' or 'the path to a CA_BUNDLE file or directory with
-            certificates of trusted CAs'. If set to False, the certificate is
-            not verified in HTTP requests. Defaults to True.
+        :param HTTPS_verify: Optional. If set to False, the certificate is not
+            verified in HTTP requests. Defaults to True.
         :param reverselookup_baseuri: Optional. The base URL of the reverse
             lookup service. If not set, the handle server base URL is used.
         :param reverselookup_url_extension: Optional. The path to append to
@@ -562,23 +560,22 @@ class EUDATHandleClient(object):
                     changed = True
                     nothingchanged = False
 
-        # Add the unchanged values
-        for i in xrange(len(list_of_entries)):
-            if list_of_entries[i]['type'] not in keys:
-                new_list_of_entries.append(list_of_entries[i])
+        # Add the indices
+        indices = []
+        for i in xrange(len(new_list_of_entries)):
+            indices.append(new_list_of_entries[i]['index'])
 
-        # Overwrite the old record:
+        # append to the old record:
         if nothingchanged:
             LOGGER.debug('modify_handle_value: There was no entries '+\
                 str(kvpairs.keys())+' to be modified (handle '+handle+').'+\
                 ' To add them, set add_if_not_exist = True')
         else:
-            # TODO FIXME: Implement overwriting by index (less risky),
-            # once HS have fixed the issue with the indices.
             op = 'modifying handle values'
             resp, put_payload = self.__send_handle_put_request(
                 handle,
                 new_list_of_entries,
+                indices=indices,
                 overwrite=True,
                 op=op)
             if hsresponses.handle_success(resp):
@@ -1036,8 +1033,8 @@ class EUDATHandleClient(object):
         :param handle: The handle.
         :param list_of_entries: A list of handle record entries to be written,
          in the format [{"index":xyz, "type":"xyz", "data":"xyz"}] or similar.
-        :param indices: Optional. A list of indices to delete. Defaults
-         to None (i.e. the entire handle is deleted.). The list can
+        :param indices: Optional. A list of indices to modify. Defaults
+         to None (i.e. the entire handle is updated.). The list can
          contain integers or strings.
         :param overwrite: Optional. Whether the handle should be overwritten
          if it exists already.

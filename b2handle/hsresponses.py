@@ -11,8 +11,7 @@ Author: Merret Buurman (DKRZ), 2015-2016
 import json
 
 def handle_success(response):
-    # TODO May be misleading - 201 Created is also success!
-    if response.status_code == 200 and json.loads(response.content)["responseCode"] == 1:
+    if (response.status_code == 200 or response.status_code == 201) and json.loads(response.content)["responseCode"] == 1:
         return True
     return False
 
