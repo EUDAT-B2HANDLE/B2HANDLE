@@ -526,6 +526,7 @@ class HandleSystemConnector(object):
          'http://some.handle.server/api/handles/prefix/suffix?index=2&index=6&overwrite=false
         '''
         LOGGER.debug('make_handle_URL...')
+        separator = '?'
 
         if other_url is not None:
             url = other_url
@@ -539,19 +540,15 @@ class HandleSystemConnector(object):
         if len(indices) > 0:
             url = url+'?'
             for index in indices:
-                url = url+'&index='+str(index)
+                url = url+separator+'index='+str(index)
+                separator = '&'
 
         if overwrite is not None:
-            if overwrite and len(indices) > 0:
-                url = url+'&overwrite=true'
-            elif overwrite:
-                url = url+'?overwrite=true'
-            elif len(indices) > 0:
-                url = url+'&overwrite=false'
+            if overwrite:
+                url = url+seperator+'overwrite=true'
             else:
-                url = url+'?overwrite=false'
+                url = url+separator+'overwrite=false'
 
-        url = url.replace('?&', '?')
         return url
 
     def __log_request_response_to_file(self, **args):
