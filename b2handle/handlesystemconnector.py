@@ -538,7 +538,6 @@ class HandleSystemConnector(object):
         if indices is None:
             indices = []
         if len(indices) > 0:
-            url = url+'?'
             for index in indices:
                 url = url+separator+'index='+str(index)
                 separator = '&'
