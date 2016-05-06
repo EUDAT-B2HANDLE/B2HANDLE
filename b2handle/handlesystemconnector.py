@@ -545,7 +545,7 @@ class HandleSystemConnector(object):
 
         if overwrite is not None:
             if overwrite:
-                url = url+seperator+'overwrite=true'
+                url = url+separator+'overwrite=true'
             else:
                 url = url+separator+'overwrite=false'
 
