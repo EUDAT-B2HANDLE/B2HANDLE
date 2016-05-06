@@ -336,24 +336,6 @@ class HandleSystemConnector(object):
         op = args['op']
         overwrite = args['overwrite'] or False
 
-        # Overwrite by index:
-        if indices is not None and len(indices) > 0:
-            LOGGER.debug('__send_handle_put_request: Putting values '+str(indices)+' to handle '+handle+'.')
-        else:
-            LOGGER.debug('__send_handle_put_request: Putting handle '+handle+'.')
-#         if indices is not None:
-#            message = 'Writing handle values by index is not implemented'+\
-#                ' yet because the way the indices are interpreted by the'+\
-#                ' Handle Server may be modified soon. The entire handle'+\
-#                ' record has to be overwritten.'
-#            raise NotImplementedError(message)
-#            # TODO FIXME: As soon as the Handle System uses the correct indices
-#            # for overwriting, this may be implemented.
-#            # In HSv8 beta, the HS uses ?index=3 for overwriting index:4. If the
-#            # library used this and then the behaviour is changed, it would lead
-#            # to corrupt handle records, so we wait until the issue is fixed by
-#            # the Handle System.
-
         # Make necessary values:
         url = self.make_handle_URL(handle, indices, overwrite=overwrite)
         LOGGER.debug('PUT Request to '+url)
