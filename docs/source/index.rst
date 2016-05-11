@@ -15,6 +15,8 @@ Contents:
    
    handleclient
    authentication
+   creatingclientcertificates
+   givingpermissiontousers
    handleserverconfig
 
 

@@ -61,8 +61,8 @@ class EUDATHandleClient(object):
         :param REST_API_url_extension: Optional. The extension of a Handle
             Server's URL to access its REST API. Defaults to '/api/handles/'.
         :param allowed_search_keys: Optional. The keys that can be used for
-            reverse lookup of handles, as a list of strings. Defaults to 'url'
-            and 'checksum'. If the list is empty, all keys are passed to the
+            reverse lookup of handles, as a list of strings. Defaults to 'URL'
+            and 'CHECKSUM'. If the list is empty, all keys are passed to the
             reverse lookup servlet and exceptions are passed on to the user.
         :param 10320LOC_chooseby: Optional. The value to give to a handle
             record's 10320/LOC entry's 'chooseby' attribute as string (e.g.
@@ -70,8 +70,10 @@ class EUDATHandleClient(object):
         :param modify_HS_ADMIN: Optional. Advanced usage. Determines whether
             the HS_ADMIN handle record entry can be modified using this library.
             Defaults to False and should not be modified.
-        :param HTTPS_verify: Optional. If set to False, the certificate is not
-            verified in HTTP requests. Defaults to True.
+        :param HTTPS_verify: Optional. This parameter can have three values.
+            'True', 'False' or 'the path to a CA_BUNDLE file or directory with
+            certificates of trusted CAs'. If set to False, the certificate is
+            not verified in HTTP requests. Defaults to True.
         :param reverselookup_baseuri: Optional. The base URL of the reverse
             lookup service. If not set, the handle server base URL is used.
         :param reverselookup_url_extension: Optional. The path to append to
