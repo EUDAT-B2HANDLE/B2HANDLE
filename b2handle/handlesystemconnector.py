@@ -359,21 +359,10 @@ class HandleSystemConnector(object):
         LOGGER.debug('PUT Request headers: '+str(head))
         veri = self.__HTTPS_verify
 
-        # Make request:
-        resp = None
-        if self.__authentication_method == self.__auth_methods['user_pw']:
-            resp = self.__session.put(url, data=payload, headers=head, verify=veri)
-        elif self.__authentication_method == self.__auth_methods['cert']:
-            resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
-        self.__log_request_response_to_file(
-            logger=REQUESTLOGGER,
-            op='PUT',
-            handle=handle,
-            url=url,
-            headers=head,
-            verify=veri,
-            resp=resp,
-            payload=payload)
+        # Send request to server:
+        resp = self.__send_put_request_to_server(url, payload, head, veri, handle)
+        if hsresponses.is_redirect_from_http_to_https(resp):
+            resp = self.__resend_put_request_on_302(payload, head, veri, handle, resp)
 
         # Check response for authentication issues:
         if hsresponses.not_authenticated(resp):
@@ -385,6 +374,32 @@ class HandleSystemConnector(object):
             )
         self.__first_request = False
         return resp, payload
+
+    def __send_put_request_to_server(self, url, payload, head, veri, handle):
+        resp = None
+        allow_redirects = False
+        if self.__authentication_method == self.__auth_methods['user_pw']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri, allow_redirects=allow_redirects)
+        elif self.__authentication_method == self.__auth_methods['cert']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object, allow_redirects=allow_redirects)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='PUT',
+            handle=handle,
+            url=url,
+            headers=head,
+            verify=veri,
+            resp=resp,
+            payload=payload)
+        return resp
+
+    def __resend_put_request_on_302(self, payload, head, veri, handle, resp):
+        # Check response for 302 redirect.
+        # In that case we have to manually reissue the request to make
+        # sure it is done via PUT and not GET
+        # as the requests library makes all 302 redirects to GET and then we get a wrong 200-OK!
+        newurl = resp.headers['location']
+        resp = self.__send_put_request_to_server(newurl, payload, head, veri, handle)
 
     def send_handle_delete_request(self, **args):
         '''

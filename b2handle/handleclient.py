@@ -909,6 +909,24 @@ class EUDATHandleClient(object):
         if hsresponses.was_handle_created(resp) or hsresponses.handle_success(resp):
             LOGGER.info("Handle registered: "+handle)
             return json.loads(resp.content)['handle']
+        elif hsresponses.is_temporary_redirect(resp):
+            oldurl = resp.url
+            newurl = resp.headers['location']
+            raise GenericHandleError(
+                operation=op,
+                handle=handle,
+                response=resp,
+                payload=put_payload,
+                msg='Temporary redirect from '+oldurl+' to '+newurl+'.'
+            )
+        elif hsresponses.handle_not_found(resp):
+            raise GenericHandleError(
+                operation=op,
+                handle=handle,
+                response=resp,
+                payload=put_payload,
+                msg='Could not create handle. Possibly you used HTTP instead of HTTPS?'
+            )
         else:
             raise GenericHandleError(
                 operation=op,
