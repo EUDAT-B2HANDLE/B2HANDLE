@@ -24,8 +24,7 @@ def is_temporary_redirect(response):
     return False
 
 def handle_success(response):
-    # TODO May be misleading - 201 Created is also success!
-    if response.status_code == 200 and json.loads(response.content)["responseCode"] == 1:
+    if (response.status_code == 200 or response.status_code == 201) and json.loads(response.content)["responseCode"] == 1:
         return True
     return False
 

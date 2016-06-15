@@ -336,22 +336,8 @@ class HandleSystemConnector(object):
         op = args['op']
         overwrite = args['overwrite'] or False
 
-        # Overwrite by index:
-        if indices is not None:
-            message = 'Writing handle values by index is not implemented'+\
-                ' yet because the way the indices are interpreted by the'+\
-                ' Handle Server may be modified soon. The entire handle'+\
-                ' record has to be overwritten.'
-            raise NotImplementedError(message)
-            # TODO FIXME: As soon as the Handle System uses the correct indices
-            # for overwriting, this may be implemented.
-            # In HSv8 beta, the HS uses ?index=3 for overwriting index:4. If the
-            # library used this and then the behaviour is changed, it would lead
-            # to corrupt handle records, so we wait until the issue is fixed by
-            # the Handle System.
-
         # Make necessary values:
-        url = self.make_handle_URL(handle, overwrite=overwrite)
+        url = self.make_handle_URL(handle, indices, overwrite=overwrite)
         LOGGER.debug('PUT Request to '+url)
         payload = json.dumps({'values':list_of_entries})
         LOGGER.debug('PUT Request payload: '+payload)
@@ -544,7 +530,7 @@ class HandleSystemConnector(object):
         :param indices: Optional. A list of integers or strings. Indices of
             the handle record entries to read or write. Defaults to None.
         :param overwrite: Optional. If set, an overwrite flag will be appended
-            to the URL (?overwrite=true or ?overwrite=false). If not set, no
+            to the URL ({?,&}overwrite=true or {?,&}overwrite=false). If not set, no
             flag is set, thus the Handle Server's default behaviour will be
             used. Defaults to None.
         :param other_url: Optional. If a different Handle Server URL than the
@@ -555,6 +541,7 @@ class HandleSystemConnector(object):
          'http://some.handle.server/api/handles/prefix/suffix?index=2&index=6&overwrite=false
         '''
         LOGGER.debug('make_handle_URL...')
+        separator = '?'
 
         if other_url is not None:
             url = other_url
@@ -566,17 +553,16 @@ class HandleSystemConnector(object):
         if indices is None:
             indices = []
         if len(indices) > 0:
-            url = url+'?'
             for index in indices:
-                url = url+'&index='+str(index)
+                url = url+separator+'index='+str(index)
+                separator = '&'
 
         if overwrite is not None:
             if overwrite:
-                url = url+'?&overwrite=true'
+                url = url+separator+'overwrite=true'
             else:
-                url = url+'?&overwrite=false'
+                url = url+separator+'overwrite=false'
 
-        url = url.replace('?&', '?')
         return url
 
     def __log_request_response_to_file(self, **args):

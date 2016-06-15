@@ -562,23 +562,22 @@ class EUDATHandleClient(object):
                     changed = True
                     nothingchanged = False
 
-        # Add the unchanged values
-        for i in xrange(len(list_of_entries)):
-            if list_of_entries[i]['type'] not in keys:
-                new_list_of_entries.append(list_of_entries[i])
+        # Add the indices
+        indices = []
+        for i in xrange(len(new_list_of_entries)):
+            indices.append(new_list_of_entries[i]['index'])
 
-        # Overwrite the old record:
+        # append to the old record:
         if nothingchanged:
             LOGGER.debug('modify_handle_value: There was no entries '+\
                 str(kvpairs.keys())+' to be modified (handle '+handle+').'+\
                 ' To add them, set add_if_not_exist = True')
         else:
-            # TODO FIXME: Implement overwriting by index (less risky),
-            # once HS have fixed the issue with the indices.
             op = 'modifying handle values'
             resp, put_payload = self.__send_handle_put_request(
                 handle,
                 new_list_of_entries,
+                indices=indices,
                 overwrite=True,
                 op=op)
             if hsresponses.handle_success(resp):
@@ -1054,8 +1053,8 @@ class EUDATHandleClient(object):
         :param handle: The handle.
         :param list_of_entries: A list of handle record entries to be written,
          in the format [{"index":xyz, "type":"xyz", "data":"xyz"}] or similar.
-        :param indices: Optional. A list of indices to delete. Defaults
-         to None (i.e. the entire handle is deleted.). The list can
+        :param indices: Optional. A list of indices to modify. Defaults
+         to None (i.e. the entire handle is updated.). The list can
          contain integers or strings.
         :param overwrite: Optional. Whether the handle should be overwritten
          if it exists already.
