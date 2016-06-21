@@ -127,9 +127,9 @@ class PIDClientCredentials(object):
         self.__private_key = args['private_key']
         self.__certificate_only = args['certificate_only']
         self.__certificate_and_key = args['certificate_and_key']
-        self.__reverselookup_password = args{'reverselookup_password']
-        self.__reverselookup_username = args{'reverselookup_username']
-        self.__reverselookup_baseuri = args{'reverselookup_baseuri']
+        self.__reverselookup_password = args['reverselookup_password']
+        self.__reverselookup_username = args['reverselookup_username']
+        self.__reverselookup_baseuri = args['reverselookup_baseuri']
 
         # All the other args collected as "additional config":
         self.__additional_config = self.__collect_additional_arguments(args, useful_args)
@@ -267,14 +267,14 @@ class PIDClientCredentials(object):
         # pylint: disable=missing-docstring
         return self.__certificate_and_key
 
-    def get_path_to_reverselookup_username(self):
+    def get_reverselookup_username(self):
         # pylint: disable=missing-docstring
         return self.__reverselookup_username
 
-    def get_path_to_reverselookup_password(self):
+    def get_reverselookup_password(self):
         # pylint: disable=missing-docstring
         return self.__reverselookup_password
 
-    def get_path_to_reverselookup_baseuri(self):
+    def get_reverselookup_baseuri(self):
         # pylint: disable=missing-docstring
         return self.__reverselookup_baseuri
