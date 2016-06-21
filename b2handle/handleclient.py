@@ -243,8 +243,12 @@ class EUDATHandleClient(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.
         :return: An instance of the client.
         '''
+        key_value_pairs = credentials.get_all_args()
 
-        inst = EUDATHandleClient(credentials.get_all_args())
+        if config is not None:
+            key_value_pairs.update(**config) # passed config overrides json file
+
+        inst = EUDATHandleClient(**key_value_pairs)
         return inst
 
     # Methods with read access to Handle Server:
