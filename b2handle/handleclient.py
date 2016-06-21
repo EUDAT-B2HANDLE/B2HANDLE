@@ -244,24 +244,7 @@ class EUDATHandleClient(object):
         :return: An instance of the client.
         '''
 
-        # Combine config passed in JSON file and config passed to this method into one dict
-        # where config passed to the method overrson file.
-        additional_config = credentials.get_config()
-        if additional_config is not None:
-            additional_config.update(**config)
-        else:
-            additional_config = config
-
-        inst = EUDATHandleClient(
-            credentials.get_server_URL(),
-            username=credentials.get_username(),
-            password=credentials.get_password(),
-            handleowner=credentials.get_handleowner(),
-            private_key=credentials.get_path_to_private_key(),
-            certificate_only=credentials.get_path_to_file_certificate_only(),
-            certificate_and_key=credentials.get_path_to_file_certificate_and_key(),
-            **additional_config
-        )
+        inst = EUDATHandleClient(credentials.get_all_args())
         return inst
 
     # Methods with read access to Handle Server:

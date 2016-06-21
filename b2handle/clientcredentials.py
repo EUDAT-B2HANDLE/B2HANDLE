@@ -115,6 +115,9 @@ class PIDClientCredentials(object):
         ]
         util.add_missing_optional_args_with_value_none(args, useful_args)
 
+        # Store args
+        self.__all_args = args
+
         # Args that the constructor understands:
         self.__handle_server_url = args['handle_server_url']
         self.__username = args['username']
@@ -217,6 +220,9 @@ class PIDClientCredentials(object):
                     msg += 'Insufficient credentials for searching.'
                 raise CredentialsFormatError(msg=msg)
 
+    def get_all_args(self):
+        # pylint: disable=missing-docstring
+        return self.__all_args
 
     def get_username(self):
         # pylint: disable=missing-docstring
