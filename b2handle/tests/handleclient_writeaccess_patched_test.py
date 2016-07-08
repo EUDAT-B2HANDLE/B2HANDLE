@@ -271,7 +271,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Define the replacement for the patched requests.put method:
         cont = {"responseCode":1,"handle":"my/testhandle"}
-        mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
+        mock_response_put = MockResponse(status_code=201, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
         # Run the method to be tested:
@@ -286,7 +286,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 4, "ttl": 86400, "type": "TEST4", "data": "newvalue"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val1", "format": "string"}}, {"index": 2222, "ttl": 86400, "type": "TEST2", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val2", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T13:57:03Z", "data": {"value": "val3", "format": "string"}}]}
+        expected_payload = {"values": [{"index": 4, "ttl": 86400, "type": "TEST4", "data": "newvalue"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -369,15 +369,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         expected_payload = {
         "values":[
             {
-                "index":111,
-                "type": "TEST1",
-                "data":{
-                    "format":"string",
-                    "value":"val1"
-                },
-                "ttl":86400,
-                "timestamp":"2015-09-29T15:51:08Z"
-            },{
                 "index":2222,
                 "type": "TEST2",
                 "data":"new2",
@@ -413,7 +404,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Define the replacement for the patched requests.put method:
         cont = {"responseCode":1,"handle":"my/testhandle"}
-        mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
+        mock_response_put = MockResponse(status_code=201, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
         # Call the method to be tested: Modifying corrupted raises exception:
@@ -480,7 +471,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 2, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
+        expected_payload = {"values": [{"index": 2, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -520,8 +511,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        #expected_payload = {"values": [{"index": 2, "type": "TEST101", "data": "new101"},{"index": 3, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}, {"index": 111, "ttl": 86400, "type": "TEST1", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val1", "format": "string"}}, {"index": 333, "ttl": 86400, "type": "TEST3", "timestamp": "2015-09-30T20:38:59Z", "data": {"value": "val3", "format": "string"}}]}
-        expected_payload = {'values': [{'index': 2, 'type': 'TEST100', 'data': 'new100'}, {'index': 2222, 'ttl': 86400, 'type': 'TEST2', 'data': 'new2'}, {'index': 4, 'ttl': 86400, 'type': 'TEST4', 'data': 'new4'}, {'index': 3, 'type': 'TEST101', 'data': 'new101'}, {'index': 111, 'ttl': 86400, 'type': 'TEST1', 'timestamp': 'xxx', 'data': {'value': 'val1', 'format': 'string'}}, {'index': 333, 'ttl': 86400, 'type': 'TEST3', 'timestamp': 'xxx', 'data': {'value': 'val3', 'format': 'string'}}]}
+        expected_payload = {'values': [{'index': 2, 'type': 'TEST100', 'data': 'new100'}, {'index': 2222, 'ttl': 86400, 'type': 'TEST2', 'data': 'new2'}, {'index': 4, 'ttl': 86400, 'type': 'TEST4', 'data': 'new4'}, {'index': 3, 'type': 'TEST101', 'data': 'new101'}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,

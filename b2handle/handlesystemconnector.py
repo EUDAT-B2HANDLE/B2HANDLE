@@ -336,22 +336,8 @@ class HandleSystemConnector(object):
         op = args['op']
         overwrite = args['overwrite'] or False
 
-        # Overwrite by index:
-        if indices is not None:
-            message = 'Writing handle values by index is not implemented'+\
-                ' yet because the way the indices are interpreted by the'+\
-                ' Handle Server may be modified soon. The entire handle'+\
-                ' record has to be overwritten.'
-            raise NotImplementedError(message)
-            # TODO FIXME: As soon as the Handle System uses the correct indices
-            # for overwriting, this may be implemented.
-            # In HSv8 beta, the HS uses ?index=3 for overwriting index:4. If the
-            # library used this and then the behaviour is changed, it would lead
-            # to corrupt handle records, so we wait until the issue is fixed by
-            # the Handle System.
-
         # Make necessary values:
-        url = self.make_handle_URL(handle, overwrite=overwrite)
+        url = self.make_handle_URL(handle, indices, overwrite=overwrite)
         LOGGER.debug('PUT Request to '+url)
         payload = json.dumps({'values':list_of_entries})
         LOGGER.debug('PUT Request payload: '+payload)
@@ -359,21 +345,10 @@ class HandleSystemConnector(object):
         LOGGER.debug('PUT Request headers: '+str(head))
         veri = self.__HTTPS_verify
 
-        # Make request:
-        resp = None
-        if self.__authentication_method == self.__auth_methods['user_pw']:
-            resp = self.__session.put(url, data=payload, headers=head, verify=veri)
-        elif self.__authentication_method == self.__auth_methods['cert']:
-            resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object)
-        self.__log_request_response_to_file(
-            logger=REQUESTLOGGER,
-            op='PUT',
-            handle=handle,
-            url=url,
-            headers=head,
-            verify=veri,
-            resp=resp,
-            payload=payload)
+        # Send request to server:
+        resp = self.__send_put_request_to_server(url, payload, head, veri, handle)
+        if hsresponses.is_redirect_from_http_to_https(resp):
+            resp = self.__resend_put_request_on_302(payload, head, veri, handle, resp)
 
         # Check response for authentication issues:
         if hsresponses.not_authenticated(resp):
@@ -385,6 +360,32 @@ class HandleSystemConnector(object):
             )
         self.__first_request = False
         return resp, payload
+
+    def __send_put_request_to_server(self, url, payload, head, veri, handle):
+        resp = None
+        allow_redirects = False
+        if self.__authentication_method == self.__auth_methods['user_pw']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri, allow_redirects=allow_redirects)
+        elif self.__authentication_method == self.__auth_methods['cert']:
+            resp = self.__session.put(url, data=payload, headers=head, verify=veri, cert=self.__cert_object, allow_redirects=allow_redirects)
+        self.__log_request_response_to_file(
+            logger=REQUESTLOGGER,
+            op='PUT',
+            handle=handle,
+            url=url,
+            headers=head,
+            verify=veri,
+            resp=resp,
+            payload=payload)
+        return resp
+
+    def __resend_put_request_on_302(self, payload, head, veri, handle, resp):
+        # Check response for 302 redirect.
+        # In that case we have to manually reissue the request to make
+        # sure it is done via PUT and not GET
+        # as the requests library makes all 302 redirects to GET and then we get a wrong 200-OK!
+        newurl = resp.headers['location']
+        resp = self.__send_put_request_to_server(newurl, payload, head, veri, handle)
 
     def send_handle_delete_request(self, **args):
         '''
@@ -529,7 +530,7 @@ class HandleSystemConnector(object):
         :param indices: Optional. A list of integers or strings. Indices of
             the handle record entries to read or write. Defaults to None.
         :param overwrite: Optional. If set, an overwrite flag will be appended
-            to the URL (?overwrite=true or ?overwrite=false). If not set, no
+            to the URL ({?,&}overwrite=true or {?,&}overwrite=false). If not set, no
             flag is set, thus the Handle Server's default behaviour will be
             used. Defaults to None.
         :param other_url: Optional. If a different Handle Server URL than the
@@ -540,6 +541,7 @@ class HandleSystemConnector(object):
          'http://some.handle.server/api/handles/prefix/suffix?index=2&index=6&overwrite=false
         '''
         LOGGER.debug('make_handle_URL...')
+        separator = '?'
 
         if other_url is not None:
             url = other_url
@@ -551,17 +553,16 @@ class HandleSystemConnector(object):
         if indices is None:
             indices = []
         if len(indices) > 0:
-            url = url+'?'
             for index in indices:
-                url = url+'&index='+str(index)
+                url = url+separator+'index='+str(index)
+                separator = '&'
 
         if overwrite is not None:
             if overwrite:
-                url = url+'?&overwrite=true'
+                url = url+separator+'overwrite=true'
             else:
-                url = url+'?&overwrite=false'
+                url = url+separator+'overwrite=false'
 
-        url = url.replace('?&', '?')
         return url
 
     def __log_request_response_to_file(self, **args):

@@ -177,7 +177,8 @@ entry at the index 101 of **0.NA/foo**.
 To ensure that only you (or your admin colleagues) can change users' write permissions,
 we add a list of admins (another ``HS_VLIST``) to the admin handle record (foo/admin)
 and reference it in the ``HS_ADMIN`` entry of the admin handle record. Only the users
-in this list can administer users.
+in this list can administer users. We also have to add that new ``HS_VLIST`` to the 
+``HS_VLIST`` in 200:0.NA/foo, to make sure it has write permissions.
 
     **Handle record 0.NA/foo:**
 
@@ -186,6 +187,7 @@ in this list can administer users.
     ...   ...       ...
     100   HS_ADMIN  (refers to 200:0.NA/foo)
     200   HS_VLIST  200:foo/admin
+                    201:foo/admin
      ...  ...       ...
     ===== ========= =======================
 
