@@ -115,6 +115,9 @@ class PIDClientCredentials(object):
         ]
         util.add_missing_optional_args_with_value_none(args, useful_args)
 
+        # Store args
+        self.__all_args = args
+
         # Args that the constructor understands:
         self.__handle_server_url = args['handle_server_url']
         self.__username = args['username']
@@ -124,9 +127,9 @@ class PIDClientCredentials(object):
         self.__private_key = args['private_key']
         self.__certificate_only = args['certificate_only']
         self.__certificate_and_key = args['certificate_and_key']
-
-        # Other attributes:
-        self.__additional_config = None
+        self.__reverselookup_password = args['reverselookup_password']
+        self.__reverselookup_username = args['reverselookup_username']
+        self.__reverselookup_baseuri = args['reverselookup_baseuri']
 
         # All the other args collected as "additional config":
         self.__additional_config = self.__collect_additional_arguments(args, useful_args)
@@ -148,11 +151,14 @@ class PIDClientCredentials(object):
             return None
 
     def __check_if_enough_args_for_revlookup_auth(self, args):
-        cond1 = args['reverselookup_username'] or args['username']
-        cond2 = args['reverselookup_password'] or args['password']
-        cond3 = args['reverselookup_baseuri']  or args['handle_server_url']
-        if cond1 and cond2 and cond3:
+        user = args['reverselookup_username'] or args['username']
+        pw = args['reverselookup_password'] or args['password']
+        url = args['reverselookup_baseuri']  or args['handle_server_url']
+        if user and pw and url:
             self.__reverselookup = True
+            self.__reverselookup_username = user
+            self.__reverselookup_password = pw
+            self.__reverselookup_baseuri = url
             LOGGER.debug('Sufficient information given for reverselookup.')
         else:
             self.__reverselookup = False
@@ -217,6 +223,9 @@ class PIDClientCredentials(object):
                     msg += 'Insufficient credentials for searching.'
                 raise CredentialsFormatError(msg=msg)
 
+    def get_all_args(self):
+        # pylint: disable=missing-docstring
+        return self.__all_args
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -258,3 +267,14 @@ class PIDClientCredentials(object):
         # pylint: disable=missing-docstring
         return self.__certificate_and_key
 
+    def get_reverselookup_username(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_username
+
+    def get_reverselookup_password(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_password
+
+    def get_reverselookup_baseuri(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_baseuri

@@ -65,6 +65,7 @@ class Searcher(object):
         self.__revlookup_auth_string = None
         self.__header = None
         self.__session = None
+        self.__search_url = None
 
         # Defaults:
         defaults = {
@@ -75,17 +76,75 @@ class Searcher(object):
 
         # Set them:
         self.__store_args_or_set_to_defaults(args, defaults)
-        if self.__has_search_access:
-            self.__setup_search_access()
+        self.__setup_search_access()
 
         LOGGER.debug('End of instantiation of the search module.')
 
     def __setup_search_access(self):
+        self.__check_and_set_search_access()
         self.__session = requests.Session()
-        self.__set_revlookup_auth_string(self.__user, self.__password)
-        LOGGER.info('Reverse lookup authentication is set.')
-        self.__header = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
+        if self.__session is None:
+            LOGGER.info('Session could not be created.')
+        else:
+            LOGGER.debug('Session was created.')
 
+    def __check_and_set_search_access(self):
+        user_and_pw_exist = self.__check_and_set_search_authentication()
+        url_exists = self.__check_and_set_search_url()
+
+        if user_and_pw_exist and url_exists:
+            self.__has_search_access = True
+
+    def __check_and_set_search_authentication(self):
+        user_and_pw_exst = False
+
+        if self.__user is not None and self.__password is not None:
+            self.__set_revlookup_auth_string(self.__user, self.__password)
+            self.__header = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
+            LOGGER.info('Reverse lookup authentication is set.')
+            return True
+
+        else:
+            msg = 'Reverse lookup not possible.'
+            if self.__user is None and self.__password is None:
+                LOGGER.info(msg+' Neither username nor password were provided.')
+            elif self.__user is None:
+                LOGGER.info(msg+' Username not provided. Password is '+str(self.__password))
+            else:
+                LOGGER.info(msg+' Password not provided. Username is '+str(self.__user))
+            return False
+
+    def __check_and_set_search_url(self):
+        if (self.__reverselookup_baseuri is not None and
+            self.__reverselookup_url_extension is not None):
+            
+            self.__search_url = (
+                self.__reverselookup_baseuri.rstrip('/')+'/'+
+                self.__reverselookup_url_extension.strip('/')
+            )
+            return True
+            LOGGER.info('Reverse lookup endpoint set to '+str(self.__search_url))
+        else:
+            msg = 'Reverse lookup not possible.'
+            if (self.__reverselookup_baseuri is None and
+                self.__reverselookup_url_extension is None):
+                LOGGER.info(msg+' No URL for reverse lookup provided.')
+            elif self.__reverselookup_baseuri is None:
+                LOGGER.info(msg+' No URL for reverse lookup provided.')
+            else:
+                LOGGER.info(msg+' No URL path for reverse lookup provided.')
+            return False
+
+    def get_search_endpoint(self):
+        if self.__has_search_access:
+            return self.__search_url
+        else:
+            LOGGER.error(
+                'Searching not possible. Reason: No access '+
+                'to search system (endpoint: '+
+                str(self.__search_url)+').'
+            )
+            return None
 
     def __store_args_or_set_to_defaults(self, args, defaults):
 
@@ -130,13 +189,13 @@ class Searcher(object):
 
         if args['reverselookup_username']:
             self.__user = args['reverselookup_username']
-            LOGGER.info('" - reverselookup_username set to: '+self.__user)
+            LOGGER.info(' - reverselookup_username set to: '+self.__user)
         elif args['username']:
             self.__user = args['username']
             self.__handle_system_username_used = True
             LOGGER.info(' - reverselookup_username set to handle server username: '+self.__user)
         else:
-            LOGGER.info(' - reverselookup_username: No default.')
+            LOGGER.info(' - reverselookup_username: Not specified. No default.')
 
         if args['reverselookup_password']:
             self.__password = args['reverselookup_password']
@@ -146,10 +205,7 @@ class Searcher(object):
             self.__handle_system_password_used = True
             LOGGER.info(' - reverselookup_password set to handle server password.')
         else:
-            LOGGER.info(' - reverselookup_password: No default.')
-
-        if self.__user is not None and self.__password is not None:
-            self.__has_search_access = True
+            LOGGER.info(' - reverselookup_password: Not specified. No default.')
 
 
     def search_handle(self, **args):
@@ -184,6 +240,17 @@ class Searcher(object):
             may also contain more than one element.
         '''
         LOGGER.debug('search_handle...')
+        if self.__has_search_access:
+            return self.__search_handle(**args)
+        else:
+            LOGGER.error(
+                'Searching not possible. Reason: No access '+
+                'to search system (endpoint: '+
+                str(self.__search_url)+').'
+            )
+            return None
+
+    def __search_handle(self, **args):
 
         # Prefix specified? Remove them from the key value pairs to be searched.
         prefix = None
@@ -349,7 +416,7 @@ class Searcher(object):
 
     def __send_revlookup_get_request(self, query):
 
-        solrurl = self.__reverselookup_baseuri.rstrip('/')+'/'+self.__reverselookup_url_extension.strip('/')
+        solrurl = self.__search_url
         entirequery = solrurl+'?'+query.lstrip('?')
 
         head = self.__header
