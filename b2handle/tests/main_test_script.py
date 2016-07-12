@@ -82,11 +82,12 @@ if __name__ == '__main__':
     tests_to_run = []
     numtests = 0
 
-    utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
-    tests_to_run.append(utilconfig_testcase)
-    numtests += utilconfig_testcase.countTestCases()
-
     if no_access:
+
+        utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
+        tests_to_run.append(utilconfig_testcase)
+        numtests += utilconfig_testcase.countTestCases()
+        print 'Number of tests for utilconfig (no access required):\t\t\t\t'+str(n)
 
         noaccess = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientNoaccessTestCase)
         tests_to_run.append(noaccess)
