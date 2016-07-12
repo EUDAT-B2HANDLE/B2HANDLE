@@ -22,12 +22,11 @@ from utilconfig_test import UtilConfigTestCase
 log_b2handle = False
 if log_b2handle == True:
     LOGGER = logging.getLogger()
-    LOGGER.setLevel("DEBUG")
-    LOGGER.addHandler(
-        logging.FileHandler(
-            'logs_b2handle'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+'
-        )
-    )
+    LOGGER.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler('logs_b2handle'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+')
+    file_handler.setFormatter(logging.Formatter('%(levelname)s:%(module)s:%(message)s'))
+    LOGGER.addHandler(file_handler)
+
 
 
 if __name__ == '__main__':
