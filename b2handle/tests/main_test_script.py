@@ -86,6 +86,7 @@ if __name__ == '__main__':
 
         utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
         tests_to_run.append(utilconfig_testcase)
+        n = utilconfig_testcase.countTestCases()
         numtests += utilconfig_testcase.countTestCases()
         print 'Number of tests for utilconfig (no access required):\t\t\t\t'+str(n)
 
