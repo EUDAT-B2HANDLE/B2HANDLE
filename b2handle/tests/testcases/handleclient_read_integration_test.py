@@ -88,7 +88,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
             pw,
             HTTPS_verify=self.https_verify)
 
-        authstring = self.inst.create_authentication_string(self.user, pw)
+        authstring = b2handle.utilhandle.create_authentication_string(self.user, pw)
         headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic '+authstring
@@ -130,7 +130,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         ]
 
         testhandle = self.handle
-        url = inst.make_handle_URL(testhandle)
+        url = self.testvalues['handle_server_url_write']+self.testvalues['url_extension_REST_API']+testhandle
         veri = self.https_verify
         head = headers
         data = json.dumps({'values':list_of_all_entries})
