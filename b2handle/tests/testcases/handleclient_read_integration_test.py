@@ -254,35 +254,37 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         # Test variables
         credentials = MagicMock()
         config_from_cred = {}
-        valuefoo = 'foo/foo/foo/'
+        valuefoo = 'foo/foo/foo/' # passed via credentials
+        valuebar = 'bar/bar/bar'  # passed directly to constructor
         config_from_cred['REST_API_url_extension'] = valuefoo
-        credentials.get_config = MagicMock(return_value=config_from_cred)
-        credentials.get_username = MagicMock(return_value=self.user)
-        credentials.get_password = MagicMock(return_value=self.randompassword)
-        credentials.get_server_URL = MagicMock(return_value=self.url)
-        credentials.get_path_to_private_key = MagicMock(return_value=None)
-        credentials.get_path_to_file_certificate_only = MagicMock(return_value=None)
-        credentials.get_path_to_file_certificate_and_key = MagicMock(return_value=None)
+
+        credentials = b2handle.clientcredentials.PIDClientCredentials(
+            handle_server_url=self.url,
+            username=self.user,
+            password=self.randompassword,
+            handleowner=self.user,
+            REST_API_url_extension=valuefoo
+        )
 
         self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
             'Config: '+str(credentials.get_config()))
 
-        # Run code to be tested
-        # Create instance with credentials
-        inst = EUDATHandleClient.instantiate_with_credentials(
-            credentials,
-            HTTPS_verify=self.https_verify,
-            REST_API_url_extension='api/handles')
+        # foo/foo/ from the credentials should be overridden by bar/bar/ which is directly passed
 
-        # If this raises an exception, it is because /foo/foo from the
-        # credentials config was used as path. /foo/foo should be overridden
-        # by the standard stuff.
+        # Run code to be tested - we expect an exception, as it will try to do a GET on the bogus rest api:
+        with self.assertRaises(GenericHandleError):
+            inst = EUDATHandleClient.instantiate_with_credentials(
+                credentials,
+                HTTPS_verify=self.https_verify,
+                REST_API_url_extension=valuebar)
 
-        # Check desired outcomes
-        self.assertIsInstance(inst, EUDATHandleClient)
-        val = self.inst.get_value_from_handle(self.handle, 'TEST1')
-        self.assertEqual(val, 'val1',
-            'Retrieving "TEST1" should lead to "val1", but it lead to: '+str(val))
+            # So this code can only be reached if something went wrong:
+            self.assertIsInstance(inst, EUDATHandleClient)
+            # Check if bar/bar instead of foo/foo was stored as path!
+            serverconn = inst._EUDATHandleClient__handlesystemconnector 
+            self.assertIn('/bar/', serverconn._HandleSystemConnector__REST_API_url_extension)
+            self.assertNotIn('/foo/', serverconn._HandleSystemConnector__REST_API_url_extension)
+            self.assertEquals(serverconn._HandleSystemConnector__REST_API_url_extension, valuebar)
 
     def test_instantiate_with_credentials_config(self):
         """Test instantiation of client: No exception if password wrong."""
@@ -292,28 +294,31 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         config_from_cred = {}
         valuefoo = 'foo/foo/foo/'
         config_from_cred['REST_API_url_extension'] = valuefoo
-        credentials.get_config = MagicMock(return_value=config_from_cred)
-        credentials.get_username = MagicMock(return_value=self.user)
-        credentials.get_password = MagicMock(return_value=self.randompassword)
-        credentials.get_server_URL = MagicMock(return_value=self.url)
-        credentials.get_handleowner = MagicMock(return_value=None)
-        credentials.get_path_to_private_key = MagicMock(return_value=None)
-        credentials.get_path_to_file_certificate_only = MagicMock(return_value=None)
-        credentials.get_path_to_file_certificate_and_key = MagicMock(return_value=None)
+        credentials = b2handle.clientcredentials.PIDClientCredentials(
+            handle_server_url=self.url,
+            username=self.user,
+            password=self.randompassword,
+            handleowner=self.user,
+            REST_API_url_extension=valuefoo
+        )
 
         self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
             'Config: '+str(credentials.get_config()))
 
-        # Run code to be tested
-        # Create instance with credentials
+        # foo/foo/ from the credentials should override default api/handles/
+
+        # Run code to be tested - we expect an exception, as it will try to do a GET on the bogus rest api:
         with self.assertRaises(GenericHandleError):
             inst = EUDATHandleClient.instantiate_with_credentials(
                 credentials,
                 HTTPS_verify=self.https_verify)
 
-        # If this raises an exception, it is because /foo/foo from the
-        # credentials config was used as path. /foo/foo should be overridden
-        # by the standard stuff.
+            # So this code can only be reached if something went wrong:
+            self.assertIsInstance(inst, EUDATHandleClient)
+            # Check if foo/foo instead of api/handles was stored as path!
+            serverconn = inst._EUDATHandleClient__handlesystemconnector 
+            self.assertIn('/foo/', serverconn._HandleSystemConnector__REST_API_url_extension)
+            self.assertEquals(serverconn._HandleSystemConnector__REST_API_url_extension, valuefoo)
 
     def test_global_resolve(self):
         """Testing if instantiating with default handle server'works
