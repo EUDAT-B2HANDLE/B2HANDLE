@@ -70,7 +70,8 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             self.url,
             self.user,
             self.password,
-            HTTPS_verify=self.https_verify)
+            HTTPS_verify=self.https_verify,
+            handleowner=self.user)
 
         authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         self.headers = {
@@ -79,6 +80,18 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         }
 
         list_of_all_entries = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":111,
                 "type": "TEST1",
@@ -136,6 +149,18 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         url = self.connector.make_handle_URL(testhandle)
         # Create corrupted record:
         list_of_all_entries = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":111,
                 "type": "TEST1",

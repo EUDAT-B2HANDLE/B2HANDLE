@@ -96,6 +96,18 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
         list_of_all_entries = [
             {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
+            {
                 "index":111,
                 "type":"TEST1",
                 "data":"val1"

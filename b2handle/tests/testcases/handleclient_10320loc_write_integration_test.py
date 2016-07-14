@@ -71,6 +71,18 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         
         list_of_all_entries_with = [
             {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
+            {
                 "index":1,
                 "type":"URL",
                 "data":"www.url.foo"
@@ -86,6 +98,18 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         ]
 
         list_of_all_entries_without = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":1,
                 "type":"URL",
