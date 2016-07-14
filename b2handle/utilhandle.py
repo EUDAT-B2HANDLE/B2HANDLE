@@ -48,10 +48,7 @@ def check_handle_syntax(string):
     except AttributeError:
         raise handleexceptions.HandleSyntaxError(msg='The provided handle is None', expected_syntax=expected)
 
-    if len(arr) > 2:
-        msg = 'Too many slashes'
-        raise handleexceptions.HandleSyntaxError(msg=msg, handle=string, expected_syntax=expected)
-    elif len(arr) < 2:
+    if len(arr) < 2:
         msg = 'No slash'
         raise handleexceptions.HandleSyntaxError(msg=msg, handle=string, expected_syntax=expected)
 

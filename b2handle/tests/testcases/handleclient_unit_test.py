@@ -86,9 +86,8 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         self.assertTrue(syntax_checked)
 
     def test_check_handle_syntax_two_slashes(self):
-        """Handle Syntax: Exception if too many slashes in handle."""
-        with self.assertRaises(HandleSyntaxError):
-            check_handle_syntax("foo/bar/foo")
+        """Handle Syntax: No exception if too many slashes in handle."""
+        check_handle_syntax("foo/bar/foo")
 
     def test_check_handle_syntax_no_slashes(self):
         """Handle Syntax: Exception if too many slashes in handle."""
