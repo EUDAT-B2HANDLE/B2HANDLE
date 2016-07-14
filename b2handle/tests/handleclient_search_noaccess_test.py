@@ -21,9 +21,10 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
 
     def setUp(self):
         self.inst = EUDATHandleClient()
+        self.inst._EUDATHandleClient__searcher._Searcher__has_search_access = True # fake search access
         self.searcher = Searcher()
+        self.searcher._Searcher__has_search_access = True # Fake search access
  
-
     def tearDown(self):
         pass
 

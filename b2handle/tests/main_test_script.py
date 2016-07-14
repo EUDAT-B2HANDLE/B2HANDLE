@@ -22,12 +22,11 @@ from utilconfig_test import UtilConfigTestCase
 log_b2handle = False
 if log_b2handle == True:
     LOGGER = logging.getLogger()
-    LOGGER.setLevel("DEBUG")
-    LOGGER.addHandler(
-        logging.FileHandler(
-            'logs_b2handle'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+'
-        )
-    )
+    LOGGER.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler('logs_b2handle'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+')
+    file_handler.setFormatter(logging.Formatter('%(levelname)s:%(module)s:%(message)s'))
+    LOGGER.addHandler(file_handler)
+
 
 
 if __name__ == '__main__':
@@ -83,11 +82,13 @@ if __name__ == '__main__':
     tests_to_run = []
     numtests = 0
 
-    utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
-    tests_to_run.append(utilconfig_testcase)
-    numtests += utilconfig_testcase.countTestCases()
-
     if no_access:
+
+        utilconfig_testcase = unittest.TestLoader().loadTestsFromTestCase(UtilConfigTestCase)
+        tests_to_run.append(utilconfig_testcase)
+        n = utilconfig_testcase.countTestCases()
+        numtests += utilconfig_testcase.countTestCases()
+        print 'Number of tests for utilconfig (no access required):\t\t\t\t'+str(n)
 
         noaccess = unittest.TestLoader().loadTestsFromTestCase(EUDATHandleClientNoaccessTestCase)
         tests_to_run.append(noaccess)

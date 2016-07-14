@@ -130,7 +130,8 @@ class MockCredentials(object):
         handleowner=None,
         private_key=None,
         certificate_and_key=None,
-        certificate_only=None
+        certificate_only=None,
+        prefix=None
     ):
 
         self.config = config
@@ -160,6 +161,20 @@ class MockCredentials(object):
         else:
             self.handleowner = self.user
 
+        self.prefix=prefix
+
+        self.all_config = {}
+        self.all_config.update(self.config)
+        self.all_config['username'] = self.user
+        self.all_config['password'] = self.password
+        self.all_config['handleowner'] = self.handleowner
+        self.all_config['handle_server_url'] = self.url
+        self.all_config['private_key'] = self.key
+        self.all_config['certificate_only'] = self.cert
+        self.all_config['certificate_and_key'] = self.cert_and_key
+        self.all_config['prefix'] = self.prefix
+
+
         self.get_config = mock.MagicMock(return_value=self.config)
         self.get_username = mock.MagicMock(return_value=self.user)
         self.get_password = mock.MagicMock(return_value=self.password)
@@ -168,3 +183,4 @@ class MockCredentials(object):
         self.get_path_to_private_key = mock.MagicMock(return_value=self.key)
         self.get_path_to_file_certificate_only = mock.MagicMock(return_value=self.cert)
         self.get_path_to_file_certificate_and_key = mock.MagicMock(return_value=self.cert_and_key)
+        self.get_all_args = mock.MagicMock(return_value=self.all_config)
