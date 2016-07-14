@@ -7,7 +7,9 @@ The library requires OpenSSL v1.0.1 or higher.
 
 # Test Coverage and Continuous Integration
 
-Test status of the devel branch: [![Build Status](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/badge/icon)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel) [![Test Coverage](http://jenkins.argo.grnet.gr:9913/jenkins/c/http/jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7/cobertura/)
+Test status of the devel branch:
+
+[![Build Status](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/badge/icon)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel) [![(click here to check out test coverage)](http://jenkins.argo.grnet.gr:9913/jenkins/c/http/jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7/cobertura/)
 
 B2Handle has a unit test coverage of approximately 90%. Every addition to the devel branch is automatically unit tested. The test can be found in b2handle/tests and easily run using the command "python main_test_script.py". For the current test coverage, please click on the badge and link above.
 
