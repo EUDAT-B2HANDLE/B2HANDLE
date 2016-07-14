@@ -383,7 +383,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         rec = self.inst.retrieve_handle_record_json(self.newhandle)
 
         self.assertEqual(resp.status_code, 200,
-            'Deleting did not return a HTTP 200 code.')
+            'Deleting did not return a HTTP 200 code, but: %s, %s' % (resp,resp.content))
         self.assertIsNone(rec,
             'The deleted record should return None.')
 

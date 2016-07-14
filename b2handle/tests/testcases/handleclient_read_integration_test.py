@@ -144,23 +144,26 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
         rec = self.inst.retrieve_handle_record_json(self.handle)
 
-        self.assertEqual(rec['values'][2]['type'], 'test3',
-            'The type should be "test3".')
-        self.assertEqual(rec['values'][2]['data']['value'], 'val3',
-            'The value should be "val3".')
+        received_type = rec['values'][2]['type']
+        received_value = rec['values'][2]['data']['value']
+
+        self.assertEqual(received_type, 'TEST1',
+            'The type should be "TEST3" but was "%s" (%s).'% (received_type, self.handle))
+        self.assertEqual(received_value, 'val1',
+            'The value should be "val3" but is "%s" (%s).' % (received_value, self.handle))
 
     # get_value_from_handle
 
     def test_get_value_from_handle_normal(self):
         """Test reading existent and inexistent handle value from server."""
-        val = self.inst.get_value_from_handle(self.handle, 'test1')
+        val = self.inst.get_value_from_handle(self.handle, 'TEST1')
         self.assertEqual(val, 'val1',
-            'Retrieving "test1" should lead to "val1", but it lead to: '+str(val))
+            'Retrieving "TEST1" from %s should lead to "val1", but it lead to "%s"' % (self.handle,val))
 
     def test_get_value_from_handle_inexistent_key(self):
-        val = self.inst.get_value_from_handle(self.handle, 'test100')
+        val = self.inst.get_value_from_handle(self.handle, 'TEST100')
         self.assertIsNone(val,
-            'Retrieving "test100" should lead to "None", but it lead to: '+str(val))
+            'Retrieving "TEST100" from %s should lead to "None", but it lead to "%s"' % (self.handle,val))
 
     def test_get_value_from_handle_inexistent_record(self):
         """Test reading handle value from inexistent handle."""
@@ -277,9 +280,9 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
         # Check desired outcomes
         self.assertIsInstance(inst, EUDATHandleClient)
-        val = self.inst.get_value_from_handle(self.handle, 'test1')
+        val = self.inst.get_value_from_handle(self.handle, 'TEST1')
         self.assertEqual(val, 'val1',
-            'Retrieving "test1" should lead to "val1", but it lead to: '+str(val))
+            'Retrieving "TEST1" should lead to "val1", but it lead to: '+str(val))
 
     def test_instantiate_with_credentials_config(self):
         """Test instantiation of client: No exception if password wrong."""
