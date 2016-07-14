@@ -15,8 +15,10 @@ from b2handle.handleexceptions import GenericHandleError
 from b2handle.handleexceptions import HandleAlreadyExistsException
 from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import ReverseLookupException
+import b2handle.tests.utilities as utils
 
-RESOURCES_FILE = 'resources/testvalues_for_integration_tests_IGNORE.json'
+PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
+RESOURCES_FILE = PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'
 
 class NullHandler(logging.Handler):
     def emit(self, record):

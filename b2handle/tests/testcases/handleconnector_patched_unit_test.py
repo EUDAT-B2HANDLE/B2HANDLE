@@ -12,16 +12,19 @@ sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError, GenericHandleError, HandleNotFoundException
 from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
-from mockresponses import MockResponse, MockSearchResponse
-from utilities import replace_timestamps, failure_message
+from b2handle.tests.mockresponses import MockResponse, MockSearchResponse
+from b2handle.tests.utilities import replace_timestamps, failure_message
+import b2handle.tests.utilities as utils
 
+PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
+PATH_CRED = utils.get_neighbour_directory(__file__, 'testcredentials')
 
 class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     def setUp(self):
 
         self.inst = connector.HandleSystemConnector(
-            certificate_and_key='./testcredentials/fake_certi_and_bothkeys.pem',
+            certificate_and_key=PATH_CRED+'/fake_certi_and_bothkeys.pem',
             handle_server_url='http://foo.com'
         )
 
@@ -183,7 +186,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         """Test whether username exists."""
 
         # Test variables
-        handlerecord_string = open('resources/handlerecord_for_reading.json').read()
+        handlerecord_string = open(PATH_RES+'/handlerecord_for_reading.json').read()
         handlerecord_json = json.loads(handlerecord_string)
         testhandle = '100:'+handlerecord_json['handle']
 
@@ -201,7 +204,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         """Test exception when contradictory inputs are given."""
     
         # Test variables
-        handlerecord_string = open('resources/handlerecord_for_reading.json').read()
+        handlerecord_string = open(PATH_RES+'/handlerecord_for_reading.json').read()
         testhandle = 'who/cares'
 
         # Define the replacement for the patched method:

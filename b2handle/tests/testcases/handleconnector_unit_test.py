@@ -1,15 +1,22 @@
 """Testing methods that need no server access."""
 
 import sys
+import json
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
-import json
+
 sys.path.append("../..")
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError
 from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
+
+import b2handle.tests.utilities as utils
+
+#PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
+PATH_CRED = utils.get_neighbour_directory(__file__, 'testcredentials')
 
 class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 
@@ -85,7 +92,7 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
     def test_init_cert_onefile(self):
 
         inst = connector.HandleSystemConnector(
-            certificate_and_key='./testcredentials/fake_certi_and_bothkeys.pem',
+            certificate_and_key=PATH_CRED+'/fake_certi_and_bothkeys.pem',
             handle_server_url='http://foo.com'
         )
         self.assertIsInstance(inst, connector.HandleSystemConnector)
@@ -93,8 +100,8 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
     def test_init_cert_twofiles(self):
 
         inst = connector.HandleSystemConnector(
-            certificate_only='./testcredentials/fake_certi_and_bothkeys.pem',
-            private_key='./testcredentials/fake_privatekey.pem',
+            certificate_only=PATH_CRED+'/fake_certi_and_bothkeys.pem',
+            private_key=PATH_CRED+'/fake_privatekey.pem',
             handle_server_url='http://foo.com'
         )
         self.assertIsInstance(inst, connector.HandleSystemConnector)
@@ -107,7 +114,7 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
     def test_init_privatekey_missing(self):
 
         inst = connector.HandleSystemConnector(
-            certificate_only='./testcredentials/fake_certi_and_bothkeys.pem',
+            certificate_only=PATH_CRED+'/fake_certi_and_bothkeys.pem',
             handle_server_url='http://foo.com'
         )
         self.assertIsInstance(inst, connector.HandleSystemConnector)
@@ -116,7 +123,7 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 
         inst = connector.HandleSystemConnector(
             handle_server_url='http://foo.com',
-            private_key='./testcredentials/fake_privatekey.pem'
+            private_key=PATH_CRED+'/fake_privatekey.pem'
         )
         self.assertIsInstance(inst, connector.HandleSystemConnector)
 
@@ -124,6 +131,6 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 
         with self.assertRaises(CredentialsFormatError):
             inst = connector.HandleSystemConnector(
-                certificate_and_key='./testcredentials/noexist.pem',
+                certificate_and_key=PATH_CRED+'/noexist.pem',
                 handle_server_url='http://foo.com'
             )

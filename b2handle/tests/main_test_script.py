@@ -2,18 +2,21 @@ import unittest
 import argparse
 import logging
 import time
+import sys
+sys.path.append("../..")
+import b2handle.tests.testcases as testcases
 
 # Unit tests:
-from handleclient_noaccess_test import EUDATHandleClientNoaccessTestCase
-from handleconnector_noaccess_test import EUDATHandleConnectorNoaccessTestCase
-from handleclient_readaccess_faked_test import EUDATHandleClientReadaccessFakedTestCase
-from handleclient_readaccess_patched_test import EUDATHandleClientReadaccessPatchedTestCase
-from handleclient_writeaccess_patched_test import EUDATHandleClientWriteaccessPatchedTestCase
-from handleclient_readaccess_faked_10320_test import EUDATHandleClientReadaccessFaked10320LOCTestCase
-from clientcredentials_test import PIDClientCredentialsTestCase
-from handleclient_search_noaccess_test import EUDATHandleClientSearchNoAccessTestCase
-from handleconnector_access_patched_test import EUDATHandleConnectorAccessPatchedTestCase
-from utilconfig_test import UtilConfigTestCase
+from testcases.handleclient_unit_test import EUDATHandleClientNoaccessTestCase
+from testcases.handleconnector_unit_test import EUDATHandleConnectorNoaccessTestCase
+from testcases.handleclient_read_patched_unit_test import EUDATHandleClientReadaccessFakedTestCase
+from testcases.handleclient_2_read_patched_unit_test import EUDATHandleClientReadaccessPatchedTestCase
+from testcases.handleclient_write_patched_unit_test import EUDATHandleClientWriteaccessPatchedTestCase
+from testcases.handleclient_10320loc_read_patched_unit_test import EUDATHandleClientReadaccessFaked10320LOCTestCase
+from testcases.clientcredentials_unit_test import PIDClientCredentialsTestCase
+from testcases.handleclient_search_unit_test import EUDATHandleClientSearchNoAccessTestCase
+from testcases.handleconnector_patched_unit_test import EUDATHandleConnectorAccessPatchedTestCase
+from testcases.utilconfig_unit_test import UtilConfigTestCase
 
 # Integration tests:
 # Imports below!
@@ -55,7 +58,7 @@ if __name__ == '__main__':
         mocked_access = True
     if 'read' in param.testtype:
         read_access = True
-        from handleclient_readaccess_test import EUDATHandleClientReadaccessTestCase
+        from testcases.handleclient_read_integration_test import EUDATHandleClientReadaccessTestCase
     if 'write' in param.testtype:
         write_access = True
         import logging
@@ -67,11 +70,11 @@ if __name__ == '__main__':
                 'logged_http_requests_'+time.strftime("%Y-%m-%d_%H-%M")+'.txt', mode='a+'
             )
         )
-        from handleclient_writeaccess_test import EUDATHandleClientWriteaccessTestCase
-        from handleclient_writeaccess_10320_test import EUDATHandleClientWriteaccess10320LOCTestCase
+        from testcases.handleclient_write_integration_test import EUDATHandleClientWriteaccessTestCase
+        from testcases.handleclient_10320loc_write_integration_test import EUDATHandleClientWriteaccess10320LOCTestCase
     if 'search' in param.testtype:
         search_access = True
-        from handleclient_searchaccess_test import EUDATHandleClientSearchTestCase
+        from testcases.handleclient_search_integration_test import EUDATHandleClientSearchTestCase
 
 
     # Collection tests:
