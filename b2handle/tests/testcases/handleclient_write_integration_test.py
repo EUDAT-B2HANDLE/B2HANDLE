@@ -10,7 +10,7 @@ from b2handle.handleclient import EUDATHandleClient
 from b2handle.handlesystemconnector import HandleSystemConnector
 from b2handle.handleexceptions import *
 from b2handle.tests.mockresponses import MockResponse
-from b2handle.tests.utilities import failure_message, log_start_test_code, log_end_test_code, log_request_response_to_file, log_new_test_case
+from b2handle.tests.utilities import failure_message, log_start_test_code, log_end_test_code, log_request_response_to_file, log_new_case
 
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(logging.NullHandler())
@@ -133,7 +133,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_corrupted(self):
         """Test exception when trying to modify corrupted handle record."""
-        log_new_test_case("test_modify_handle_value_corrupted")
+        log_new_case("test_modify_handle_value_corrupted")
 
         # Test variables
         testhandle = self.handle
@@ -202,7 +202,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_one(self):
         """Test modifying one existing handle value."""
-        log_new_test_case("test_modify_handle_value_one")
+        log_new_case("test_modify_handle_value_one")
 
         # Test variables
         testhandle = self.handle
@@ -229,7 +229,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_several(self):
         """Test modifying several existing handle values."""
-        log_new_test_case("test_modify_handle_value_several")
+        log_new_case("test_modify_handle_value_several")
 
         # Test variables
         testhandle = self.handle
@@ -262,7 +262,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_several_inexistent(self):
         """Test modifying several existing handle values, one of them inexistent."""
-        log_new_test_case("test_modify_handle_value_several_inexistent")
+        log_new_case("test_modify_handle_value_several_inexistent")
         
         # Test variables
         testhandle = self.handle
@@ -295,7 +295,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_without_authentication(self):
         """Test if exception when not authenticated."""
-        log_new_test_case("test_modify_handle_value_without_authentication")
+        log_new_case("test_modify_handle_value_without_authentication")
 
         # Test variables
         testhandle = self.handle
@@ -309,7 +309,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_modify_handle_value_HS_ADMIN(self):
         """Test exception when trying to modify HS_ADMIN."""
-        log_new_test_case("test_modify_handle_value_HS_ADMIN")
+        log_new_case("test_modify_handle_value_HS_ADMIN")
 
         # Test variables
         testhandle = self.handle
@@ -324,7 +324,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_register_handle(self):
         """Test registering a new handle with various types of values."""
-        log_new_test_case("test_register_handle")
+        log_new_case("test_register_handle")
 
         # Test variables
         testhandle = self.newhandle
@@ -381,7 +381,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_register_handle_already_exists(self):
         """Test if overwrite=False prevents handle overwriting."""
-        log_new_test_case("test_register_handle_already_exists")
+        log_new_case("test_register_handle_already_exists")
 
         # Test variables
         testhandle = self.handle
@@ -402,7 +402,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_generate_and_register_handle(self):
         """Test generating and registering a new handle with various types of values."""
-        log_new_test_case("test_generate_and_register_handle")
+        log_new_case("test_generate_and_register_handle")
 
         # Test variables
         additional_URLs = ['http://bar.bar', 'http://foo.foo']
@@ -459,7 +459,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_value_one_entry(self):
         """Test deleting one entry from a record."""
-        log_new_test_case("test_delete_handle_value_one_entry")
+        log_new_case("test_delete_handle_value_one_entry")
 
         # Test variables
         testhandle = self.handle
@@ -480,7 +480,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_value_several_occurrences(self):
         """Test trying to delete from a corrupted handle record."""
-        log_new_test_case("test_delete_handle_value_several_occurrences")
+        log_new_case("test_delete_handle_value_several_occurrences")
         
         # Test variables
         testhandle = self.handle
@@ -502,7 +502,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_value_several_entries(self):
         """Test deleting several entries from a record."""
-        log_new_test_case("test_delete_handle_value_several_entries")
+        log_new_case("test_delete_handle_value_several_entries")
 
         # Test variables
         testhandle = self.handle
@@ -530,7 +530,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_value_inexistent_entry(self):
         """Test deleting one entry from a record."""
-        log_new_test_case("test_delete_handle_value_inexistent_entry")
+        log_new_case("test_delete_handle_value_inexistent_entry")
 
         # Test variables
         testhandle = self.handle
@@ -552,7 +552,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_value_several_entries_one_nonexistent(self):
         """Test deleting several entries from a record, one of them does not exist."""
-        log_new_test_case("test_delete_handle_value_several_entries_one_nonexistent")
+        log_new_case("test_delete_handle_value_several_entries_one_nonexistent")
 
 
         # Test variables
@@ -576,7 +576,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_normal(self):
         """Test deleting an entire record."""
-        log_new_test_case("test_delete_handle_normal")
+        log_new_case("test_delete_handle_normal")
 
         # Test variables
         testhandle = self.handle
@@ -594,7 +594,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_too_many_args(self):
         """Test deleting an entire record, but we pass more arguments to the method."""
-        log_new_test_case("test_delete_handle_too_many_args")
+        log_new_case("test_delete_handle_too_many_args")
 
         # Test variables
         testhandle = self.handle
@@ -607,7 +607,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
     def test_delete_handle_inexistent(self):
         """Test deleting an inexistent handle."""
-        log_new_test_case("test_delete_handle_inexistent")
+        log_new_case("test_delete_handle_inexistent")
 
         # Test variables
         testhandle = self.inexistent_handle

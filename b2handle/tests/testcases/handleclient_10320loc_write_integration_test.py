@@ -13,7 +13,7 @@ import b2handle
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handlesystemconnector import HandleSystemConnector
 from b2handle.handleexceptions import *
-from b2handle.tests.utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
+from b2handle.tests.utilities import failure_message, log_new_case, log_start_test_code, log_end_test_code, log_request_response_to_file
 
 # Logging
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
@@ -157,7 +157,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_exchange_additional_URL_normal(self):
         """Test replacing an URL."""
-        log_new_test_case("test_exchange_additional_URL_normal")
+        log_new_case("test_exchange_additional_URL_normal")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -184,7 +184,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_exchange_additional_URL_doesnotexist(self):
         """Test if replacing an inexistent URL has any effect."""
-        log_new_test_case("test_exchange_additional_URL_doesnotexist")
+        log_new_case("test_exchange_additional_URL_doesnotexist")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -208,7 +208,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_exchange_additional_URL_no10320LOC(self):
         """Test if replacing an URL has any effect if there is no 10320/LOC."""
-        log_new_test_case("test_exchange_additional_URL_no10320LOC")
+        log_new_case("test_exchange_additional_URL_no10320LOC")
 
         # Test variables
         testhandle = self.handle_withoutloc
@@ -229,7 +229,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_first(self):
         """Test adding the first additional URL'(created the 10320/LOC entry)."""
-        log_new_test_case("test_add_additional_URL_first")
+        log_new_case("test_add_additional_URL_first")
 
         # Test variables
         testhandle = self.handle_withoutloc
@@ -247,7 +247,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_several_toempty(self):
         """Test adding several (3) additional URLs."""
-        log_new_test_case("test_add_additional_URL_several_toempty")
+        log_new_case("test_add_additional_URL_several_toempty")
 
         # Test variables
         testhandle = self.handle_withoutloc
@@ -273,7 +273,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_another(self):
         """Test adding an additional URL."""
-        log_new_test_case("test_add_additional_URL_another")
+        log_new_case("test_add_additional_URL_another")
 
         # Test variables:
         testhandle = self.handle_withloc
@@ -291,7 +291,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_several(self):
         """Test adding several (3) additional URLs."""
-        log_new_test_case("test_add_additional_URL_several")
+        log_new_case("test_add_additional_URL_several")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -317,7 +317,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_to_inexistent_handle(self):
         """Test exception if handle does not exist."""
-        log_new_test_case("test_add_additional_URL_to_inexistent_handle")
+        log_new_case("test_add_additional_URL_to_inexistent_handle")
 
         # Test variables
         testhandle = self.inexistent_handle
@@ -331,7 +331,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_add_additional_URL_alreadythere(self):
         """Test adding an URL that is already there."""
-        log_new_test_case("test_add_additional_URL_alreadythere")
+        log_new_case("test_add_additional_URL_alreadythere")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -361,7 +361,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_remove_additional_URL(self):
         """Test normal removal of additional URL from 10320/LOC."""
-        log_new_test_case("test_remove_additional_URL")
+        log_new_case("test_remove_additional_URL")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -379,7 +379,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_remove_additional_URL_toempty(self):
         """Test removing all URL, which should remove the whole 10320/LOC attribute."""
-        log_new_test_case("test_remove_additional_URL_toempty")
+        log_new_case("test_remove_additional_URL_toempty")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -409,7 +409,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_remove_additional_URL_several(self):
         """Test removing all URL at the same time, which should remove the whole 10320/LOC attribute."""
-        log_new_test_case("test_remove_additional_URL_several")
+        log_new_case("test_remove_additional_URL_several")
 
         # Test variables
         testhandle = self.handle_withloc
@@ -437,7 +437,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def test_remove_additional_URL_inexistent_handle(self):
         """Test normal removal of additional URL from an inexistent handle."""
-        log_new_test_case("test_remove_additional_URL_inexistent_handle")
+        log_new_case("test_remove_additional_URL_inexistent_handle")
 
         # Test variables
         testhandle = self.inexistent_handle

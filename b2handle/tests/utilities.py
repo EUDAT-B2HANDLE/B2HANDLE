@@ -35,7 +35,7 @@ def replace_timestamps(jsonobject):
         for item in jsonobject:
             replace_timestamps(item)
 
-def log_new_test_case(name):
+def log_new_case(name):
     REQUESTLOGGER.info('\n'+60*'*'+'\n*** '+name+'\n'+60*'*'+'\n')
 
 def log_request_response_to_file(op, handle, url, head, veri, resp, payload=None):
