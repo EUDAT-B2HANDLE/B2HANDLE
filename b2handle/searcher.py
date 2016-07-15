@@ -11,16 +11,14 @@ import logging
 import re
 import requests
 import json
-import utilhandle
-import util
-import utilconfig
-from handleexceptions import ReverseLookupException
+import b2handle
+from b2handle.handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(util.NullHandler())
+LOGGER.addHandler(b2handle.util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(util.NullHandler())
+REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
 class Searcher(object):
     '''
@@ -35,7 +33,7 @@ class Searcher(object):
 
     def __init__(self, **args):
 
-        util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
+        b2handle.util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
 
         optional_args = [
             'reverselookup_baseuri',
@@ -48,7 +46,7 @@ class Searcher(object):
             'allowed_search_keys',
             'HTTPS_verify'
         ]
-        util.add_missing_optional_args_with_value_none(args, optional_args)
+        b2handle.util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Args that the constructor understands:
         self.__reverselookup_baseuri = None
@@ -151,7 +149,7 @@ class Searcher(object):
         LOGGER.debug('Setting the attributes:')
 
         if args['HTTPS_verify'] is not None: # Without this check, a passed "False" is not found!
-            self.__HTTPS_verify = utilconfig.get_valid_https_verify(
+            self.__HTTPS_verify = b2handle.util.get_valid_https_verify(
                 args['HTTPS_verify']
             )
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
@@ -269,10 +267,10 @@ class Searcher(object):
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg=msg)
         else:
-            isnone = util.return_keys_of_value_none(args)
+            isnone = b2handle.util.return_keys_of_value_none(args)
             if len(isnone) > 0:
                 LOGGER.debug('search_handle: These keys had value None: '+str(isnone))
-                args = util.remove_value_none_from_dict(args)
+                args = b2handle.util.remove_value_none_from_dict(args)
                 if len(args) == 0:
                     LOGGER.debug('search_handle: No key value pair with valid value was specified.')
                     msg = ('No search terms have been specified. Please specify'
@@ -363,7 +361,7 @@ class Searcher(object):
             only_search_for_allowed_keys = True
 
         fulltext_searchterms_given = True
-        fulltext_searchterms = util.remove_value_none_from_list(fulltext_searchterms)
+        fulltext_searchterms = b2handle.util.remove_value_none_from_list(fulltext_searchterms)
         if len(fulltext_searchterms) == 0:
             fulltext_searchterms_given = False
         
@@ -374,7 +372,7 @@ class Searcher(object):
             raise ReverseLookupException(msg=msg)
 
         keyvalue_searchterms_given = True
-        keyvalue_searchterms = util.remove_value_none_from_dict(keyvalue_searchterms)
+        keyvalue_searchterms = b2handle.util.remove_value_none_from_dict(keyvalue_searchterms)
         if len(keyvalue_searchterms) == 0:
             keyvalue_searchterms_given = False
 
@@ -411,7 +409,7 @@ class Searcher(object):
         :param username: Username.
         :param password: Password.
         '''
-        auth = utilhandle.create_authentication_string(username, password)
+        auth = b2handle.utilhandle.create_authentication_string(username, password)
         self.__revlookup_auth_string = auth
 
     def __send_revlookup_get_request(self, query):
@@ -434,6 +432,6 @@ class Searcher(object):
         return resp
 
     def __log_request_response_to_file(self, **args):
-        message = utilhandle.make_request_log_message(**args)
+        message = b2handle.utilhandle.make_request_log_message(**args)
         args['logger'].info(message)
 

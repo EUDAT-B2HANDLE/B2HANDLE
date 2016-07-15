@@ -1,32 +1,30 @@
 """Testing methods that need Handle server write access"""
 
-import unittest
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 import requests
 import json
 import logging
-import sys
-sys.path.append("../..")
-import b2handle.utilhandle
-import b2handle.clientcredentials
+import b2handle
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handlesystemconnector import HandleSystemConnector
-from b2handle.handleexceptions import HandleSyntaxError
-from b2handle.handleexceptions import HandleNotFoundException
-from b2handle.handleexceptions import GenericHandleError
-from b2handle.handleexceptions import HandleAlreadyExistsException
-from b2handle.handleexceptions import BrokenHandleRecordException
-from b2handle.handleexceptions import ReverseLookupException
+from b2handle.handleexceptions import *
 from b2handle.tests.utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
+# Logging
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
-REQUESTLOGGER.addHandler(logging.NullHandler())
+REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
-# Credentials and other necessary values that should not be public:
-import b2handle.tests.utilities as utils
-PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
-RESOURCES_FILE = 'resources/testvalues_for_integration_tests_IGNORE.json'
+# Load some data that is needed for testing
+PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
+RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
+# This file is not public, as it contains valid credentials for server
+# write access. However, by providing such a file, you can run the tests.
+# A template can be found in resources/testvalues_for_integration_tests_template.json
 
 class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
@@ -37,7 +35,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
 
         # Read resources from file:
-        self.testvalues = json.load(open(RESOURCES_FILE))
+        self.testvalues = RESOURCES_FILE
 
         # Test values that need to be given by user:
         self.url = self.testvalues['handle_server_url_write']

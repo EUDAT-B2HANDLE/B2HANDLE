@@ -5,13 +5,12 @@ if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
+
 import json
-sys.path.append("../..")
+import b2handle
 from b2handle.searcher import Searcher
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import ReverseLookupException
-
-PATH_RES = 'resources'
 
 
 class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):

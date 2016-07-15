@@ -40,7 +40,7 @@ setup(name='b2handle',
       author_email='buurman@dkrz.de',
       url='http://eudat-b2safe.github.io/B2HANDLE',
       download_url='https://github.com/EUDAT-B2SAFE/B2HANDLE',
-      packages=['b2handle', 'b2handle/tests'],
+      packages=['b2handle', 'b2handle/util', 'b2handle/tests', 'b2handle/tests/testcases'],
       zip_safe=False,
       install_requires=[
           'requests',

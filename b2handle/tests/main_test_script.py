@@ -2,8 +2,7 @@ import unittest
 import argparse
 import logging
 import time
-import sys
-sys.path.append("../..")
+import b2handle
 import b2handle.tests.testcases as testcases
 
 # Unit tests:

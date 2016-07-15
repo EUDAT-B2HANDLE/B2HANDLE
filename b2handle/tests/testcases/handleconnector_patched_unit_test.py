@@ -5,26 +5,28 @@ if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
+
 import json
 import mock
-from mock import patch
-sys.path.append("../..")
+import b2handle
 import b2handle.handlesystemconnector as connector
 from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError, GenericHandleError, HandleNotFoundException
 from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle
 from b2handle.tests.mockresponses import MockResponse, MockSearchResponse
 from b2handle.tests.utilities import replace_timestamps, failure_message
-import b2handle.tests.utilities as utils
 
-PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
-PATH_CRED = utils.get_neighbour_directory(__file__, 'testcredentials')
+# Load some data that is needed for testing
+PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
+CRED_FILE = PATH_CRED+'/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
+PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
+RECORD = open(PATH_RES+'/handlerecord_for_reading.json').read()
 
 class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     def setUp(self):
 
         self.inst = connector.HandleSystemConnector(
-            certificate_and_key=PATH_CRED+'/fake_certi_and_bothkeys.pem',
+            certificate_and_key=CRED_FILE,
             handle_server_url='http://foo.com'
         )
 
@@ -50,7 +52,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         passed_attr = posargs_passed_to_patch[pos]
         return passed_attr
 
-    @patch('requests.Session.get')
+    @mock.patch('requests.Session.get')
     def test_get_request(self, getpatch):
 
         # Define the replacement for the patched GET method:
@@ -67,7 +69,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(getpatch.call_count, 1,
             'The method "requests.get" was not called once, but '+str(getpatch.call_count)+' times.')
 
-    @patch('requests.Session.put')
+    @mock.patch('requests.Session.put')
     def test_put_request(self, putpatch):
 
         # Define the replacement for the patched PUT method:
@@ -93,7 +95,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='put_request'))
 
-    @patch('requests.Session.delete')
+    @mock.patch('requests.Session.delete')
     def test_delete_request_via_cert(self, deletepatch):
 
         # Define the replacement for the patched DELETE method:
@@ -117,7 +119,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         self.assertEquals(headers['Authorization'], 'Handle clientCert="true"',
             'Authorization header not sent correctly: '+headers['Authorization'])
 
-    @patch('requests.Session.delete')
+    @mock.patch('requests.Session.delete')
     def test_delete_request_via_cert(self, deletepatch):
 
         # Define the replacement for the patched DELETE method:
@@ -143,8 +145,8 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         self.assertIn('index=4', url, 'Index 4 missing')
         self.assertIn('index=5', url, 'Index 5 missing')
 
-    @patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
-    @patch('requests.Session.delete')
+    @mock.patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
+    @mock.patch('requests.Session.delete')
     def test_delete_request_via_basic_auth(self, deletepatch, username_check_patch):
 
         # Make a new test instance with different authorization:
@@ -181,12 +183,12 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     # check if username exists
 
-    @patch('requests.Session.get')
+    @mock.patch('requests.Session.get')
     def test_check_if_username_exists_normal(self, getpatch):
         """Test whether username exists."""
 
         # Test variables
-        handlerecord_string = open(PATH_RES+'/handlerecord_for_reading.json').read()
+        handlerecord_string = RECORD
         handlerecord_json = json.loads(handlerecord_string)
         testhandle = '100:'+handlerecord_json['handle']
 
@@ -199,12 +201,12 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         self.assertTrue(res,
             'The handle exists, so "check_if_username_exists" should return true!')
 
-    @patch('requests.Session.get')
+    @mock.patch('requests.Session.get')
     def test_check_if_username_exists_inconsistent_info(self, getpatch):
         """Test exception when contradictory inputs are given."""
     
         # Test variables
-        handlerecord_string = open(PATH_RES+'/handlerecord_for_reading.json').read()
+        handlerecord_string = RECORD
         testhandle = 'who/cares'
 
         # Define the replacement for the patched method:
@@ -215,7 +217,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         with self.assertRaises(GenericHandleError):
             self.inst.check_if_username_exists(testhandle)
 
-    @patch('requests.Session.get')
+    @mock.patch('requests.Session.get')
     def test_check_if_username_exists_it_doesnot(self, getpatch):
         """Test exception"""
 

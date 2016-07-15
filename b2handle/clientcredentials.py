@@ -10,9 +10,9 @@ Author: Merret Buurman (DKRZ), 2015-2016
 import json
 import os
 import logging
+import b2handle
 from b2handle.handleexceptions import CredentialsFormatError
-import util
-import utilhandle
+import b2handle.util as util
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -166,11 +166,12 @@ class PIDClientCredentials(object):
 
     def __check_handle_syntax(self):
         if self.__handleowner:
-            utilhandle.check_handle_syntax_with_index(self.__handleowner)
+            b2handle.utilhandle.check_handle_syntax_with_index(self.__handleowner)
         if self.__username:
-            utilhandle.check_handle_syntax_with_index(self.__username)
+            b2handle.utilhandle.check_handle_syntax_with_index(self.__username)
 
     def __check_file_existence(self):
+
         if self.__certificate_only:
             if not os.path.isfile(self.__certificate_only):
                 msg = 'The certificate file was not found at the specified path: '+self.__certificate_only
