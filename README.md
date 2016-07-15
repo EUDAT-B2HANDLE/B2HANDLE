@@ -1,10 +1,20 @@
-# B2HANDLE [![Build Status](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/badge/icon)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel) [![Test Coverage](http://jenkins.argo.grnet.gr:9913/jenkins/c/http/jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7/cobertura/)
-
+# B2HANDLE
 
 The b2handle Python library is a client library for interaction with a [Handle System](https://handle.net) server, using the native REST interface introduced in Handle System 8. The library offers methods to create, update and delete Handles as well as advanced functionality such as searching over Handles using an additional search servlet and managing multiple location entries per Handle.
 
 The library currently supports Python 2.6 and Python 2.7 and requires at least a Handle System server 8.1.
 The library requires OpenSSL v1.0.1 or higher.
+
+# Test Coverage and Continuous Integration
+
+Test status of the devel branch:
+
+[![Build Status](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/badge/icon)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel) [![(click here to check out test coverage)](http://jenkins.argo.grnet.gr:9913/jenkins/c/http/jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7)](https://jenkins.argo.grnet.gr/job/B2HANDLE_devel/PYTHON_VERSION=2.7/cobertura/)
+
+B2Handle has a unit test coverage of approximately 90%. Every addition to the devel branch is automatically unit tested. The test can be found in b2handle/tests and easily run using the command "python main_test_script.py". For the current test coverage, please click on the badge and link above.
+
+In addition to the unit tests, integration tests cover the reading, writing and searching of handles. As these needs credentials and write access to a real server, these are not run on GitHub. However, every user with access to a handle server can add their own credentials and run the integration tests in his/her system (using the command "python main_test_script.py testtype write", or "read", or "search", or all three).
+
 
 # Installation and use
 
@@ -72,5 +82,6 @@ Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
 
 
