@@ -44,7 +44,6 @@ setup(name='b2handle',
       zip_safe=False,
       install_requires=[
           'requests',
-          'uuid',
           'datetime',
       ],
       tests_require=test_dependencies,
