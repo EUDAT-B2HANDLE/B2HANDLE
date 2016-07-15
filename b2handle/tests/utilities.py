@@ -1,4 +1,5 @@
 import logging
+import os
 
 class NullHandler(logging.Handler):
     """
@@ -11,6 +12,33 @@ class NullHandler(logging.Handler):
 
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(NullHandler())
+
+def get_this_directory(file_path_string, as_list=False):
+    this_directory_string = os.path.split(os.path.realpath(file_path_string))[0]
+
+    if as_list:
+        this_directory_list = this_directory_string.split(os.path.sep)
+        return this_directory_list
+    else:
+        return this_directory_string
+
+def get_super_directory(file_path_string, as_list=False):
+    this_directory_list = get_this_directory(file_path_string, as_list=True)
+    super_directory_list = this_directory_list[0:len(this_directory_list)-1]
+
+    if as_list:
+        return super_directory_list
+    else:
+        super_directory_string = os.path.join(*super_directory_list)
+        return '/'+super_directory_string
+
+
+def get_neighbour_directory(file_path_string, dirname):
+    super_directory_list = get_super_directory(file_path_string, as_list=True)
+    super_directory_list.append(dirname)
+    neighbour_directory_string = os.path.join(*super_directory_list)
+    return '/'+neighbour_directory_string
+
 
 def failure_message(expected, passed, methodname):
     msg = 'The PUT request payload that the method "'+methodname+ '" assembled differs from the expected. This does not necessarily mean that it is wrong, it might just be a different way to talking to the Handle Server. Please run an integration test to check this and update the exptected PUT request accordingly.\nCreated:  '+str(passed)+'\nExpected: '+str(expected)

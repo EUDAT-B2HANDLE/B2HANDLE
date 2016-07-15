@@ -14,8 +14,9 @@ from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import IllegalOperationException
 from b2handle.handleexceptions import HandleAuthenticationError
 from b2handle.handleexceptions import HandleNotFoundException
-from mockresponses import MockResponse
-from utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
+from b2handle.tests.mockresponses import MockResponse
+from b2handle.tests.utilities import failure_message, log_start_test_code, log_end_test_code, log_request_response_to_file
+from b2handle.tests.utilities import log_new_test_case
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -23,7 +24,11 @@ REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(logging.NullHandler())
 
 # Credentials and other necessary values that should not be public:
-RESOURCES_FILE = 'resources/testvalues_for_integration_tests_IGNORE.json'
+
+import b2handle.tests.utilities as utils
+
+PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
+RESOURCES_FILE = PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'
 
 
 class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
@@ -65,7 +70,8 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
             self.url,
             self.user,
             self.password,
-            HTTPS_verify=self.https_verify)
+            HTTPS_verify=self.https_verify,
+            handleowner=self.user)
 
         authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         self.headers = {
@@ -74,6 +80,18 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         }
 
         list_of_all_entries = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":111,
                 "type": "TEST1",
@@ -131,6 +149,18 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         url = self.connector.make_handle_URL(testhandle)
         # Create corrupted record:
         list_of_all_entries = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":111,
                 "type": "TEST1",
@@ -353,7 +383,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         rec = self.inst.retrieve_handle_record_json(self.newhandle)
 
         self.assertEqual(resp.status_code, 200,
-            'Deleting did not return a HTTP 200 code.')
+            'Deleting did not return a HTTP 200 code, but: %s, %s' % (resp,resp.content))
         self.assertIsNone(rec,
             'The deleted record should return None.')
 

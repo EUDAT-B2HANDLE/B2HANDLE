@@ -16,7 +16,7 @@ from b2handle.handleexceptions import GenericHandleError
 from b2handle.handleexceptions import HandleAlreadyExistsException
 from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import ReverseLookupException
-from utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
+from b2handle.tests.utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -24,6 +24,8 @@ REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(logging.NullHandler())
 
 # Credentials and other necessary values that should not be public:
+import b2handle.tests.utilities as utils
+PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
 RESOURCES_FILE = 'resources/testvalues_for_integration_tests_IGNORE.json'
 
 class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
@@ -69,6 +71,18 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         
         list_of_all_entries_with = [
             {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
+            {
                 "index":1,
                 "type":"URL",
                 "data":"www.url.foo"
@@ -84,6 +98,18 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         ]
 
         list_of_all_entries_without = [
+            {
+                "index":100,
+                "type":"HS_ADMIN",
+                "data":{
+                    "format":"admin",
+                    "value":{
+                        "handle":"21.T14999/B2HANDLE_INTEGRATION_TESTS",
+                        "index":300,
+                        "permissions":"011111110011"
+                    }
+                }
+            },
             {
                 "index":1,
                 "type":"URL",

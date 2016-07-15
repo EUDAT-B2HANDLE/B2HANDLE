@@ -19,8 +19,8 @@ from b2handle.handleexceptions import BrokenHandleRecordException
 from b2handle.handleexceptions import IllegalOperationException
 from b2handle.handleexceptions import ReverseLookupException
 from b2handle.handleexceptions import GenericHandleError
-from mockresponses import MockResponse, MockSearchResponse
-from utilities import failure_message, replace_timestamps, sort_lists
+from b2handle.tests.mockresponses import MockResponse, MockSearchResponse
+from b2handle.tests.utilities import failure_message, replace_timestamps, sort_lists
 from b2handle.utilhandle import check_handle_syntax
 
 class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
