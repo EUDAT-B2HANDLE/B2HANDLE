@@ -1,7 +1,6 @@
 """Testing methods that need no server access."""
 
 import sys
-
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
@@ -18,6 +17,7 @@ PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
 FILE_BOTH = PATH_CRED+'/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
 FILE_KEY = PATH_CRED+'/fake_certs_and_keys/fake_privatekey.pem'
 FILE_CERT = PATH_CRED+'/fake_certs_and_keys/fake_certificate.pem'
+
 
 class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 

@@ -1,6 +1,8 @@
 """Tests for the PIDClientCredentials class. No access to any server/servlet/service needed."""
 
 import sys
+import json
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:

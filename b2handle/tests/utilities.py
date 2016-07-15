@@ -13,7 +13,6 @@ class NullHandler(logging.Handler):
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(NullHandler())
 
-
 def failure_message(expected, passed, methodname):
     msg = 'The PUT request payload that the method "'+methodname+ '" assembled differs from the expected. This does not necessarily mean that it is wrong, it might just be a different way to talking to the Handle Server. Please run an integration test to check this and update the exptected PUT request accordingly.\nCreated:  '+str(passed)+'\nExpected: '+str(expected)
     return msg

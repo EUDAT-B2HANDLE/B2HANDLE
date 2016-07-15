@@ -15,7 +15,6 @@ from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import *
 from b2handle.tests.utilities import failure_message, log_new_case, log_start_test_code, log_end_test_code, log_request_response_to_file
 
-
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 

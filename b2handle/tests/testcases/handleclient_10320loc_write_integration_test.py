@@ -26,6 +26,7 @@ RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNO
 # write access. However, by providing such a file, you can run the tests.
 # A template can be found in resources/testvalues_for_integration_tests_template.json
 
+
 class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
