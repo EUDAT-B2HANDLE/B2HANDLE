@@ -262,7 +262,7 @@ class CredentialsFormatError(Exception):
     def __init__(self, **args):
 
         # Default message:
-        self.msg = 'Ill-formatted credentials'
+        self.msg = 'Problem with credentials'
 
         # Possible arguments:
         optional_args = ['msg']

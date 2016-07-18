@@ -8,15 +8,16 @@ if sys.version_info < (2, 7):
 else:
     import unittest
 
-sys.path.append("../..")
+import json
+import b2handle
 from b2handle.clientcredentials import PIDClientCredentials
-from b2handle.handleexceptions import HandleSyntaxError
-from b2handle.handleexceptions import CredentialsFormatError
+from b2handle.handleexceptions import HandleSyntaxError, CredentialsFormatError
 
-import b2handle.tests.utilities as utils
 
-PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
-PATH_CRED = utils.get_neighbour_directory(__file__, 'testcredentials')
+# Load some data that is needed for testing
+PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
+RESOURCES = json.load(open(PATH_RES+'/testvalues_for_clientcredentials_tests_PUBLIC.json'))
+PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
 
 class PIDClientCredentialsTestCase(unittest.TestCase):
     """Test case for the PIDClientCredentials class.
@@ -24,8 +25,7 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.testvalues = json.load(open(
-            PATH_RES+'/testvalues_for_clientcredentials_tests_PUBLIC.json'))
+        self.testvalues = RESOURCES
         self.url = self.testvalues['url']
         self.user = self.testvalues['user']
         self.handle = self.testvalues['handle']

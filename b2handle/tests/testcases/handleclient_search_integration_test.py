@@ -1,30 +1,30 @@
 """Testing methods that need Handle server write access"""
 
-import unittest
+
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 import logging
 import requests
 import json
-import sys
-sys.path.append("../..")
-import b2handle.clientcredentials
+import b2handle
 from b2handle.handleclient import EUDATHandleClient
-from b2handle.handleexceptions import HandleSyntaxError
-from b2handle.handleexceptions import HandleNotFoundException
-from b2handle.handleexceptions import GenericHandleError
-from b2handle.handleexceptions import HandleAlreadyExistsException
-from b2handle.handleexceptions import BrokenHandleRecordException
-from b2handle.handleexceptions import ReverseLookupException
-from b2handle.tests.utilities import failure_message, log_new_test_case, log_start_test_code, log_end_test_code, log_request_response_to_file
+from b2handle.handleexceptions import *
+from b2handle.tests.utilities import failure_message, log_new_case, log_start_test_code, log_end_test_code, log_request_response_to_file
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(logging.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
-REQUESTLOGGER.addHandler(logging.NullHandler())
+REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
-# Credentials and other necessary values that should not be public:
-import b2handle.tests.utilities as utils
-PATH_RES = utils.get_neighbour_directory(__file__, 'resources')
-RESOURCES_FILE = PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'
+# Load some data that is needed for testing
+PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
+RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
+# This file is not public, as it contains valid credentials for server
+# write access. However, by providing such a file, you can run the tests.
+# A template can be found in resources/testvalues_for_integration_tests_template.json
+
 
 class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
@@ -35,7 +35,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
 
         # Read resources from file:
-        self.testvalues = json.load(open(RESOURCES_FILE))
+        self.testvalues = RESOURCES_FILE
 
         # Test values that need to be given by user:
         self.searchuser = self.testvalues['reverselookup_username']
@@ -84,7 +84,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_wrong_url_test(self):
         """Test exception when wrong search servlet URL is given."""
-        log_new_test_case("test_search_handle_wrong_url_test")
+        log_new_case("test_search_handle_wrong_url_test")
 
         # Make new client instance with existing but wrong url for searching:
         inst = EUDATHandleClient.instantiate_for_read_and_search(
@@ -103,7 +103,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_hs_url_test(self):
         """Test exception when wrong search servlet URL (Handle Server REST API URL) is given."""
-        log_new_test_case("test_search_handle_hs_url_test")
+        log_new_case("test_search_handle_hs_url_test")
 
         # Make new instance with handle server url as search url:
         self.inst = EUDATHandleClient.instantiate_for_read_and_search(
@@ -124,7 +124,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
     if False: # Does not work, es the Search Servlet runs out of Heap Space. Too many entries.
         def test_search_handle(self):
             """Test searching for handles with any url (server should return list of handles)."""
-            log_new_test_case("test_search_handle")
+            log_new_case("test_search_handle")
 
             log_start_test_code()
             val = self.inst.search_handle(URL='*')
@@ -140,7 +140,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_emptylist(self):
         """Test empty search result."""
-        log_new_test_case("test_search_handle_emptylist")
+        log_new_case("test_search_handle_emptylist")
 
         log_start_test_code()
         val = self.inst.search_handle(URL=self.url_inexistent)
@@ -154,7 +154,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_for_url(self):
         """Test searching for url with wildcards."""
-        log_new_test_case("test_search_handle_for_url")
+        log_new_case("test_search_handle_for_url")
 
         log_start_test_code()
         val1 = self.inst.search_handle(URL='*dkrz*')
@@ -172,7 +172,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_for_url_and_checksum(self):
         """Test searching for url and checksum with wildcards."""
-        log_new_test_case("test_search_handle_for_url_and_checksum")
+        log_new_case("test_search_handle_for_url_and_checksum")
 
         log_start_test_code()
         val1 = self.inst.search_handle('*dkrz*', CHECKSUM='*1111111111111*')
@@ -193,7 +193,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_for_checksum(self):
         """Test searching for checksum with wildcards."""
-        log_new_test_case("test_search_handle_for_checksum")
+        log_new_case("test_search_handle_for_checksum")
 
         log_start_test_code()
         val1 = self.inst.search_handle(None, CHECKSUM='*1111111111111*')
@@ -214,7 +214,7 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
     def test_search_handle_prefixfilter(self):
         """Test filtering for prefixes."""
-        log_new_test_case("test_search_handle_prefixfilter")
+        log_new_case("test_search_handle_prefixfilter")
 
         prefix1 = self.prefix_inexistent
         prefix2 = self.handle.split('/')[0]
