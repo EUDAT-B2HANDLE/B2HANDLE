@@ -73,7 +73,7 @@ setup(name='b2handle',
                    'in the EUDAT project.'),
       long_description=long_description,
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
