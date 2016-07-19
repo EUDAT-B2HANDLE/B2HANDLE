@@ -1,8 +1,26 @@
-from setuptools import setup, find_packages
 import codecs
 import os
 import re
 import sys
+
+from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
+
+
+class NoseTestCommand(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import nose
+
+        test_script = os.path.join('b2handle', 'tests', 'main_test_script.py')
+        # See also nosetests section in setup.cfg
+        nose.run_exit(argv=['nosetests', test_script])
 
 
 # Set common test dependencies
@@ -14,6 +32,12 @@ test_dependencies = [
 if sys.version_info < (2, 7):
     test_dependencies.append('argparse')
     test_dependencies.append('unittest2')
+    # Workaround for atexit._run_exitfuncs error when invoking `test` with
+    # older versions of Python
+    try:
+        import multiprocessing
+    except ImportError:
+        pass
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -49,10 +73,11 @@ setup(name='b2handle',
                    'in the EUDAT project.'),
       long_description=long_description,
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
+          'License :: OSI Approved :: Apache Software License',
           'Intended Audience :: Developers',
           'Topic :: Software Development :: Libraries :: Python Modules',
       ],
@@ -61,6 +86,7 @@ setup(name='b2handle',
       author_email='buurman@dkrz.de',
       url='http://eudat-b2safe.github.io/B2HANDLE',
       download_url='https://github.com/EUDAT-B2SAFE/B2HANDLE',
+      license='Apache License 2.0',
       packages=['b2handle', 'b2handle/util', 'b2handle/tests', 'b2handle/tests/testcases'],
       zip_safe=False,
       install_requires=[
@@ -68,5 +94,5 @@ setup(name='b2handle',
           'datetime',
       ],
       tests_require=test_dependencies,
-      test_suite="nose.collector",
+      cmdclass={'test': NoseTestCommand},
 )
