@@ -5,9 +5,10 @@ if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
+
 import json
-sys.path.append("../..")
-import b2handle.handleclient as b2handle
+import b2handle
+from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import HandleSyntaxError
 from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_index, remove_index_from_handle, create_authentication_string
 
@@ -15,7 +16,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 
 
     def setUp(self):
-        self.inst = b2handle.EUDATHandleClient()
+        self.inst = EUDATHandleClient()
 
     def tearDown(self):
         pass
@@ -24,35 +25,35 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
 
     def test_constructor_no_args(self):
         """Test constructor without args: No exception raised."""
-        inst = b2handle.EUDATHandleClient()
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient,
+        inst = EUDATHandleClient()
+        self.assertIsInstance(inst, EUDATHandleClient,
             'Not a client instance!')
 
     def test_constructor_with_url(self):
         """Test constructor with one arg (well-formatted server URL): No exception raised."""
-        inst = b2handle.EUDATHandleClient('http://foo.bar')
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient,
+        inst = EUDATHandleClient('http://foo.bar')
+        self.assertIsInstance(inst, EUDATHandleClient,
             'Not a client instance!')
 
     def test_constructor_with_url(self):
         """Test constructor with one arg (ill-formatted server URL): No exception raised."""
-        inst = b2handle.EUDATHandleClient('foo')
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient,
+        inst = EUDATHandleClient('foo')
+        self.assertIsInstance(inst, EUDATHandleClient,
             'Not a client instance!')
 
     def test_instantiate_for_read_access(self):
         """Testing if instantiating with default handle server works. """
 
         # Create client instance with username and password
-        inst = b2handle.EUDATHandleClient.instantiate_for_read_access()
-        self.assertIsInstance(inst, b2handle.EUDATHandleClient)
+        inst = EUDATHandleClient.instantiate_for_read_access()
+        self.assertIsInstance(inst, EUDATHandleClient)
 
     def test_instantiate_for_read_an_search(self):
         """Testing if instantiating with default handle server works. """
 
         # Try to create client instance for search without a search URL:
         with self.assertRaises(TypeError):
-            inst = b2handle.EUDATHandleClient.instantiate_for_read_and_search(
+            inst = EUDATHandleClient.instantiate_for_read_and_search(
                 None, 'johndoe', 'passywordy')
 
     def test_instantiate_with_username_and_password_noindex(self):
@@ -60,7 +61,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         # Try to ceate client instance with username and password
 
         with self.assertRaises(HandleSyntaxError):
-            inst = b2handle.EUDATHandleClient.instantiate_with_username_and_password(
+            inst = EUDATHandleClient.instantiate_with_username_and_password(
                 'someurl', 'johndoe', 'passywordy')
 
     # PID generation
@@ -86,9 +87,8 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         self.assertTrue(syntax_checked)
 
     def test_check_handle_syntax_two_slashes(self):
-        """Handle Syntax: Exception if too many slashes in handle."""
-        with self.assertRaises(HandleSyntaxError):
-            check_handle_syntax("foo/bar/foo")
+        """Handle Syntax: No exception if too many slashes in handle."""
+        check_handle_syntax("foo/bar/foo")
 
     def test_check_handle_syntax_no_slashes(self):
         """Handle Syntax: Exception if too many slashes in handle."""

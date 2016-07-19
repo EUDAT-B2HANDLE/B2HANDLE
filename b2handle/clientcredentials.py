@@ -10,9 +10,9 @@ Author: Merret Buurman (DKRZ), 2015-2016
 import json
 import os
 import logging
+import b2handle
 from b2handle.handleexceptions import CredentialsFormatError
-import util
-import utilhandle
+import b2handle.util as util
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
@@ -52,7 +52,7 @@ class PIDClientCredentials(object):
         '''
 
         jsonfilecontent = json.loads(open(json_filename, 'r').read())
-        instance = PIDClientCredentials(**jsonfilecontent)
+        instance = PIDClientCredentials(credentials_filename=json_filename,**jsonfilecontent)
         return instance
 
 
@@ -92,6 +92,8 @@ class PIDClientCredentials(object):
             certificate and private key, used for authentication in write mode.
         :param prefix: Prefix. This is not used by the library, but may be
             retrieved by the user.
+        :credentials_filename: This is the file location of the credentials file,
+            if read from JSON. It is used to find the certificate/key files, if any.
         :param \**args: Any other key-value pairs are stored and can be accessed
             using 'get_config()'.
         :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
@@ -111,9 +113,13 @@ class PIDClientCredentials(object):
             'handleowner',
             'reverselookup_password',
             'reverselookup_username',
-            'reverselookup_baseuri'
+            'reverselookup_baseuri',
+            'credentials_filename'
         ]
         util.add_missing_optional_args_with_value_none(args, useful_args)
+
+        # Store args
+        self.__all_args = args
 
         # Args that the constructor understands:
         self.__handle_server_url = args['handle_server_url']
@@ -124,9 +130,10 @@ class PIDClientCredentials(object):
         self.__private_key = args['private_key']
         self.__certificate_only = args['certificate_only']
         self.__certificate_and_key = args['certificate_and_key']
-
-        # Other attributes:
-        self.__additional_config = None
+        self.__reverselookup_password = args['reverselookup_password']
+        self.__reverselookup_username = args['reverselookup_username']
+        self.__reverselookup_baseuri = args['reverselookup_baseuri']
+        self.__credentials_filename = args['credentials_filename']
 
         # All the other args collected as "additional config":
         self.__additional_config = self.__collect_additional_arguments(args, useful_args)
@@ -148,11 +155,14 @@ class PIDClientCredentials(object):
             return None
 
     def __check_if_enough_args_for_revlookup_auth(self, args):
-        cond1 = args['reverselookup_username'] or args['username']
-        cond2 = args['reverselookup_password'] or args['password']
-        cond3 = args['reverselookup_baseuri']  or args['handle_server_url']
-        if cond1 and cond2 and cond3:
+        user = args['reverselookup_username'] or args['username']
+        pw = args['reverselookup_password'] or args['password']
+        url = args['reverselookup_baseuri']  or args['handle_server_url']
+        if user and pw and url:
             self.__reverselookup = True
+            self.__reverselookup_username = user
+            self.__reverselookup_password = pw
+            self.__reverselookup_baseuri = url
             LOGGER.debug('Sufficient information given for reverselookup.')
         else:
             self.__reverselookup = False
@@ -160,23 +170,49 @@ class PIDClientCredentials(object):
 
     def __check_handle_syntax(self):
         if self.__handleowner:
-            utilhandle.check_handle_syntax_with_index(self.__handleowner)
+            b2handle.utilhandle.check_handle_syntax_with_index(self.__handleowner)
         if self.__username:
-            utilhandle.check_handle_syntax_with_index(self.__username)
+            b2handle.utilhandle.check_handle_syntax_with_index(self.__username)
 
     def __check_file_existence(self):
+
         if self.__certificate_only:
-            if not os.path.isfile(self.__certificate_only):
-                msg = 'The certificate file was not found at the specified path: '+self.__certificate_only
+            try:
+                self.__certificate_only = self.__get_path_and_check_file_existence(self.__certificate_only)
+            except ValueError as e:
+                msg = '(certficate file): '+e.message
                 raise CredentialsFormatError(msg=msg)
+
         if self.__certificate_and_key:
-            if not os.path.isfile(self.__certificate_and_key):
-                msg = 'The certificate file was not found at the specified path: '+self.__certificate_and_key
+            try:
+                self.__certificate_and_key = self.__get_path_and_check_file_existence(self.__certificate_and_key)
+            except ValueError as e:
+                msg = '(certficate and key file): '+e.message
                 raise CredentialsFormatError(msg=msg)
+
         if self.__private_key:
-            if not os.path.isfile(self.__private_key):
-                msg = 'The private key file was not found at the specified path: '+self.__private_key
+            try:
+                self.__private_key = self.__get_path_and_check_file_existence(self.__private_key)
+            except ValueError as e:
+                msg = '(private key file): '+e.message
                 raise CredentialsFormatError(msg=msg)
+
+    def __get_path_and_check_file_existence(self, path):
+        try:
+            path = util.get_absolute_path(path, self.__credentials_filename)
+
+        except ValueError: # not a valid path
+            thisdir = utilsget_this_directory(self.__credentials_filename)
+            msg = ('Please provide an absolute path or a path relative to '
+                   'the location of the credentials file\'s location (%s), '
+                   'starting with %s.' % (thisdir, os.path.curdir))
+            raise ValueError(msg)
+
+        if not os.path.isfile(path): # file does not exist
+            msg = 'The file was not found at the specified path: '+path
+            raise ValueError(msg)
+
+        return path
 
     def __check_if_enough_args_for_hs_auth(self):
 
@@ -217,6 +253,9 @@ class PIDClientCredentials(object):
                     msg += 'Insufficient credentials for searching.'
                 raise CredentialsFormatError(msg=msg)
 
+    def get_all_args(self):
+        # pylint: disable=missing-docstring
+        return self.__all_args
 
     def get_username(self):
         # pylint: disable=missing-docstring
@@ -258,3 +297,14 @@ class PIDClientCredentials(object):
         # pylint: disable=missing-docstring
         return self.__certificate_and_key
 
+    def get_reverselookup_username(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_username
+
+    def get_reverselookup_password(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_password
+
+    def get_reverselookup_baseuri(self):
+        # pylint: disable=missing-docstring
+        return self.__reverselookup_baseuri

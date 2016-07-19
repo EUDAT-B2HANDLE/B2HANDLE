@@ -11,20 +11,14 @@ import json
 import logging
 import requests
 import os
-from handleexceptions import HandleNotFoundException
-from handleexceptions import GenericHandleError
-from handleexceptions import HandleAuthenticationError
-from handleexceptions import CredentialsFormatError
-import hsresponses
-import util
-import utilhandle
-import utilconfig
+import b2handle
+from b2handle.handleexceptions import HandleNotFoundException, GenericHandleError, HandleAuthenticationError, CredentialsFormatError
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(util.NullHandler())
+LOGGER.addHandler(b2handle.util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(util.NullHandler())
+REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
 
 class HandleSystemConnector(object):
@@ -38,7 +32,7 @@ class HandleSystemConnector(object):
 
     def __init__(self, **args):
 
-        util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password','reverselookup_password'])
+        b2handle.util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password','reverselookup_password'])
 
         # Possible arguments:
         optional_args = [
@@ -51,7 +45,7 @@ class HandleSystemConnector(object):
             'certificate_only',
             'certificate_and_key'
         ]
-        util.add_missing_optional_args_with_value_none(args, optional_args)
+        b2handle.util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Defaults for args:
         defaults = {
@@ -116,7 +110,7 @@ class HandleSystemConnector(object):
 
 
         if args['HTTPS_verify'] is not None:
-            self.__HTTPS_verify = utilconfig.get_valid_https_verify(
+            self.__HTTPS_verify = b2handle.util.get_valid_https_verify(
                 args['HTTPS_verify']
             )
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
@@ -180,7 +174,7 @@ class HandleSystemConnector(object):
     def __setup_for_auth_by_user_and_pw(self):
 
         # Check username:
-        utilhandle.check_handle_syntax_with_index(self.__username)
+        b2handle.utilhandle.check_handle_syntax_with_index(self.__username)
         self.check_if_username_exists(self.__username)
 
         # Make Basic Auth String:
@@ -249,7 +243,7 @@ class HandleSystemConnector(object):
         :param password: The password contained in the index of the username
             handle.
         '''
-        auth = utilhandle.create_authentication_string(username, password)
+        auth = b2handle.utilhandle.create_authentication_string(username, password)
         self.__basic_authentication_string = auth
 
 
@@ -328,8 +322,8 @@ class HandleSystemConnector(object):
         # Check args:
         mandatory_args = ['handle', 'list_of_entries']
         optional_args = ['indices', 'op', 'overwrite']
-        util.add_missing_optional_args_with_value_none(args, optional_args)
-        util.check_presence_of_mandatory_args(args, mandatory_args)
+        b2handle.util.add_missing_optional_args_with_value_none(args, optional_args)
+        b2handle.util.check_presence_of_mandatory_args(args, mandatory_args)
         handle = args['handle']
         list_of_entries = args['list_of_entries']
         indices = args['indices']
@@ -347,11 +341,11 @@ class HandleSystemConnector(object):
 
         # Send request to server:
         resp = self.__send_put_request_to_server(url, payload, head, veri, handle)
-        if hsresponses.is_redirect_from_http_to_https(resp):
+        if b2handle.hsresponses.is_redirect_from_http_to_https(resp):
             resp = self.__resend_put_request_on_302(payload, head, veri, handle, resp)
 
         # Check response for authentication issues:
-        if hsresponses.not_authenticated(resp):
+        if b2handle.hsresponses.not_authenticated(resp):
             raise HandleAuthenticationError(
                 operation=op,
                 handle=handle,
@@ -407,8 +401,8 @@ class HandleSystemConnector(object):
         # Check args:
         mandatory_args = ['handle']
         optional_args = ['indices', 'op']
-        util.add_missing_optional_args_with_value_none(args, optional_args)
-        util.check_presence_of_mandatory_args(args, mandatory_args)
+        b2handle.util.add_missing_optional_args_with_value_none(args, optional_args)
+        b2handle.util.check_presence_of_mandatory_args(args, mandatory_args)
         handle = args['handle']
         indices = args['indices']
         op = args['op']
@@ -440,7 +434,7 @@ class HandleSystemConnector(object):
         )
 
         # Check response for authentication issues:
-        if hsresponses.not_authenticated(resp):
+        if b2handle.hsresponses.not_authenticated(resp):
             raise HandleAuthenticationError(
                 operation=op,
                 handle=handle,
@@ -465,10 +459,10 @@ class HandleSystemConnector(object):
         '''
         LOGGER.debug('check_if_username_exists...')
 
-        _, handle = utilhandle.remove_index_from_handle(username)
+        _, handle = b2handle.utilhandle.remove_index_from_handle(username)
 
         resp = self.send_handle_get_request(handle)
-        if hsresponses.does_handle_exist(resp):
+        if b2handle.hsresponses.does_handle_exist(resp):
             handlerecord_json = json.loads(resp.content)
             if not handlerecord_json['handle'] == handle:
                 raise GenericHandleError(
@@ -478,7 +472,7 @@ class HandleSystemConnector(object):
                     msg='The check returned a different handle than was asked for.'
                 )
             return True
-        elif hsresponses.handle_not_found(resp):
+        elif b2handle.hsresponses.handle_not_found(resp):
             msg = 'The username handle does not exist'
             raise HandleNotFoundException(handle=handle, msg=msg, response=resp)
         else:
@@ -566,5 +560,5 @@ class HandleSystemConnector(object):
         return url
 
     def __log_request_response_to_file(self, **args):
-        message = utilhandle.make_request_log_message(**args)
+        message = b2handle.utilhandle.make_request_log_message(**args)
         args['logger'].info(message)

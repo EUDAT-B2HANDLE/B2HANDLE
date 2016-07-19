@@ -11,16 +11,14 @@ import logging
 import re
 import requests
 import json
-import utilhandle
-import util
-import utilconfig
-from handleexceptions import ReverseLookupException
+import b2handle
+from b2handle.handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.addHandler(util.NullHandler())
+LOGGER.addHandler(b2handle.util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
-REQUESTLOGGER.addHandler(util.NullHandler())
+REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
 class Searcher(object):
     '''
@@ -35,7 +33,7 @@ class Searcher(object):
 
     def __init__(self, **args):
 
-        util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
+        b2handle.util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
 
         optional_args = [
             'reverselookup_baseuri',
@@ -48,7 +46,7 @@ class Searcher(object):
             'allowed_search_keys',
             'HTTPS_verify'
         ]
-        util.add_missing_optional_args_with_value_none(args, optional_args)
+        b2handle.util.add_missing_optional_args_with_value_none(args, optional_args)
 
         # Args that the constructor understands:
         self.__reverselookup_baseuri = None
@@ -65,6 +63,7 @@ class Searcher(object):
         self.__revlookup_auth_string = None
         self.__header = None
         self.__session = None
+        self.__search_url = None
 
         # Defaults:
         defaults = {
@@ -75,24 +74,82 @@ class Searcher(object):
 
         # Set them:
         self.__store_args_or_set_to_defaults(args, defaults)
-        if self.__has_search_access:
-            self.__setup_search_access()
+        self.__setup_search_access()
 
         LOGGER.debug('End of instantiation of the search module.')
 
     def __setup_search_access(self):
+        self.__check_and_set_search_access()
         self.__session = requests.Session()
-        self.__set_revlookup_auth_string(self.__user, self.__password)
-        LOGGER.info('Reverse lookup authentication is set.')
-        self.__header = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
+        if self.__session is None:
+            LOGGER.info('Session could not be created.')
+        else:
+            LOGGER.debug('Session was created.')
 
+    def __check_and_set_search_access(self):
+        user_and_pw_exist = self.__check_and_set_search_authentication()
+        url_exists = self.__check_and_set_search_url()
+
+        if user_and_pw_exist and url_exists:
+            self.__has_search_access = True
+
+    def __check_and_set_search_authentication(self):
+        user_and_pw_exst = False
+
+        if self.__user is not None and self.__password is not None:
+            self.__set_revlookup_auth_string(self.__user, self.__password)
+            self.__header = {'Authorization': 'Basic ' + self.__revlookup_auth_string}
+            LOGGER.info('Reverse lookup authentication is set.')
+            return True
+
+        else:
+            msg = 'Reverse lookup not possible.'
+            if self.__user is None and self.__password is None:
+                LOGGER.info(msg+' Neither username nor password were provided.')
+            elif self.__user is None:
+                LOGGER.info(msg+' Username not provided. Password is '+str(self.__password))
+            else:
+                LOGGER.info(msg+' Password not provided. Username is '+str(self.__user))
+            return False
+
+    def __check_and_set_search_url(self):
+        if (self.__reverselookup_baseuri is not None and
+            self.__reverselookup_url_extension is not None):
+            
+            self.__search_url = (
+                self.__reverselookup_baseuri.rstrip('/')+'/'+
+                self.__reverselookup_url_extension.strip('/')
+            )
+            return True
+            LOGGER.info('Reverse lookup endpoint set to '+str(self.__search_url))
+        else:
+            msg = 'Reverse lookup not possible.'
+            if (self.__reverselookup_baseuri is None and
+                self.__reverselookup_url_extension is None):
+                LOGGER.info(msg+' No URL for reverse lookup provided.')
+            elif self.__reverselookup_baseuri is None:
+                LOGGER.info(msg+' No URL for reverse lookup provided.')
+            else:
+                LOGGER.info(msg+' No URL path for reverse lookup provided.')
+            return False
+
+    def get_search_endpoint(self):
+        if self.__has_search_access:
+            return self.__search_url
+        else:
+            LOGGER.error(
+                'Searching not possible. Reason: No access '+
+                'to search system (endpoint: '+
+                str(self.__search_url)+').'
+            )
+            return None
 
     def __store_args_or_set_to_defaults(self, args, defaults):
 
         LOGGER.debug('Setting the attributes:')
 
         if args['HTTPS_verify'] is not None: # Without this check, a passed "False" is not found!
-            self.__HTTPS_verify = utilconfig.get_valid_https_verify(
+            self.__HTTPS_verify = b2handle.util.get_valid_https_verify(
                 args['HTTPS_verify']
             )
             LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
@@ -130,13 +187,13 @@ class Searcher(object):
 
         if args['reverselookup_username']:
             self.__user = args['reverselookup_username']
-            LOGGER.info('" - reverselookup_username set to: '+self.__user)
+            LOGGER.info(' - reverselookup_username set to: '+self.__user)
         elif args['username']:
             self.__user = args['username']
             self.__handle_system_username_used = True
             LOGGER.info(' - reverselookup_username set to handle server username: '+self.__user)
         else:
-            LOGGER.info(' - reverselookup_username: No default.')
+            LOGGER.info(' - reverselookup_username: Not specified. No default.')
 
         if args['reverselookup_password']:
             self.__password = args['reverselookup_password']
@@ -146,10 +203,7 @@ class Searcher(object):
             self.__handle_system_password_used = True
             LOGGER.info(' - reverselookup_password set to handle server password.')
         else:
-            LOGGER.info(' - reverselookup_password: No default.')
-
-        if self.__user is not None and self.__password is not None:
-            self.__has_search_access = True
+            LOGGER.info(' - reverselookup_password: Not specified. No default.')
 
 
     def search_handle(self, **args):
@@ -184,6 +238,17 @@ class Searcher(object):
             may also contain more than one element.
         '''
         LOGGER.debug('search_handle...')
+        if self.__has_search_access:
+            return self.__search_handle(**args)
+        else:
+            LOGGER.error(
+                'Searching not possible. Reason: No access '+
+                'to search system (endpoint: '+
+                str(self.__search_url)+').'
+            )
+            return None
+
+    def __search_handle(self, **args):
 
         # Prefix specified? Remove them from the key value pairs to be searched.
         prefix = None
@@ -202,10 +267,10 @@ class Searcher(object):
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg=msg)
         else:
-            isnone = util.return_keys_of_value_none(args)
+            isnone = b2handle.util.return_keys_of_value_none(args)
             if len(isnone) > 0:
                 LOGGER.debug('search_handle: These keys had value None: '+str(isnone))
-                args = util.remove_value_none_from_dict(args)
+                args = b2handle.util.remove_value_none_from_dict(args)
                 if len(args) == 0:
                     LOGGER.debug('search_handle: No key value pair with valid value was specified.')
                     msg = ('No search terms have been specified. Please specify'
@@ -296,7 +361,7 @@ class Searcher(object):
             only_search_for_allowed_keys = True
 
         fulltext_searchterms_given = True
-        fulltext_searchterms = util.remove_value_none_from_list(fulltext_searchterms)
+        fulltext_searchterms = b2handle.util.remove_value_none_from_list(fulltext_searchterms)
         if len(fulltext_searchterms) == 0:
             fulltext_searchterms_given = False
         
@@ -307,7 +372,7 @@ class Searcher(object):
             raise ReverseLookupException(msg=msg)
 
         keyvalue_searchterms_given = True
-        keyvalue_searchterms = util.remove_value_none_from_dict(keyvalue_searchterms)
+        keyvalue_searchterms = b2handle.util.remove_value_none_from_dict(keyvalue_searchterms)
         if len(keyvalue_searchterms) == 0:
             keyvalue_searchterms_given = False
 
@@ -344,12 +409,12 @@ class Searcher(object):
         :param username: Username.
         :param password: Password.
         '''
-        auth = utilhandle.create_authentication_string(username, password)
+        auth = b2handle.utilhandle.create_authentication_string(username, password)
         self.__revlookup_auth_string = auth
 
     def __send_revlookup_get_request(self, query):
 
-        solrurl = self.__reverselookup_baseuri.rstrip('/')+'/'+self.__reverselookup_url_extension.strip('/')
+        solrurl = self.__search_url
         entirequery = solrurl+'?'+query.lstrip('?')
 
         head = self.__header
@@ -367,6 +432,6 @@ class Searcher(object):
         return resp
 
     def __log_request_response_to_file(self, **args):
-        message = utilhandle.make_request_log_message(**args)
+        message = b2handle.utilhandle.make_request_log_message(**args)
         args['logger'].info(message)
 

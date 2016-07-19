@@ -1,10 +1,11 @@
+
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
-from b2handle.utilconfig import get_valid_https_verify
+from b2handle.util import get_valid_https_verify
 
 
 class UtilConfigTestCase(unittest.TestCase):
