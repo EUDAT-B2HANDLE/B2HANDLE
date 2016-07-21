@@ -95,4 +95,5 @@ setup(name='b2handle',
       ],
       tests_require=test_dependencies,
       cmdclass={'test': NoseTestCommand},
+      include_package_data=True
 )

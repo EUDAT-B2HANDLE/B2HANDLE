@@ -16,7 +16,7 @@ from b2handle.tests.mockresponses import MockResponse, MockSearchResponse, MockC
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = open(PATH_RES+'/handlerecord_for_reading.json').read()
+RECORD = open(PATH_RES+'/handlerecord_for_reading_PUBLIC.json').read()
 
 class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
     '''Testing methods that read the 10320/loc entry.'''

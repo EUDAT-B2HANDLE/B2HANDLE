@@ -13,9 +13,9 @@ from b2handle.handleclient import EUDATHandleClient
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD_WITH = json.load(open(PATH_RES+'/handlerecord_with_10320LOC.json'))
-RECORD_WITHOUT = json.load(open(PATH_RES+'/handlerecord_without_10320LOC.json'))
-RECORD_WITH_EMPTY = json.load(open(PATH_RES+'/handlerecord_with_empty_10320LOC.json'))
+RECORD_WITH = json.load(open(PATH_RES+'/handlerecord_with_10320LOC_PUBLIC.json'))
+RECORD_WITHOUT = json.load(open(PATH_RES+'/handlerecord_without_10320LOC_PUBLIC.json'))
+RECORD_WITH_EMPTY = json.load(open(PATH_RES+'/handlerecord_with_empty_10320LOC_PUBLIC.json'))
 
 class EUDATHandleClientReadaccessFaked10320LOCTestCase(unittest.TestCase):
     '''Testing methods that read the 10320/LOC entry.'''

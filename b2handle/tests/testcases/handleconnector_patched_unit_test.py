@@ -19,7 +19,7 @@ from b2handle.tests.utilities import replace_timestamps, failure_message
 PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
 CRED_FILE = PATH_CRED+'/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = open(PATH_RES+'/handlerecord_for_reading.json').read()
+RECORD = open(PATH_RES+'/handlerecord_for_reading_PUBLIC.json').read()
 
 class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
