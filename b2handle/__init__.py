@@ -1,5 +1,5 @@
 
-__version__ = "1.0.3"
+__version__ = "1.0.4-dev0"
 
 # The version as used in setup.py and docs/source/conf.py.
 
