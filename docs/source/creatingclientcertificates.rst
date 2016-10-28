@@ -86,7 +86,7 @@ Case 1: Using openssl with specifying a subject.
 
       .. code:: json
 
-        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar"
+        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar" -days 3652
                                         -key /.../301_foo_bar_privkey.pem 
                                         -out /.../301_certificate_and_publickey.pem
 
@@ -96,7 +96,7 @@ Case 2: Using openssl without specifying a subject:
 
       .. code:: json
   
-        openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
+        openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem -days 3652
                                         -out /.../301_certificate_and_publickey.pem -sha256
 
 
