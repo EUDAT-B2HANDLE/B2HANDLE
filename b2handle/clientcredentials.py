@@ -204,7 +204,7 @@ class PIDClientCredentials(object):
             path = util.get_absolute_path(path, self.__credentials_filename)
 
         except ValueError: # not a valid path
-            thisdir = utilsget_this_directory(self.__credentials_filename)
+            thisdir = util.get_this_directory(self.__credentials_filename)
             msg = ('Please provide an absolute path or a path relative to '
                    'the location of the credentials file\'s location (%s), '
                    'starting with %s.' % (thisdir, os.path.curdir))
