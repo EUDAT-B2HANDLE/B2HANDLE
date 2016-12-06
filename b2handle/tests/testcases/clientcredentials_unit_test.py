@@ -91,6 +91,12 @@ class PIDClientCredentialsTestCase(unittest.TestCase):
         path_to_json_credentials = PATH_CRED+'/credentials_correct_PUBLIC.json'
         inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
         self.assertIsInstance(inst, PIDClientCredentials)
+        
+    def test_credentials_from_json_broken_syntax(self):
+        """"""
+        path_to_json_credentials = PATH_CRED+'/credentials_brokensyntax_PUBLIC.json'
+        with self.assertRaises(CredentialsFormatError):
+            _inst = PIDClientCredentials.load_from_JSON(path_to_json_credentials)
 
     def test_credentials_from_json_username_without_index(self):
         """Exception occurs if user name in json file does not have an index."""
