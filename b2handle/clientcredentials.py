@@ -11,7 +11,7 @@ import json
 import os
 import logging
 import b2handle
-from b2handle.handleexceptions import CredentialsFormatError
+from b2handle.handleexceptions import CredentialsFormatError, HandleSyntaxError
 import b2handle.util as util
 
 LOGGER = logging.getLogger(__name__)
@@ -50,8 +50,10 @@ class PIDClientCredentials(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: An instance.
         '''
-
-        jsonfilecontent = json.loads(open(json_filename, 'r').read())
+        try:
+            jsonfilecontent = json.loads(open(json_filename, 'r').read())
+        except ValueError as exc:
+            raise CredentialsFormatError(msg="Invalid JSON syntax: "+exc.message)
         instance = PIDClientCredentials(credentials_filename=json_filename,**jsonfilecontent)
         return instance
 
