@@ -53,7 +53,7 @@ class PIDClientCredentials(object):
         try:
             jsonfilecontent = json.loads(open(json_filename, 'r').read())
         except ValueError as exc:
-            raise CredentialsFormatError(msg="Invalid JSON syntax: "+exc.message)
+            raise CredentialsFormatError(msg="Invalid JSON syntax: "+str(exc))
         instance = PIDClientCredentials(credentials_filename=json_filename,**jsonfilecontent)
         return instance
 
