@@ -15,7 +15,7 @@ from b2handle.handleexceptions import *
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
+RESOURCES_FILE = json.load(open(PATH_RES + '/testvalues_for_integration_tests_IGNORE.json'))
 # This file is not public, as it contains valid credentials for server
 # write access. However, by providing such a file, you can run the tests.
 # A template can be found in resources/testvalues_for_integration_tests_template.json
@@ -46,7 +46,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
         # Others
         prefix = self.handle.split('/')[0]
-        self.inexistent_handle = prefix+'/07e1fbf3-2b72-430a-a035-8584d4eada41'
+        self.inexistent_handle = prefix + '/07e1fbf3-2b72-430a-a035-8584d4eada41'
         self.randompassword = 'some_random_password_shrgfgh345345'
 
     def setUp(self):
@@ -84,7 +84,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         authstring = b2handle.utilhandle.create_authentication_string(self.user, pw)
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic '+authstring
+            'Authorization': 'Basic ' + authstring
         }
 
         list_of_all_entries = [
@@ -123,7 +123,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         ]
 
         testhandle = self.handle
-        url = self.testvalues['handle_server_url_write']+self.testvalues['url_extension_REST_API']+testhandle
+        url = self.testvalues['handle_server_url_write'] + self.testvalues['url_extension_REST_API'] + testhandle
         veri = self.https_verify
         head = headers
         data = json.dumps({'values':list_of_all_entries})
@@ -141,7 +141,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         received_value = rec['values'][2]['data']['value']
 
         self.assertEqual(received_type, 'TEST1',
-            'The type should be "TEST3" but was "%s" (%s).'% (received_type, self.handle))
+            'The type should be "TEST3" but was "%s" (%s).' % (received_type, self.handle))
         self.assertEqual(received_value, 'val1',
             'The value should be "val3" but is "%s" (%s).' % (received_value, self.handle))
 
@@ -151,12 +151,12 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         """Test reading existent and inexistent handle value from server."""
         val = self.inst.get_value_from_handle(self.handle, 'TEST1')
         self.assertEqual(val, 'val1',
-            'Retrieving "TEST1" from %s should lead to "val1", but it lead to "%s"' % (self.handle,val))
+            'Retrieving "TEST1" from %s should lead to "val1", but it lead to "%s"' % (self.handle, val))
 
     def test_get_value_from_handle_inexistent_key(self):
         val = self.inst.get_value_from_handle(self.handle, 'TEST100')
         self.assertIsNone(val,
-            'Retrieving "TEST100" from %s should lead to "None", but it lead to "%s"' % (self.handle,val))
+            'Retrieving "TEST100" from %s should lead to "None", but it lead to "%s"' % (self.handle, val))
 
     def test_get_value_from_handle_inexistent_record(self):
         """Test reading handle value from inexistent handle."""
@@ -192,7 +192,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
 
     def test_instantiate_with_nonexistent_username_and_password(self):
         """Test instantiation of client: Exception if username does not exist."""
-        testusername_inexistent = '100:'+self.inexistent_handle
+        testusername_inexistent = '100:' + self.inexistent_handle
 
         # Run code to be tested + check exception:
         with self.assertRaises(HandleNotFoundException):
@@ -226,7 +226,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         """Test instantiation of client: Exception if username does not exist."""
 
         # Test variables
-        testusername_inexistent = '100:'+self.inexistent_handle
+        testusername_inexistent = '100:' + self.inexistent_handle
         credentials = b2handle.clientcredentials.PIDClientCredentials(
             handle_server_url=self.url,
             username=testusername_inexistent,
@@ -239,7 +239,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
                 HTTPS_verify=self.https_verify)
 
         # If the user name has no index, exception is already thrown in credentials creation!
-        #self.assertRaises(HandleSyntaxError, b2handle.PIDClientCredentials, 'url', 'prefix/suffix', randompassword)
+        # self.assertRaises(HandleSyntaxError, b2handle.PIDClientCredentials, 'url', 'prefix/suffix', randompassword)
 
     def test_instantiate_with_credentials_config_override(self):
         """Test instantiation of client: No exception if password wrong."""
@@ -247,7 +247,7 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         # Test variables
         credentials = mock.MagicMock()
         config_from_cred = {}
-        valuefoo = 'foo/foo/foo/' # passed via credentials
+        valuefoo = 'foo/foo/foo/'  # passed via credentials
         valuebar = 'bar/bar/bar'  # passed directly to constructor
         config_from_cred['REST_API_url_extension'] = valuefoo
 
@@ -259,8 +259,8 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
             REST_API_url_extension=valuefoo
         )
 
-        self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
-            'Config: '+str(credentials.get_config()))
+        self.assertEqual(credentials.get_config()['REST_API_url_extension'], valuefoo,
+            'Config: ' + str(credentials.get_config()))
 
         # foo/foo/ from the credentials should be overridden by bar/bar/ which is directly passed
 
@@ -295,8 +295,8 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
             REST_API_url_extension=valuefoo
         )
 
-        self.assertEqual(credentials.get_config()['REST_API_url_extension'],valuefoo,
-            'Config: '+str(credentials.get_config()))
+        self.assertEqual(credentials.get_config()['REST_API_url_extension'], valuefoo,
+            'Config: ' + str(credentials.get_config()))
 
         # foo/foo/ from the credentials should override default api/handles/
 

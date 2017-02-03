@@ -63,9 +63,9 @@ def find_version(*file_paths):
 # See https://bitbucket.org/pypa/pypi/issues/148/support-markdown-for-readmes
 try:
     import pypandoc
-    long_description=pypandoc.convert('README.md', 'rst')
+    long_description = pypandoc.convert('README.md', 'rst')
 except(IOError, ImportError):
-    long_description=open('README.md').read()
+    long_description = open('README.md').read()
 
 setup(name='b2handle',
       version=find_version("b2handle", "__init__.py"),
@@ -92,6 +92,7 @@ setup(name='b2handle',
       install_requires=[
           'requests',
           'datetime',
+          'future',
       ],
       tests_require=test_dependencies,
       cmdclass={'test': NoseTestCommand},

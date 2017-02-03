@@ -76,7 +76,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         """Test PID generation with prefix."""
         prefix = 'aprefix'
         uuid = self.inst.generate_PID_name(prefix)
-        self.assertTrue(prefix+'/' in uuid,
+        self.assertTrue(prefix + '/' in uuid,
             'The specified prefix is not present in the generated PID.')
 
     # Handle syntax
@@ -144,7 +144,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         index, handle = remove_index_from_handle(handle_with_index)
         syntax_checked = check_handle_syntax(handle)
         self.assertTrue(syntax_checked,
-            'After removing the index, the syntax of the handle should '+\
+            'After removing the index, the syntax of the handle should ' + \
             'be prefix/suffix.')
 
     def test_remove_index_noindex(self):
@@ -155,7 +155,7 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         index, handle = remove_index_from_handle(handle_with_index)
         syntax_checked = check_handle_syntax(handle)
         self.assertTrue(syntax_checked,
-            'After removing the index, the syntax of the handle should '+\
+            'After removing the index, the syntax of the handle should ' + \
             'be prefix/suffix.')
 
     def test_remove_index_toomany(self):
@@ -184,6 +184,6 @@ class EUDATHandleClientNoaccessTestCase(unittest.TestCase):
         auth = create_authentication_string('100:user/name', 'password123')
         expected = 'MTAwJTNBdXNlci9uYW1lOnBhc3N3b3JkMTIz'
         self.assertEquals(expected, auth,
-            'Authentication string is: '+auth+', but should be: '+expected)
+            'Authentication string is: ' + auth + ', but should be: ' + expected)
 
     

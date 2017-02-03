@@ -17,7 +17,7 @@ REQUESTLOGGER.addHandler(logging.NullHandler())
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
+RESOURCES_FILE = json.load(open(PATH_RES + '/testvalues_for_integration_tests_IGNORE.json'))
 # This file is not public, as it contains valid credentials for server
 # write access. However, by providing such a file, you can run the tests.
 # A template can be found in resources/testvalues_for_integration_tests_template.json
@@ -49,14 +49,14 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Others
         self.prefix = self.handle.split('/')[0]
-        self.inexistent_handle = self.prefix+'/07e1fbf3-2b72-430a-a035-8584d4eada41'
+        self.inexistent_handle = self.prefix + '/07e1fbf3-2b72-430a-a035-8584d4eada41'
         self.randompassword = 'some_random_password_shrgfgh345345'
         self.headers = None
         self.connector = HandleSystemConnector(handle_server_url=self.url)
 
     def setUp(self):
 
-        REQUESTLOGGER.info("\n"+60*"*"+"\nsetUp of EUDATHandleClientWriteaccessTestCase")
+        REQUESTLOGGER.info("\n" + 60 * "*" + "\nsetUp of EUDATHandleClientWriteaccessTestCase")
 
         self.inst = EUDATHandleClient.instantiate_with_username_and_password(
             self.url,
@@ -68,7 +68,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         self.headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic '+authstring
+            'Authorization': 'Basic ' + authstring
         }
 
         list_of_all_entries = [
@@ -278,9 +278,9 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Check desired effects on handle:
         # check if three values were modified:
         rec = self.inst.retrieve_handle_record_json(testhandle)
-        val2   = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
+        val2 = self.inst.get_value_from_handle(testhandle, 'TEST2', rec)
         val100 = self.inst.get_value_from_handle(testhandle, 'TEST100', rec)
-        val4   = self.inst.get_value_from_handle(testhandle, 'TEST4', rec)
+        val4 = self.inst.get_value_from_handle(testhandle, 'TEST4', rec)
         self.assertEqual(val100, 'new100',
             'The value of "TEST100" was not created and set to "new100".')
         self.assertEqual(val2, 'new2',
@@ -375,7 +375,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         rec = self.inst.retrieve_handle_record_json(self.newhandle)
 
         self.assertEqual(resp.status_code, 200,
-            'Deleting did not return a HTTP 200 code, but: %s, %s' % (resp,resp.content))
+            'Deleting did not return a HTTP 200 code, but: %s, %s' % (resp, resp.content))
         self.assertIsNone(rec,
             'The deleted record should return None.')
 
@@ -590,7 +590,7 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
         # Check if handle really deleted:
         rec = self.inst.retrieve_handle_record_json(testhandle)
         self.assertIsNone(rec,
-            'Record should be None after deletion, but is: '+str(resp))
+            'Record should be None after deletion, but is: ' + str(resp))
 
     def test_delete_handle_too_many_args(self):
         """Test deleting an entire record, but we pass more arguments to the method."""
@@ -619,5 +619,5 @@ class EUDATHandleClientWriteaccessTestCase(unittest.TestCase):
 
         # Check desired effects on handle:
         self.assertIsNone(resp,
-            'Response (when deleting inexistent handle) should be None, but is: '+str(resp))
+            'Response (when deleting inexistent handle) should be None, but is: ' + str(resp))
 
