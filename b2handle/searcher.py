@@ -12,6 +12,7 @@ import re
 import requests
 import json
 import b2handle
+from past.builtins import xrange
 from b2handle.handleexceptions import ReverseLookupException
 
 LOGGER = logging.getLogger(__name__)
@@ -383,7 +384,7 @@ class Searcher(object):
 
         counter = 0
         query = '?'
-        for key, value in keyvalue_searchterms.iteritems():
+        for key, value in keyvalue_searchterms.items():
 
             if only_search_for_allowed_keys and key not in allowed_search_keys:
                 msg = 'Cannot search for key "'+key+'". Only searches '+\
