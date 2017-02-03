@@ -45,14 +45,14 @@ def log_instantiation(LOGGER, classname, args, forbidden, with_date=False):
 
     # Info:
     if with_date:
-            LOGGER.info('Instantiating '+classname+' at '+datetime.datetime.now().strftime('%Y-%m-%d_%H:%M'))
+            LOGGER.info('Instantiating ' + classname + ' at ' + datetime.datetime.now().strftime('%Y-%m-%d_%H:%M'))
     else:
-        LOGGER.info('Instantiating '+classname)
+        LOGGER.info('Instantiating ' + classname)
 
     # Debug:
     for argname in args:
         if args[argname] is not None:
             if argname in forbidden:
-                LOGGER.debug('Param '+argname+'*******')
+                LOGGER.debug('Param ' + argname + '*******')
             else:
-                LOGGER.debug('Param '+argname+'='+str(args[argname]))
+                LOGGER.debug('Param ' + argname + '=' + str(args[argname]))

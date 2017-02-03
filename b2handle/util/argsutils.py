@@ -1,4 +1,6 @@
-
+from builtins import range
+from past.builtins import xrange
+from future.utils import viewitems
 def add_missing_optional_args_with_value_none(args, optional_args):
     '''
     Adds key-value pairs to the passed dictionary, so that
@@ -41,13 +43,13 @@ def check_presence_of_mandatory_args(args, mandatory_args):
         if name not in args.keys():
             missing_args.append(name)
     if len(missing_args) > 0:
-        raise ValueError('Missing mandatory arguments: '+', '.join(missing_args))
+     raise ValueError('Missing mandatory arguments: ' + ', '.join(missing_args))
     else:
         return True
 
 def return_keys_of_value_none(dictionary):
     isnone = []
-    for key,value in dictionary.iteritems():
+    for key, value in dictionary.items():
         if value is None:
             isnone.append(key)
     return isnone

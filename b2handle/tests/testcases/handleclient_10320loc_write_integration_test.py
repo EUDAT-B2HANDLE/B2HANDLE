@@ -21,7 +21,7 @@ REQUESTLOGGER.addHandler(b2handle.util.NullHandler())
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RESOURCES_FILE = json.load(open(PATH_RES+'/testvalues_for_integration_tests_IGNORE.json'))
+RESOURCES_FILE = json.load(open(PATH_RES + '/testvalues_for_integration_tests_IGNORE.json'))
 # This file is not public, as it contains valid credentials for server
 # write access. However, by providing such a file, you can run the tests.
 # A template can be found in resources/testvalues_for_integration_tests_template.json
@@ -54,13 +54,13 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         # Others
         self.randompassword = 'some_random_password_shrgfgh345345'
         prefix = self.handle.split('/')[0]
-        self.inexistent_handle = prefix+'/07e1fbf3-2b72-430a-a035-8584d4eada41'
+        self.inexistent_handle = prefix + '/07e1fbf3-2b72-430a-a035-8584d4eada41'
         self.headers = None
-        self.connector = HandleSystemConnector(handle_server_url = self.url)
+        self.connector = HandleSystemConnector(handle_server_url=self.url)
 
     def setUp(self):
 
-        REQUESTLOGGER.info("\n"+60*"*"+"\nsetUp of EUDATHandleClientWriteaccess10320LOCTestCase")
+        REQUESTLOGGER.info("\n" + 60 * "*" + "\nsetUp of EUDATHandleClientWriteaccess10320LOCTestCase")
 
         self.inst = EUDATHandleClient.instantiate_with_username_and_password(
             self.url,
@@ -119,7 +119,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic '+authstring
+            'Authorization': 'Basic ' + authstring
         }
         veri = self.https_verify
 
@@ -141,7 +141,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         authstring = b2handle.utilhandle.create_authentication_string(self.user, self.password)
         head = {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic '+authstring
+            'Authorization': 'Basic ' + authstring
         }
 
         testhandle = self.handle_withloc
@@ -170,7 +170,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         contained = self.inst.is_URL_contained_in_10320LOC(testhandle, old, handlerecord_json)
         self.assertTrue(contained,
             'Precondition for test failed! The URL should be present at the start'
-            ' of the test: '+str(handlerecord_json))
+            ' of the test: ' + str(handlerecord_json))
 
         # Run the code to be tested:
         log_start_test_code()
@@ -342,7 +342,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
         record_before = self.inst.retrieve_handle_record_json(testhandle)
         contained = self.inst.is_URL_contained_in_10320LOC(testhandle, url, record_before)
         self.assertTrue(contained,
-            'Test precondition failed: URL not there: '+str(record_before))
+            'Test precondition failed: URL not there: ' + str(record_before))
 
         # Run code to be tested:
         log_start_test_code()
@@ -351,12 +351,12 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
         # Check desired effects on handle:
         # i.e. check if something has changed
-        record_after  = self.inst.retrieve_handle_record_json(testhandle)
+        record_after = self.inst.retrieve_handle_record_json(testhandle)
         self.assertEqual(record_before, record_after,
                         'After adding the same URL again, '
                         'the record was not equal.\n'
-                        'Before:\n'+str(record_before)+'\n'
-                        'After:\n'+str(record_after))
+                        'Before:\n' + str(record_before) + '\n'
+                        'After:\n' + str(record_after))
 
     # Remove:
 
@@ -384,7 +384,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
         # Test variables
         testhandle = self.handle_withloc
-        url1 =  'http://first.foo'
+        url1 = 'http://first.foo'
         url2 = 'http://second.foo'
 
         # Run code to be tested:
@@ -414,7 +414,7 @@ class EUDATHandleClientWriteaccess10320LOCTestCase(unittest.TestCase):
 
         # Test variables
         testhandle = self.handle_withloc
-        url1 =  'http://first.foo'
+        url1 = 'http://first.foo'
         url2 = 'http://second.foo'
 
         # Run code to be tested:

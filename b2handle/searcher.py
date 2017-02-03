@@ -12,8 +12,9 @@ import re
 import requests
 import json
 import b2handle
+from past.builtins import xrange
 from b2handle.handleexceptions import ReverseLookupException
-
+from b2handle.compatibility_helper import decoded_response
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(b2handle.util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
@@ -33,7 +34,7 @@ class Searcher(object):
 
     def __init__(self, **args):
 
-        b2handle.util.log_instantiation(LOGGER, 'Searcher', args, ['password','reverselookup_password'])
+        b2handle.util.log_instantiation(LOGGER, 'Searcher', args, ['password', 'reverselookup_password'])
 
         optional_args = [
             'reverselookup_baseuri',
@@ -105,11 +106,11 @@ class Searcher(object):
         else:
             msg = 'Reverse lookup not possible.'
             if self.__user is None and self.__password is None:
-                LOGGER.info(msg+' Neither username nor password were provided.')
+                LOGGER.info(msg + ' Neither username nor password were provided.')
             elif self.__user is None:
-                LOGGER.info(msg+' Username not provided. Password is '+str(self.__password))
+                LOGGER.info(msg + ' Username not provided. Password is ' + str(self.__password))
             else:
-                LOGGER.info(msg+' Password not provided. Username is '+str(self.__user))
+                LOGGER.info(msg + ' Password not provided. Username is ' + str(self.__user))
             return False
 
     def __check_and_set_search_url(self):
@@ -117,20 +118,20 @@ class Searcher(object):
             self.__reverselookup_url_extension is not None):
             
             self.__search_url = (
-                self.__reverselookup_baseuri.rstrip('/')+'/'+
+                self.__reverselookup_baseuri.rstrip('/') + '/' + 
                 self.__reverselookup_url_extension.strip('/')
             )
             return True
-            LOGGER.info('Reverse lookup endpoint set to '+str(self.__search_url))
+            LOGGER.info('Reverse lookup endpoint set to ' + str(self.__search_url))
         else:
             msg = 'Reverse lookup not possible.'
             if (self.__reverselookup_baseuri is None and
                 self.__reverselookup_url_extension is None):
-                LOGGER.info(msg+' No URL for reverse lookup provided.')
+                LOGGER.info(msg + ' No URL for reverse lookup provided.')
             elif self.__reverselookup_baseuri is None:
-                LOGGER.info(msg+' No URL for reverse lookup provided.')
+                LOGGER.info(msg + ' No URL for reverse lookup provided.')
             else:
-                LOGGER.info(msg+' No URL path for reverse lookup provided.')
+                LOGGER.info(msg + ' No URL path for reverse lookup provided.')
             return False
 
     def get_search_endpoint(self):
@@ -138,9 +139,9 @@ class Searcher(object):
             return self.__search_url
         else:
             LOGGER.error(
-                'Searching not possible. Reason: No access '+
-                'to search system (endpoint: '+
-                str(self.__search_url)+').'
+                'Searching not possible. Reason: No access ' + 
+                'to search system (endpoint: ' + 
+                str(self.__search_url) + ').'
             )
             return None
 
@@ -148,37 +149,37 @@ class Searcher(object):
 
         LOGGER.debug('Setting the attributes:')
 
-        if args['HTTPS_verify'] is not None: # Without this check, a passed "False" is not found!
+        if args['HTTPS_verify'] is not None:  # Without this check, a passed "False" is not found!
             self.__HTTPS_verify = b2handle.util.get_valid_https_verify(
                 args['HTTPS_verify']
             )
-            LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to: ' + str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
-            LOGGER.info(' - https_verify set to default: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to default: ' + str(self.__HTTPS_verify))
 
-        if args['allowed_search_keys'] is not None: # Without this check, empty lists are not found!
+        if args['allowed_search_keys'] is not None:  # Without this check, empty lists are not found!
             self.__allowed_search_keys = args['allowed_search_keys']
-            LOGGER.info(' - allowed_search_keys set to: '+str(self.__allowed_search_keys))
+            LOGGER.info(' - allowed_search_keys set to: ' + str(self.__allowed_search_keys))
         else:
             self.__allowed_search_keys = defaults['allowed_search_keys']
-            LOGGER.info(' - allowed_search_keys set to default: '+str(self.__allowed_search_keys))
+            LOGGER.info(' - allowed_search_keys set to default: ' + str(self.__allowed_search_keys))
 
         if args['reverselookup_baseuri']:
             self.__reverselookup_baseuri = args['reverselookup_baseuri']
-            LOGGER.info(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
+            LOGGER.info(' - solrbaseurl set to: ' + self.__reverselookup_baseuri)
         elif 'handle_server_url' in args.keys() and args['handle_server_url'] is not None:
             self.__reverselookup_baseuri = args['handle_server_url']
-            LOGGER.info(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
+            LOGGER.info(' - solrbaseurl set to same as handle server: ' + str(self.__reverselookup_baseuri))
         else:
             LOGGER.info(' - solrbaseurl: No default.')
 
         if args['reverselookup_url_extension']:
             self.__reverselookup_url_extension = args['reverselookup_url_extension']
-            LOGGER.info(' - reverselookup_url_extension set to: '+self.__reverselookup_url_extension)
+            LOGGER.info(' - reverselookup_url_extension set to: ' + self.__reverselookup_url_extension)
         else:
             self.__reverselookup_url_extension = defaults['reverselookup_url_extension']
-            LOGGER.info(' - reverselookup_url_extension set to default: '+self.__reverselookup_url_extension)
+            LOGGER.info(' - reverselookup_url_extension set to default: ' + self.__reverselookup_url_extension)
 
         # Authentication reverse lookup:
         #   If specified, use it.
@@ -187,11 +188,11 @@ class Searcher(object):
 
         if args['reverselookup_username']:
             self.__user = args['reverselookup_username']
-            LOGGER.info(' - reverselookup_username set to: '+self.__user)
+            LOGGER.info(' - reverselookup_username set to: ' + self.__user)
         elif args['username']:
             self.__user = args['username']
             self.__handle_system_username_used = True
-            LOGGER.info(' - reverselookup_username set to handle server username: '+self.__user)
+            LOGGER.info(' - reverselookup_username set to handle server username: ' + self.__user)
         else:
             LOGGER.info(' - reverselookup_username: Not specified. No default.')
 
@@ -242,9 +243,9 @@ class Searcher(object):
             return self.__search_handle(**args)
         else:
             LOGGER.error(
-                'Searching not possible. Reason: No access '+
-                'to search system (endpoint: '+
-                str(self.__search_url)+').'
+                'Searching not possible. Reason: No access ' + 
+                'to search system (endpoint: ' + 
+                str(self.__search_url) + ').'
             )
             return None
 
@@ -263,13 +264,13 @@ class Searcher(object):
         # Check if there is any key-value pairs to be searched.
         if len(args) == 0:
             LOGGER.debug('search_handle: No key value pair was specified.')
-            msg = 'No search terms have been specified. Please specify'+\
+            msg = 'No search terms have been specified. Please specify' + \
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg=msg)
         else:
             isnone = b2handle.util.return_keys_of_value_none(args)
             if len(isnone) > 0:
-                LOGGER.debug('search_handle: These keys had value None: '+str(isnone))
+                LOGGER.debug('search_handle: These keys had value None: ' + str(isnone))
                 args = b2handle.util.remove_value_none_from_dict(args)
                 if len(args) == 0:
                     LOGGER.debug('search_handle: No key value pair with valid value was specified.')
@@ -279,7 +280,7 @@ class Searcher(object):
 
         # Perform the search:
         list_of_handles = []
-        LOGGER.debug('search_handle: key-value-pairs: '+str(args))
+        LOGGER.debug('search_handle: key-value-pairs: ' + str(args))
         query = self.create_revlookup_query(*fulltext_searchterms, **args)
 
         if query is None:
@@ -287,13 +288,13 @@ class Searcher(object):
             raise ReverseLookupException(msg=msg)
 
         resp = self.__send_revlookup_get_request(query)
-
+        
         # Check for undefined fields
         regex = 'RemoteSolrException: Error from server at .+: undefined field .+'
         match = re.compile(regex).search(str(resp.content))
         if match is not None:
             undefined_field = resp.content.split('undefined field ')[1]
-            msg = 'Tried to search in undefined field "'+undefined_field+'"..'
+            msg = 'Tried to search in undefined field "' + undefined_field + '"..'
             raise ReverseLookupException(msg=msg, query=query, response=resp)
 
         if resp.status_code == 200:
@@ -315,7 +316,7 @@ class Searcher(object):
             raise ReverseLookupException(msg=msg, query=query, response=resp)
 
         elif resp.status_code == 404:
-            msg = 'Wrong search servlet URL ('+resp.request.url+')'
+            msg = 'Wrong search servlet URL (' + resp.request.url + ')'
             regex = 'The handle you requested.+cannot be found'
             match = re.compile(regex, re.DOTALL).search(str(resp.content))
             if match is not None:
@@ -327,7 +328,7 @@ class Searcher(object):
 
         # Filter prefixes:
         if prefix is not None:
-            LOGGER.debug('search_handle: Restricting search to prefix '+prefix)
+            LOGGER.debug('search_handle: Restricting search to prefix ' + prefix)
             filteredlist_of_handles = []
             for i in xrange(len(list_of_handles)):
                 if list_of_handles[i].split('/')[0] == prefix:
@@ -366,8 +367,8 @@ class Searcher(object):
             fulltext_searchterms_given = False
         
         if fulltext_searchterms_given:
-            msg = 'Full-text search is not implemented yet.'+\
-                ' The provided searchterms '+str(fulltext_searchterms)+\
+            msg = 'Full-text search is not implemented yet.' + \
+                ' The provided searchterms ' + str(fulltext_searchterms) + \
                 ' can not be used.'
             raise ReverseLookupException(msg=msg)
 
@@ -377,25 +378,25 @@ class Searcher(object):
             keyvalue_searchterms_given = False
 
         if not keyvalue_searchterms_given and not fulltext_searchterms_given:
-            msg = 'No search terms have been specified. Please specify'+\
+            msg = 'No search terms have been specified. Please specify' + \
                 ' at least one key-value-pair.'
             raise ReverseLookupException(msg=msg)
 
         counter = 0
         query = '?'
-        for key, value in keyvalue_searchterms.iteritems():
+        for key, value in keyvalue_searchterms.items():
 
             if only_search_for_allowed_keys and key not in allowed_search_keys:
-                msg = 'Cannot search for key "'+key+'". Only searches '+\
-                    'for keys '+str(allowed_search_keys)+' are implemented.'
+                msg = 'Cannot search for key "' + key + '". Only searches ' + \
+                    'for keys ' + str(allowed_search_keys) + ' are implemented.'
                 raise ReverseLookupException(msg=msg)
             else:
-                query = query+'&'+key+'='+value
+                query = query + '&' + key + '=' + value
                 counter += 1
 
         query = query.replace('?&', '?')
-        LOGGER.debug('create_revlookup_query: query: '+query)
-        if counter == 0: # unreachable?
+        LOGGER.debug('create_revlookup_query: query: ' + query)
+        if counter == 0:  # unreachable?
             msg = 'No valid search terms have been specified.'
             raise ReverseLookupException(msg=msg)
         return query
@@ -415,7 +416,7 @@ class Searcher(object):
     def __send_revlookup_get_request(self, query):
 
         solrurl = self.__search_url
-        entirequery = solrurl+'?'+query.lstrip('?')
+        entirequery = solrurl + '?' + query.lstrip('?')
 
         head = self.__header
         veri = self.__HTTPS_verify

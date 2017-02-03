@@ -12,6 +12,7 @@ import logging
 import requests
 import os
 import b2handle
+from b2handle.compatibility_helper import decoded_response
 from b2handle.handleexceptions import HandleNotFoundException, GenericHandleError, HandleAuthenticationError, CredentialsFormatError
 
 LOGGER = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class HandleSystemConnector(object):
 
     def __init__(self, **args):
 
-        b2handle.util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password','reverselookup_password'])
+        b2handle.util.log_instantiation(LOGGER, 'HandleSystemConnector', args, ['password', 'reverselookup_password'])
 
         # Possible arguments:
         optional_args = [
@@ -95,28 +96,28 @@ class HandleSystemConnector(object):
 
         if args['handle_server_url']:
             self.__handle_server_url = args['handle_server_url']
-            LOGGER.info(' - handle_server_url set to '+self.__handle_server_url)
+            LOGGER.info(' - handle_server_url set to ' + self.__handle_server_url)
         else:
             self.__handle_server_url = defaults['handle_server_url']
-            LOGGER.info(' - handle_server_url set to default: '+self.__handle_server_url)
+            LOGGER.info(' - handle_server_url set to default: ' + self.__handle_server_url)
 
 
         if args['REST_API_url_extension']:
             self.__REST_API_url_extension = args['REST_API_url_extension']
-            LOGGER.info(' - url_extension_REST_API set to: '+self.__REST_API_url_extension)
+            LOGGER.info(' - url_extension_REST_API set to: ' + self.__REST_API_url_extension)
         else:
             self.__REST_API_url_extension = defaults['REST_API_url_extension']
-            LOGGER.info(' - url_extension_REST_API set to default: '+self.__REST_API_url_extension)
+            LOGGER.info(' - url_extension_REST_API set to default: ' + self.__REST_API_url_extension)
 
 
         if args['HTTPS_verify'] is not None:
             self.__HTTPS_verify = b2handle.util.get_valid_https_verify(
                 args['HTTPS_verify']
             )
-            LOGGER.info(' - https_verify set to: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to: ' + str(self.__HTTPS_verify))
         else:
             self.__HTTPS_verify = defaults['HTTPS_verify']
-            LOGGER.info(' - https_verify set to default: '+str(self.__HTTPS_verify))
+            LOGGER.info(' - https_verify set to default: ' + str(self.__HTTPS_verify))
 
 
         # Useful for write:
@@ -127,25 +128,25 @@ class HandleSystemConnector(object):
 
         if args['username']:
             self.__username = args['username']
-            LOGGER.info(' - username set to: '+self.__username)
+            LOGGER.info(' - username set to: ' + self.__username)
 
         if args['certificate_only']:
             self.__certificate_only = args['certificate_only']
-            LOGGER.info(' - certificate_only set to: '+str(self.__certificate_only))
+            LOGGER.info(' - certificate_only set to: ' + str(self.__certificate_only))
 
         if args['private_key']:
             self.__private_key = args['private_key']
-            LOGGER.info(' - private_key set to: '+str(self.__private_key))
+            LOGGER.info(' - private_key set to: ' + str(self.__private_key))
 
         if args['certificate_and_key']:
             self.__certificate_and_key = args['certificate_and_key']
-            LOGGER.info(' - certificate_and_key set to: '+str(self.__certificate_and_key))
+            LOGGER.info(' - certificate_and_key set to: ' + str(self.__certificate_and_key))
 
     def __check_if_write_access(self, args):
         write_access_argnames = ['username', 'password', 'certificate_only', 'private_key', 'certificate_and_key']
         for argname in write_access_argnames:
             if argname in args.keys() and args[argname] is not None:
-                LOGGER.debug('Connector got argument "'+argname+'", so write access is desired.')
+                LOGGER.debug('Connector got argument "' + argname + '", so write access is desired.')
                 return True
         return False
 
@@ -168,7 +169,7 @@ class HandleSystemConnector(object):
         elif self.__authentication_method is None:
             self.__has_write_access = False
         else:
-            msg = 'Unknown authentication method: "'+self.__authentication_method+'".'
+            msg = 'Unknown authentication method: "' + self.__authentication_method + '".'
             self.__has_write_access = False
 
     def __setup_for_auth_by_user_and_pw(self):
@@ -185,16 +186,16 @@ class HandleSystemConnector(object):
         if self.__certificate_and_key:
             self.__cert_object = self.__certificate_and_key
             if not os.path.isfile(self.__certificate_and_key):
-                msg = 'The certificate file was not found at the specified path: '+self.__certificate_and_key
+                msg = 'The certificate file was not found at the specified path: ' + self.__certificate_and_key
                 raise CredentialsFormatError(msg=msg)
 
         else:
             self.__cert_object = (self.__certificate_only, self.__private_key)
             msg = ''
             if not os.path.isfile(self.__certificate_only):
-                msg += 'The certificate file was not found at the specified path: '+self.__certificate_only
+                msg += 'The certificate file was not found at the specified path: ' + self.__certificate_only
             if not os.path.isfile(self.__private_key):
-                msg += 'The private key file was not found at the specified path: '+self.__private_key
+                msg += 'The private key file was not found at the specified path: ' + self.__private_key
             if msg is not '':
                 raise CredentialsFormatError(msg=msg)
 
@@ -229,7 +230,7 @@ class HandleSystemConnector(object):
             LOGGER.debug(msg)
             self.__has_write_access = False
         else:
-            LOGGER.debug('Authentication method: '+authentication_method)
+            LOGGER.debug('Authentication method: ' + authentication_method)
 
         return authentication_method
 
@@ -265,7 +266,7 @@ class HandleSystemConnector(object):
 
         # Assemble required info:
         url = self.make_handle_URL(handle, indices)
-        LOGGER.debug('GET Request to '+url)
+        LOGGER.debug('GET Request to ' + url)
         head = self.__get_headers('GET')
         veri = self.__HTTPS_verify
 
@@ -330,13 +331,16 @@ class HandleSystemConnector(object):
         op = args['op']
         overwrite = args['overwrite'] or False
 
+    
+
+
         # Make necessary values:
         url = self.make_handle_URL(handle, indices, overwrite=overwrite)
-        LOGGER.debug('PUT Request to '+url)
+        LOGGER.debug('PUT Request to ' + url)
         payload = json.dumps({'values':list_of_entries})
-        LOGGER.debug('PUT Request payload: '+payload)
+        LOGGER.debug('PUT Request payload: ' + payload)
         head = self.__get_headers('PUT')
-        LOGGER.debug('PUT Request headers: '+str(head))
+        LOGGER.debug('PUT Request headers: ' + str(head))
         veri = self.__HTTPS_verify
 
         # Send request to server:
@@ -410,10 +414,10 @@ class HandleSystemConnector(object):
         # Make necessary values:
         url = self.make_handle_URL(handle, indices)
         if indices is not None and len(indices) > 0:
-            LOGGER.debug('__send_handle_delete_request: Deleting values '+str(indices)+' from handle '+handle+'.')
+            LOGGER.debug('__send_handle_delete_request: Deleting values ' + str(indices) + ' from handle ' + handle + '.')
         else:
-            LOGGER.debug('__send_handle_delete_request: Deleting handle '+handle+'.')
-        LOGGER.debug('DELETE Request to '+url)
+            LOGGER.debug('__send_handle_delete_request: Deleting handle ' + handle + '.')
+        LOGGER.debug('DELETE Request to ' + url)
         head = self.__get_headers('DELETE')
         veri = self.__HTTPS_verify
 
@@ -462,8 +466,9 @@ class HandleSystemConnector(object):
         _, handle = b2handle.utilhandle.remove_index_from_handle(username)
 
         resp = self.send_handle_get_request(handle)
+        resp_content = decoded_response(resp)
         if b2handle.hsresponses.does_handle_exist(resp):
-            handlerecord_json = json.loads(resp.content)
+            handlerecord_json = json.loads(resp_content)
             if not handlerecord_json['handle'] == handle:
                 raise GenericHandleError(
                     operation='Checking if username exists',
@@ -512,7 +517,7 @@ class HandleSystemConnector(object):
 
 
         else:
-            LOGGER.debug('__getHeader: ACTION is unknown ('+action+')')
+            LOGGER.debug('__getHeader: ACTION is unknown (' + action + ')')
         return header
 
     def make_handle_URL(self, handle, indices=None, overwrite=None, other_url=None):
@@ -540,25 +545,27 @@ class HandleSystemConnector(object):
         if other_url is not None:
             url = other_url
         else:
-            url = self.__handle_server_url.strip('/') +'/'+\
+            url = self.__handle_server_url.strip('/') + '/' + \
                 self.__REST_API_url_extension.strip('/')
-        url = url.strip('/')+'/'+ handle
+        url = url.strip('/') + '/' + handle
 
         if indices is None:
             indices = []
         if len(indices) > 0:
             for index in indices:
-                url = url+separator+'index='+str(index)
+                url = url + separator + 'index=' + str(index)
                 separator = '&'
 
         if overwrite is not None:
             if overwrite:
-                url = url+separator+'overwrite=true'
+                url = url + separator + 'overwrite=true'
             else:
-                url = url+separator+'overwrite=false'
+                url = url + separator + 'overwrite=false'
 
         return url
 
     def __log_request_response_to_file(self, **args):
         message = b2handle.utilhandle.make_request_log_message(**args)
         args['logger'].info(message)
+
+    

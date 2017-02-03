@@ -17,9 +17,9 @@ from b2handle.tests.utilities import replace_timestamps, failure_message
 
 # Load some data that is needed for testing
 PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
-CRED_FILE = PATH_CRED+'/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
+CRED_FILE = PATH_CRED + '/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = open(PATH_RES+'/handlerecord_for_reading.json').read()
+RECORD = open(PATH_RES + '/handlerecord_for_reading.json').read()
 
 class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
@@ -32,7 +32,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     def get_payload_from_mockresponse(self, putpatch):
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        kwargs_passed_to_put = putpatch.call_args_list[len(putpatch.call_args_list)-1][1]
+        kwargs_passed_to_put = putpatch.call_args_list[len(putpatch.call_args_list) - 1][1]
         passed_payload = None
         try:
             passed_payload = json.loads(kwargs_passed_to_put['data'])
@@ -43,12 +43,12 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
     def get_kw_attribute_from_mockresponse(self, attrname, methodpatch):
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        kwargs_passed_to_patch = methodpatch.call_args_list[len(methodpatch.call_args_list)-1][1]
+        kwargs_passed_to_patch = methodpatch.call_args_list[len(methodpatch.call_args_list) - 1][1]
         passed_attr = kwargs_passed_to_patch[attrname]
         return passed_attr
 
     def get_pos_attribute_from_mockresponse(self, pos, methodpatch):
-        posargs_passed_to_patch = methodpatch.call_args_list[len(methodpatch.call_args_list)-1][0]
+        posargs_passed_to_patch = methodpatch.call_args_list[len(methodpatch.call_args_list) - 1][0]
         passed_attr = posargs_passed_to_patch[pos]
         return passed_attr
 
@@ -67,7 +67,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
         # Check if the GET request was sent exactly once:
         self.assertEqual(getpatch.call_count, 1,
-            'The method "requests.get" was not called once, but '+str(getpatch.call_count)+' times.')
+            'The method "requests.get" was not called once, but ' + str(getpatch.call_count) + ' times.')
 
     @mock.patch('requests.Session.put')
     def test_put_request(self, putpatch):
@@ -85,7 +85,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload = self.get_payload_from_mockresponse(putpatch)
@@ -110,14 +110,14 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,
-            'The method "requests.delete" was not called once, but '+str(deletepatch.call_count)+' times.')
+            'The method "requests.delete" was not called once, but ' + str(deletepatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.delete"
-        headers = self.get_kw_attribute_from_mockresponse('headers',deletepatch)
+        headers = self.get_kw_attribute_from_mockresponse('headers', deletepatch)
 
         # Compare with expected payload:
         self.assertEquals(headers['Authorization'], 'Handle clientCert="true"',
-            'Authorization header not sent correctly: '+headers['Authorization'])
+            'Authorization header not sent correctly: ' + headers['Authorization'])
 
     @mock.patch('requests.Session.delete')
     def test_delete_request_via_cert(self, deletepatch):
@@ -128,17 +128,17 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         handle = '123/456'
-        indices = [1,4,5]
+        indices = [1, 4, 5]
 
         # Run code to be tested
         self.inst.send_handle_delete_request(handle=handle, indices=indices)
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,
-            'The method "requests.delete" was not called once, but '+str(deletepatch.call_count)+' times.')
+            'The method "requests.delete" was not called once, but ' + str(deletepatch.call_count) + ' times.')
 
         # Get the url passed to "requests.delete"
-        url = self.get_pos_attribute_from_mockresponse(0,deletepatch)
+        url = self.get_pos_attribute_from_mockresponse(0, deletepatch)
 
         # Compare with expected payload:
         self.assertIn('index=1', url, 'Index 1 missing')
@@ -172,14 +172,14 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
 
         # Check if the DELETE request was sent exactly once:
         self.assertEqual(deletepatch.call_count, 1,
-            'The method "requests.delete" was not called once, but '+str(deletepatch.call_count)+' times.')
+            'The method "requests.delete" was not called once, but ' + str(deletepatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.delete"
-        headers = self.get_kw_attribute_from_mockresponse('headers',deletepatch)
+        headers = self.get_kw_attribute_from_mockresponse('headers', deletepatch)
 
         # Compare with expected payload:
         self.assertIn('Basic ', headers['Authorization'],
-            'Authorization header not sent correctly: '+headers['Authorization'])
+            'Authorization header not sent correctly: ' + headers['Authorization'])
 
     # check if username exists
 
@@ -190,7 +190,7 @@ class EUDATHandleConnectorAccessPatchedTestCase(unittest.TestCase):
         # Test variables
         handlerecord_string = RECORD
         handlerecord_json = json.loads(handlerecord_string)
-        testhandle = '100:'+handlerecord_json['handle']
+        testhandle = '100:' + handlerecord_json['handle']
 
         # Define the replacement for the patched method:
         mock_response = MockResponse(success=True, content=handlerecord_string)

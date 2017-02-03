@@ -14,9 +14,9 @@ from b2handle.utilhandle import check_handle_syntax, check_handle_syntax_with_in
 
 # Load some data that is needed for testing
 PATH_CRED = b2handle.util.get_neighbour_directory(__file__, 'testcredentials')
-FILE_BOTH = PATH_CRED+'/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
-FILE_KEY = PATH_CRED+'/fake_certs_and_keys/fake_privatekey.pem'
-FILE_CERT = PATH_CRED+'/fake_certs_and_keys/fake_certificate.pem'
+FILE_BOTH = PATH_CRED + '/fake_certs_and_keys/fake_certi_and_bothkeys.pem'
+FILE_KEY = PATH_CRED + '/fake_certs_and_keys/fake_privatekey.pem'
+FILE_CERT = PATH_CRED + '/fake_certs_and_keys/fake_certificate.pem'
 
 
 class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
@@ -35,57 +35,57 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 
         url = self.inst.make_handle_URL('testhandle')
         self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
+            'No REST API path specified in URL: ' + url)
         self.assertIn('handle.net', url,
-            'handle.net missing in URL: '+url)
+            'handle.net missing in URL: ' + url)
         self.assertNotIn('index=', url,
-            'Index specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
+            'Index specified in URL: ' + url)
+        # self.assertIn('overwrite=false', url,
         #    'overwrite=false is missing: '+url)
 
     def test_make_handle_url_with_indices(self):
 
-        url = self.inst.make_handle_URL('testhandle', [2,3,5])
+        url = self.inst.make_handle_URL('testhandle', [2, 3, 5])
         self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
+            'No REST API path specified in URL: ' + url)
         self.assertIn('index=2', url,
-            'Index 2 specified in URL: '+url)
+            'Index 2 specified in URL: ' + url)
         self.assertIn('index=3', url,
-            'Index 3 specified in URL: '+url)
+            'Index 3 specified in URL: ' + url)
         self.assertIn('index=5', url,
-            'Index 5 specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
+            'Index 5 specified in URL: ' + url)
+        # self.assertIn('overwrite=false', url,
         #    'overwrite=false is missing: '+url)
 
     def test_make_handle_url_overwrite_true(self):
 
         url = self.inst.make_handle_URL('testhandle', overwrite=True)
         self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
+            'No REST API path specified in URL: ' + url)
         self.assertIn('overwrite=true', url,
-            'overwrite=true is missing: '+url)
+            'overwrite=true is missing: ' + url)
 
     def test_make_handle_url_overwrite_false(self):
 
         url = self.inst.make_handle_URL('testhandle', overwrite=False)
         self.assertIn('/api/handles/', url,
-            'No REST API path specified in URL: '+url)
+            'No REST API path specified in URL: ' + url)
         self.assertIn('overwrite=false', url,
-            'overwrite=false is missing: '+url)
+            'overwrite=false is missing: ' + url)
 
     def test_make_handle_url_otherurl(self):
 
         other = 'http://foo.foo'
         url = self.inst.make_handle_URL('testhandle', other_url=other)
         self.assertNotIn('/api/handles/', url,
-            'REST API path should not be specified in URL: '+url)
+            'REST API path should not be specified in URL: ' + url)
         self.assertIn(other, url,
-            'Other URL missing in URL: '+url)
+            'Other URL missing in URL: ' + url)
         self.assertNotIn('handle.net', url,
-            'handle.net should not be in URL: '+url)
+            'handle.net should not be in URL: ' + url)
         self.assertNotIn('index=', url,
-            'Index specified in URL: '+url)
-        #self.assertIn('overwrite=false', url,
+            'Index specified in URL: ' + url)
+        # self.assertIn('overwrite=false', url,
         #    'overwrite=false is missing: '+url)
 
     # Initiating:
@@ -132,6 +132,6 @@ class EUDATHandleConnectorNoaccessTestCase(unittest.TestCase):
 
         with self.assertRaises(CredentialsFormatError):
             inst = HandleSystemConnector(
-                certificate_and_key=PATH_CRED+'/noexist.pem',
+                certificate_and_key=PATH_CRED + '/noexist.pem',
                 handle_server_url='http://foo.com'
             )

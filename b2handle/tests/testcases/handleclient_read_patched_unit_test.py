@@ -2,11 +2,13 @@
 by providing a handle record to replace read access."""
 
 import sys
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
+from past.builtins import long
 import json
 import b2handle
 from b2handle.handleclient import EUDATHandleClient
@@ -14,10 +16,10 @@ from b2handle.utilhandle import check_handle_syntax
 
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = json.load(open(PATH_RES+'/handlerecord_for_reading.json'))
-RECORD_WITH = json.load(open(PATH_RES+'/handlerecord_with_10320LOC.json'))
-RECORD_WITHOUT = json.load(open(PATH_RES+'/handlerecord_without_10320LOC.json'))
-RECORD_WITH_EMPTY = json.load(open(PATH_RES+'/handlerecord_with_empty_10320LOC.json'))
+RECORD = json.load(open(PATH_RES + '/handlerecord_for_reading.json'))
+RECORD_WITH = json.load(open(PATH_RES + '/handlerecord_with_10320LOC.json'))
+RECORD_WITHOUT = json.load(open(PATH_RES + '/handlerecord_without_10320LOC.json'))
+RECORD_WITH_EMPTY = json.load(open(PATH_RES + '/handlerecord_with_empty_10320LOC.json'))
 
 class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
     '''Testing methods for retrieving values and indices.'''
@@ -74,7 +76,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
             'The handle in HS_ADMIN is not well-formatted.')
         self.assertIsInstance(val['index'], (int, long),
             'The index of the HS_ADMIN is not an integer.')
-        self.assertEqual(str(val['permissions']).replace('0','').replace('1',''), '',
+        self.assertEqual(str(val['permissions']).replace('0', '').replace('1', ''), '',
             'The permission value in the HS_ADMIN contains not just 0 and 1.')
 
     def test_get_value_from_handle_duplicatekey(self):
@@ -114,7 +116,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
             'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
-            'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
+            'The HS_ADMIN has no permissions: ' + dict_record['HS_ADMIN'])
 
         self.assertEqual(len(dict_record), 4,
             'The record should have a length of 5 (as the duplicate is ignored.')
@@ -129,7 +131,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         indices = self.inst.get_handlerecord_indices_for_key('TEST1', handlerecord['values'])
-        self.assertEqual(len(indices),1,
+        self.assertEqual(len(indices), 1,
             'There is more or less than 1 index!')
         self.assertEqual(indices[0], 3,
             'The index of "test1" is not 3.')
@@ -141,7 +143,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         indices = self.inst.get_handlerecord_indices_for_key('TESTDUP', handlerecord['values'])
-        self.assertEqual(len(indices),2,
+        self.assertEqual(len(indices), 2,
             'There is more or less than 2 indices!')
         self.assertIn(5, indices,
             '5 is not in indices for key "testdup".')
@@ -155,9 +157,9 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         handle = handlerecord['handle']
 
         indices = self.inst.get_handlerecord_indices_for_key('test100', handlerecord['values'])
-        self.assertEqual(len(indices),0,
+        self.assertEqual(len(indices), 0,
             'There is more than 0 index!')
-        self.assertEqual(indices,[],
+        self.assertEqual(indices, [],
             'Indices should be an empty list!')
 
 # is_10320LOC_empty
@@ -200,7 +202,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
                                                         handlerecord)
         val = self.inst.get_value_from_handle(handle, '10320/LOC', handlerecord)
         self.assertTrue(answer,
-            'The URL exists in the 10320/LOC, and still the method does not return True:\n'+str(val))
+            'The URL exists in the 10320/LOC, and still the method does not return True:\n' + str(val))
 
     def test_is_URL_contained_in_10320LOC_false(self):
         """Test if absence of URL is detected in existing 10320/LOC."""

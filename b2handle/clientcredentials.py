@@ -52,7 +52,7 @@ class PIDClientCredentials(object):
         '''
 
         jsonfilecontent = json.loads(open(json_filename, 'r').read())
-        instance = PIDClientCredentials(credentials_filename=json_filename,**jsonfilecontent)
+        instance = PIDClientCredentials(credentials_filename=json_filename, **jsonfilecontent)
         return instance
 
 
@@ -99,7 +99,7 @@ class PIDClientCredentials(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         '''
 
-        util.log_instantiation(LOGGER, 'PIDClientCredentials', args, ['password','reverselookup_password'])
+        util.log_instantiation(LOGGER, 'PIDClientCredentials', args, ['password', 'reverselookup_password'])
 
         # Possible arguments:
         useful_args = [
@@ -180,36 +180,36 @@ class PIDClientCredentials(object):
             try:
                 self.__certificate_only = self.__get_path_and_check_file_existence(self.__certificate_only)
             except ValueError as e:
-                msg = '(certficate file): '+e.message
+                msg = '(certficate file): ' + e.message
                 raise CredentialsFormatError(msg=msg)
 
         if self.__certificate_and_key:
             try:
                 self.__certificate_and_key = self.__get_path_and_check_file_existence(self.__certificate_and_key)
             except ValueError as e:
-                msg = '(certficate and key file): '+e.message
+                msg = '(certficate and key file): ' + e.message
                 raise CredentialsFormatError(msg=msg)
 
         if self.__private_key:
             try:
                 self.__private_key = self.__get_path_and_check_file_existence(self.__private_key)
             except ValueError as e:
-                msg = '(private key file): '+e.message
+                msg = '(private key file): ' + e.message
                 raise CredentialsFormatError(msg=msg)
 
     def __get_path_and_check_file_existence(self, path):
         try:
             path = util.get_absolute_path(path, self.__credentials_filename)
 
-        except ValueError: # not a valid path
+        except ValueError:  # not a valid path
             thisdir = utilsget_this_directory(self.__credentials_filename)
             msg = ('Please provide an absolute path or a path relative to '
                    'the location of the credentials file\'s location (%s), '
                    'starting with %s.' % (thisdir, os.path.curdir))
             raise ValueError(msg)
 
-        if not os.path.isfile(path): # file does not exist
-            msg = 'The file was not found at the specified path: '+path
+        if not os.path.isfile(path):  # file does not exist
+            msg = 'The file was not found at the specified path: ' + path
             raise ValueError(msg)
 
         return path

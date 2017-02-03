@@ -74,9 +74,9 @@ class MockSearchResponse(object):
         self.content = None
         self.status_code = None
         self.request = None
-        beta2=True # which HSv8 version should be mocked?
-        beta1=False
-        solr=False # Is a solr queried or a database?
+        beta2 = True  # which HSv8 version should be mocked?
+        beta1 = False
+        solr = False  # Is a solr queried or a database?
 
         # Some predefined cases:
         if success:
@@ -87,8 +87,8 @@ class MockSearchResponse(object):
             self.content = json.dumps([])
         elif undefined_field:
             if solr:
-                self.status_code = 9999999 # TODO
-                self.content = 'RemoteSolrException: Error from server at .+: undefined field FooBar' # TODO
+                self.status_code = 9999999  # TODO
+                self.content = 'RemoteSolrException: Error from server at .+: undefined field FooBar'  # TODO
         elif auth_fail:
             self.status_code = 401
         elif wrong_url:
@@ -152,7 +152,7 @@ class MockCredentials(object):
         if password is not None:
             self.password = password
 
-        self.url='http://some/url'
+        self.url = 'http://some/url'
         if url is not None:
             self.url = url
 
@@ -161,7 +161,7 @@ class MockCredentials(object):
         else:
             self.handleowner = self.user
 
-        self.prefix=prefix
+        self.prefix = prefix
 
         self.all_config = {}
         self.all_config.update(self.config)
