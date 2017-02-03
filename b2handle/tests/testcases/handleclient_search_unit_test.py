@@ -5,6 +5,8 @@ if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
+import os
+os.environ["PYTHONHASHSEED"] = "0"
 
 import json
 import b2handle
@@ -20,9 +22,9 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
 
     def setUp(self):
         self.inst = EUDATHandleClient()
-        self.inst._EUDATHandleClient__searcher._Searcher__has_search_access = True # fake search access
+        self.inst._EUDATHandleClient__searcher._Searcher__has_search_access = True  # fake search access
         self.searcher = Searcher()
-        self.searcher._Searcher__has_search_access = True # Fake search access
+        self.searcher._Searcher__has_search_access = True  # Fake search access
  
     def tearDown(self):
         pass
@@ -59,32 +61,32 @@ class EUDATHandleClientSearchNoAccessTestCase(unittest.TestCase):
         searcher = Searcher(allowed_search_keys=[])
         query = searcher.create_revlookup_query(baz='baz')
         self.assertEqual(query, '?baz=baz',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_create_revlookup_query_normal(self):
         query = self.searcher.create_revlookup_query(URL='foo')
         self.assertEqual(query, '?URL=foo',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_create_revlookup_query_normal_checksum(self):
         query = self.searcher.create_revlookup_query(CHECKSUM='foo')
         self.assertEqual(query, '?CHECKSUM=foo',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_create_revlookup_query_normal_checksum_and_url(self):
         query = self.searcher.create_revlookup_query(CHECKSUM='foo', URL='bar')
         self.assertEqual(query, '?URL=bar&CHECKSUM=foo',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_create_revlookup_query_checksum_and_none_url(self):
         query = self.searcher.create_revlookup_query(CHECKSUM='foo', URL=None)
         self.assertEqual(query, '?URL=bar&CHECKSUM=foo',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_create_revlookup_query_checksum_and_none_url(self):
         query = self.searcher.create_revlookup_query(CHECKSUM='foo', URL=None, something=None)
         self.assertEqual(query, '?CHECKSUM=foo',
-            'The query is: '+query)
+            'The query is: ' + query)
 
     def test_instantiate_wrong_search_url(self):
 

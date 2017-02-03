@@ -2,21 +2,23 @@
 by patching the get request to replace read access."""
 
 import sys
+
 if sys.version_info < (2, 7):
-    import unittest2 as unittest
+    import unittest2 as unittest 
 else:
     import unittest
 
 import mock
 import json
 import b2handle
+from b2handle import util
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.handleexceptions import HandleSyntaxError, GenericHandleError, HandleNotFoundException
 from b2handle.tests.mockresponses import MockResponse, MockSearchResponse, MockCredentials
 
 # Load some data that is needed for testing
-PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = open(PATH_RES+'/handlerecord_for_reading.json').read()
+PATH_RES = util.get_neighbour_directory(__file__, 'resources')
+RECORD = open(PATH_RES + '/handlerecord_for_reading.json').read()
 
 class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
     '''Testing methods that read the 10320/loc entry.'''
@@ -60,7 +62,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Call method and check result:
         json_record = self.inst.retrieve_handle_record_json(testhandle)
         self.assertIsNone(json_record,
-            'The return value should be None if the handle does not exist, not: '+str(json_record))
+            'The return value should be None if the handle does not exist, not: ' + str(json_record))
 
     @mock.patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_handle_empty(self, getpatch):
@@ -75,8 +77,8 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
         # Call method and check result:
         json_record = self.inst.retrieve_handle_record_json(testhandle)
-        self.assertEquals(json_record['responseCode'],200,
-            'Unexpected return value: '+str(json_record))
+        self.assertEquals(json_record['responseCode'], 200,
+            'Unexpected return value: ' + str(json_record))
 
     @mock.patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_json_genericerror(self, getpatch):
@@ -95,7 +97,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
 
     # retrieve_handle_record:
 
-    #@mock.patch('b2handle.handleclient.EUDATHandleClient._EUDATHandleClient__send_handle_get_request')
+    # @mock.patch('b2handle.handleclient.EUDATHandleClient._EUDATHandleClient__send_handle_get_request')
     @mock.patch('b2handle.handleclient.requests.Session.get')
     def test_retrieve_handle_record_when_json_not_given(self, getpatch):
         """Test retrieving a handle record"""
@@ -127,7 +129,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
             'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
-            'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
+            'The HS_ADMIN has no permissions: ' + dict_record['HS_ADMIN'])
 
         self.assertEqual(len(dict_record), 4,
             'The record should have a length of 5 (as the duplicate is ignored.')
@@ -208,7 +210,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         self.assertIn(dict_record['TESTDUP'], ("dup1", "dup2"),
             'The value of the duplicate key "TESTDUP" should be "dup1" or "dup2".')
         self.assertIn('permissions', dict_record['HS_ADMIN'],
-            'The HS_ADMIN has no permissions: '+dict_record['HS_ADMIN'])
+            'The HS_ADMIN has no permissions: ' + dict_record['HS_ADMIN'])
 
         self.assertEqual(len(dict_record), 4,
             'The record should have a length of 5 (as the duplicate is ignored.')
@@ -253,7 +255,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Test variables
         testhandle = 'who/cares'
         one_url = 'http://bla'
-        list_of_urls = ['http://bla','http://foo.foo']
+        list_of_urls = ['http://bla', 'http://foo.foo']
 
         # Define the replacement for the patched method:
         mock_response = MockResponse(notfound=True)
@@ -312,7 +314,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
             inst = EUDATHandleClient.instantiate_with_credentials(credentials)
 
         # If the user name has no index, exception is already thrown in credentials creation!
-        #self.assertRaises(HandleSyntaxError, b2handle.PIDClientCredentials, 'url', 'prefix/suffix', randompassword)
+        # self.assertRaises(HandleSyntaxError, b2handle.PIDClientCredentials, 'url', 'prefix/suffix', randompassword)
 
     @mock.patch('b2handle.handleclient.requests.Session.get')
     def test_instantiate_with_credentials(self, getpatch):
@@ -346,8 +348,8 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Test variables
         credentials = MockCredentials(restapi='foobar')
 
-        self.assertEqual(credentials.get_config()['REST_API_url_extension'],'foobar',
-            'Config: '+str(credentials.get_config()))
+        self.assertEqual(credentials.get_config()['REST_API_url_extension'], 'foobar',
+            'Config: ' + str(credentials.get_config()))
 
         # Run code to be tested
         # Create instance with credentials
@@ -368,7 +370,7 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         checkpatch.return_value = mock_response
 
         # Define the replacement for the patched GET:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type":"TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type":"TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type":"TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type":"TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type":"TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type":"TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type":"TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type":"TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response = MockResponse(success=True, content=json.dumps(cont))
         getpatch.return_value = mock_response
 
@@ -376,8 +378,8 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # Passing mock credentials, give them the value "foobar", which
         # should be overridden!
         credentials = MockCredentials(restapi='foobar')
-        self.assertEqual(credentials.get_config()['REST_API_url_extension'],'foobar',
-            'Config: '+str(credentials.get_config()))
+        self.assertEqual(credentials.get_config()['REST_API_url_extension'], 'foobar',
+            'Config: ' + str(credentials.get_config()))
 
         # Run code to be tested
         # Create instance with credentials. It gets the "REST_API_url_extention"
@@ -390,9 +392,9 @@ class EUDATHandleClientReadaccessPatchedTestCase(unittest.TestCase):
         # How to know now which one was used?
         # Call a read and check its url! Did it get foobar or barbarbar appended?
         inst.get_value_from_handle('my/testhandle', 'key')
-        positional_args_passed = getpatch.call_args_list[len(getpatch.call_args_list)-1][0]
+        positional_args_passed = getpatch.call_args_list[len(getpatch.call_args_list) - 1][0]
         passed_url = positional_args_passed[0]
 
         # Compare with expected URL:
-        self.assertIn('bar/bar/bar',passed_url,
-            'bar/bar/bar is not specified in the URL '+passed_url)
+        self.assertIn('bar/bar/bar', passed_url,
+            'bar/bar/bar is not specified in the URL ' + passed_url)

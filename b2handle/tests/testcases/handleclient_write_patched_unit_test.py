@@ -50,7 +50,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
     def get_payload_headers_from_mockresponse(self, putpatch):
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        kwargs_passed_to_put = putpatch.call_args_list[len(putpatch.call_args_list)-1][1]
+        kwargs_passed_to_put = putpatch.call_args_list[len(putpatch.call_args_list) - 1][1]
         passed_payload = json.loads(kwargs_passed_to_put['data'])
         replace_timestamps(passed_payload)
         passed_headers = kwargs_passed_to_put['headers']
@@ -87,7 +87,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -95,7 +95,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
 
     @mock.patch('b2handle.handlesystemconnector.HandleSystemConnector.check_if_username_exists')
@@ -140,7 +140,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -148,7 +148,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": 300, "handle": "handle/owner", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
@@ -169,7 +169,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if nothing was changed (PUT should not have been called):
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called! ('+str(putpatch.call_count)+' times). It should NOT have been called.')
+            'The method "requests.put" was called! (' + str(putpatch.call_count) + ' times). It should NOT have been called.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -200,7 +200,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload, passed_headers = self.get_payload_headers_from_mockresponse(putpatch)
@@ -208,12 +208,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}, {"index": 3, "type": "FOO", "data": "foo"}, {"index": 4, "type": "BAR", "data": "bar"}, {"index": 5, "type": "10320/LOC", "data": "<locations><location href=\"http://bar.bar\" id=\"0\" /><location href=\"http://foo.foo\" id=\"1\" /></locations>"}]}
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload, passed=passed_payload, methodname='register_handle'))
 
         # Check if requests.put received an authorization header:
         self.assertIn('Authorization', passed_headers,
-            'Authorization header not passed: '+str(passed_headers))
+            'Authorization header not passed: ' + str(passed_headers))
 
     # generate_and_register_handle
 
@@ -239,7 +239,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -247,7 +247,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 100, "type": "HS_ADMIN", "data": {"value": {"index": "200", "handle": "0.NA/my", "permissions": "011111110011"}, "format": "admin"}}, {"index": 1, "type": "URL", "data": "http://foo.bar"}, {"index": 2, "type": "CHECKSUM", "data": "123456"}]}
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload, passed=passed_payload, methodname='generate_and_register_handle'))
 
     # modify_handle_value
@@ -258,12 +258,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying one existing handle value."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":333, "type": "TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=201, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -273,7 +273,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -305,7 +305,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 },
                 "ttl":86400,
                 "timestamp":"2015-09-29T15:51:08Z"
-            },{
+            }, {
                 "index":2222,
                 "type": "TEST2",
                 "data":{
@@ -314,7 +314,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 },
                 "ttl":86400,
                 "timestamp":"2015-09-29T15:51:08Z"
-            },{
+            }, {
                 "index":333,
                 "type": "TEST3",
                 "data":{
@@ -323,7 +323,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 },
                 "ttl":86400,
                 "timestamp":"2015-09-29T15:51:08Z"
-            },{
+            }, {
                 "index":4,
                 "type": "TEST4",
                 "data":{
@@ -352,26 +352,29 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
-        sort_lists(passed_payload)
+        # sort_lists(passed_payload)
 
         # Compare with expected payload:
         expected_payload = {
         "values":[
             {
+              "index":333,
+                "type": "TEST3",
+                "data":"new3",
+                "ttl":86400,
+
+
+            }, {
+               
                 "index":2222,
                 "type": "TEST2",
                 "data":"new2",
                 "ttl":86400,
-            },{
-                "index":333,
-                "type": "TEST3",
-                "data":"new3",
-                "ttl":86400,
-            },{
+            }, {
                 "index":4,
                 "type": "TEST4",
                 "data":"new4",
@@ -379,8 +382,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             }]
         }
         replace_timestamps(expected_payload)
-        sort_lists(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        # sort_lists(expected_payload)
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
@@ -391,12 +394,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test exception when trying to modify corrupted handle record."""
 
         # Define the replacement for the patched GET method (getting a corrupted record):
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=201, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -409,7 +412,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if PUT was called (PUT should not have been called):
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called! ('+str(putpatch.call_count)+' times). It should NOT have been called.')
+            'The method "requests.put" was called! (' + str(putpatch.call_count) + ' times). It should NOT have been called.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -417,7 +420,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test if exception when not authenticated."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":333, "type": "TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -439,7 +442,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying several existing handle values, one of them inexistent."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":333, "type": "TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -458,15 +461,18 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
-
+        passed_payload.get('values', {})
+        # sort_lists(passed_payload)
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 2, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}]}
+        expected_payload.get('values', {})
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        # sort_lists(expected_payload)
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
@@ -478,7 +484,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test modifying several existing handle values, SEVERAL of them inexistent."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":333, "type": "TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -498,15 +504,19 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
-
+        
         # Compare with expected payload:
         expected_payload = {'values': [{'index': 2, 'type': 'TEST100', 'data': 'new100'}, {'index': 2222, 'ttl': 86400, 'type': 'TEST2', 'data': 'new2'}, {'index': 4, 'ttl': 86400, 'type': 'TEST4', 'data': 'new4'}, {'index': 3, 'type': 'TEST101', 'data': 'new101'}]}
+        expected_payload.get('values', {})
         replace_timestamps(expected_payload)
-        self.assertEqual(passed_payload, expected_payload,
+        sort_lists(expected_payload)
+
+        replace_timestamps(expected_payload)
+        self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
                                  methodname='modify_handle_value'))
@@ -517,7 +527,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test exception when trying to modify HS_ADMIN."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":333,"type": "TEST3","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-29T15:51:08Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":333, "type": "TEST3", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-29T15:51:08Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -541,7 +551,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test deleting one entry from a record."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -554,12 +564,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list)-1][0]
+        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list) - 1][0]
         passed_url = positional_args_passed_to_delete[0]
 
         # Compare with expected URL:
-        self.assertIn('?index=111',passed_url,
-            'The index 111 is not specified in the URL '+passed_url+'. This is serious!')
+        self.assertIn('?index=111', passed_url,
+            'The index 111 is not specified in the URL ' + passed_url + '. This is serious!')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -570,7 +580,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":testhandle, "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -583,14 +593,14 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list)-1][0]
+        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list) - 1][0]
         passed_url = positional_args_passed_to_delete[0]
 
         # Compare with expected URL:
-        self.assertIn('index=111',passed_url,
-            'The index 111 is not specified in the URL '+passed_url+'. This may be serious!')
-        self.assertIn('index=222',passed_url,
-            'The index 2222 is not specified in the URL '+passed_url+'. This may be serious!')
+        self.assertIn('index=111', passed_url,
+            'The index 111 is not specified in the URL ' + passed_url + '. This may be serious!')
+        self.assertIn('index=222', passed_url,
+            'The index 2222 is not specified in the URL ' + passed_url + '. This may be serious!')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -601,7 +611,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":testhandle, "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -614,7 +624,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if PUT was called (PUT should not have been called):
         self.assertEqual(deletepatch.call_count, 0,
-            'The method "requests.put" was called! ('+str(deletepatch.call_count)+' times). It should NOT have been called.')
+            'The method "requests.put" was called! (' + str(deletepatch.call_count) + ' times). It should NOT have been called.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -625,7 +635,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         testhandle = 'my/testhandle'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":testhandle, "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -638,14 +648,14 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list)-1][0]
+        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list) - 1][0]
         passed_url = positional_args_passed_to_delete[0]
 
         # Compare with expected URL:
-        self.assertIn('index=111',passed_url,
-            'The index 111 is not specified in the URL '+passed_url+'. This may be serious!')
-        self.assertNotIn('&index=',passed_url,
-            'A second index was specified in the URL '+passed_url+'. This may be serious!')
+        self.assertIn('index=111', passed_url,
+            'The index 111 is not specified in the URL ' + passed_url + '. This may be serious!')
+        self.assertNotIn('&index=', passed_url,
+            'A second index was specified in the URL ' + passed_url + '. This may be serious!')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -653,7 +663,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test trying to delete from a corrupted handle record."""
 
         # Define the replacement for the patched GET method (getting a corrupted record):
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":111,"type": "TEST1","data":{"format":"string","value":"val1"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":2222,"type": "TEST2","data":{"format":"string","value":"val2"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":333,"type": "TEST2","data":{"format":"string","value":"val3"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"},{"index":4,"type": "TEST4","data":{"format":"string","value":"val4"},"ttl":86400,"timestamp":"2015-09-30T15:08:49Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":111, "type": "TEST1", "data":{"format":"string", "value":"val1"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":2222, "type": "TEST2", "data":{"format":"string", "value":"val2"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":333, "type": "TEST2", "data":{"format":"string", "value":"val3"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}, {"index":4, "type": "TEST4", "data":{"format":"string", "value":"val4"}, "ttl":86400, "timestamp":"2015-09-30T15:08:49Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -666,18 +676,18 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list)-1][0]
+        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list) - 1][0]
         passed_url = positional_args_passed_to_delete[0]
 
         # Compare with expected URL:
-        self.assertIn('index=2222',passed_url,
-            'The index 2222 is not specified in the URL '+passed_url+'. This may be serious!')
-        self.assertIn('index=333',passed_url,
-            'The index 333 is not specified in the URL '+passed_url+'. This may be serious!')
+        self.assertIn('index=2222', passed_url,
+            'The index 2222 is not specified in the URL ' + passed_url + '. This may be serious!')
+        self.assertIn('index=333', passed_url,
+            'The index 333 is not specified in the URL ' + passed_url + '. This may be serious!')
 
         # Check if PUT was called once:
         self.assertEqual(deletepatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(deletepatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(deletepatch.call_count) + ' times.')
 
     # delete_handle:
 
@@ -693,11 +703,11 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the args passed to "requests.delete"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list)-1][0]
+        positional_args_passed_to_delete = deletepatch.call_args_list[len(deletepatch.call_args_list) - 1][0]
         passed_url = positional_args_passed_to_delete[0]
 
         # Compare with expected URL:
-        self.assertNotIn('index=',passed_url,
+        self.assertNotIn('index=', passed_url,
             'Indices were passed to the delete method.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.delete')
@@ -717,7 +727,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if response is ok:
         self.assertIsNone(resp,
-            'The response code when deleting inexistent handle should be None but is: '+str(resp))
+            'The response code when deleting inexistent handle should be None but is: ' + str(resp))
 
     def test_delete_handle_too_many_args(self):
 
@@ -735,12 +745,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test normal removal of additional URL from 10320/LOC."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -751,14 +761,21 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
+        try:
+            passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
+        except Exception as exc:
+            import pdb; pdb.set_trace()  # breakpoint 6579fbc8x //
 
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:32Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:32Z", "data": {"value": "<locations><location href=\"http://second.foo\" /></locations>", "format": "string"}}]}
+        expected_payload.get('values', {})
+        replace_timestamps(expected_payload)
+        sort_lists(expected_payload)
+
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -771,12 +788,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test removing all URL, which should remove the whole 10320/LOC attribute."""
 
         # Define the replacement for the patched GET method (a record with one additional URL in it):
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:33Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href=\"http://second.foo\" /></locations>"},"ttl":86400,"timestamp":"2015-09-30T15:54:33Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:33Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href=\"http://second.foo\" /></locations>"}, "ttl":86400, "timestamp":"2015-09-30T15:54:33Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -787,13 +804,17 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:33Z", "data": {"value": "www.url.foo", "format": "string"}}]}
+        expected_payload.get('values', {})
+        replace_timestamps(expected_payload)
+        sort_lists(expected_payload)
+
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
@@ -807,16 +828,16 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Test variables
         testhandle = 'my/testhandle'
-        url1 =  'http://first.foo'
+        url1 = 'http://first.foo'
         url2 = 'http://second.foo'
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":testhandle,"values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":testhandle, "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":testhandle}
+        cont = {"responseCode":1, "handle":testhandle}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -825,7 +846,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
@@ -870,12 +891,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test replacing an URL."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -888,7 +909,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -907,12 +928,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test if replacing an inexistent URL has any effect."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -925,7 +946,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent:
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called '+str(putpatch.call_count)+' times - it should not be called at all.')
+            'The method "requests.put" was called ' + str(putpatch.call_count) + ' times - it should not be called at all.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -933,12 +954,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test if replacing an URL has any effect if there is no 10320/LOC."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -951,7 +972,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent:
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called '+str(putpatch.call_count)+' times - it should not be called at all.')
+            'The method "requests.put" was called ' + str(putpatch.call_count) + ' times - it should not be called at all.')
 
     # add_additional_URL
 
@@ -961,12 +982,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test adding the first additional URL'(created the 10320/LOC entry)."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:32Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -976,7 +997,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 1,
-            'The method "requests.put" was not called once, but '+str(putpatch.call_count)+' times.')
+            'The method "requests.put" was not called once, but ' + str(putpatch.call_count) + ' times.')
 
         # Get the payload+headers passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
@@ -993,12 +1014,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test adding an additional URL."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -1022,7 +1043,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Define the replacement for the patched GET method:
         cont = {
-            "responseCode":1,"handle":"my/testhandle",
+            "responseCode":1, "handle":"my/testhandle",
             "values":[
             {
                 "index":1,
@@ -1030,15 +1051,15 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
                 "data":{
                     "format":"string",
                     "value":"www.url.foo"
-                },"ttl":86400,
+                }, "ttl":86400,
                 "timestamp":"2015-09-30T15:54:31Z"
-            },{
+            }, {
                 "index":2,
                 "type":"10320/LOC",
                 "data":{
                     "format":"string",
                     "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "
-                }, "ttl":86400,"timestamp":"2015-09-30T15:54:31Z"
+                }, "ttl":86400, "timestamp":"2015-09-30T15:54:31Z"
             }
             ]
         }
@@ -1046,7 +1067,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -1085,7 +1106,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent:
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called '+str(putpatch.call_count)+' times - it should not be called at all.')
+            'The method "requests.put" was called ' + str(putpatch.call_count) + ' times - it should not be called at all.')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -1093,12 +1114,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test adding an URL that is already there."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"my/testhandle","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"}]}
+        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":"my/testhandle"}
+        cont = {"responseCode":1, "handle":"my/testhandle"}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -1108,7 +1129,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called '+str(putpatch.call_count)+' times (should be 0).')
+            'The method "requests.put" was called ' + str(putpatch.call_count) + ' times (should be 0).')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -1121,7 +1142,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1,"handle":"not/me","values":[{"index":1,"type":"URL","data":{"format":"string","value":"www.url.foo"},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"},{"index":2,"type":"10320/LOC","data":{"format":"string","value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "},"ttl":86400,"timestamp":"2015-09-30T15:54:30Z"}]}
+        cont = {"responseCode":1, "handle":"not/me", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
@@ -1135,7 +1156,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Check if the PUT request was sent exactly once:
         self.assertEqual(putpatch.call_count, 0,
-            'The method "requests.put" was called '+str(putpatch.call_count)+' times. It should not have been called at all.')
+            'The method "requests.put" was called ' + str(putpatch.call_count) + ' times. It should not have been called at all.')
 
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.put')
@@ -1170,7 +1191,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         getpatch.return_value = mock_response_get
 
         # Define the replacement for the patched requests.put method:
-        cont = {"responseCode":1,"handle":testhandle}
+        cont = {"responseCode":1, "handle":testhandle}
         mock_response_put = MockResponse(status_code=200, content=json.dumps(cont))
         putpatch.return_value = mock_response_put
 
@@ -1250,7 +1271,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         val = self.inst.search_handle(URL='*')
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
         self.assertTrue(len(val) > 0,
             '')
@@ -1269,9 +1290,9 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         val = self.inst.search_handle(URL='noturldoesnotexist')
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
-        self.assertEqual(len(val),0,
+        self.assertEqual(len(val), 0,
             '')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -1286,14 +1307,14 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         val = self.inst.search_handle(URL='*dkrz*')
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
 
         # Run code to be tested:
         val = self.inst.search_handle('*dkrz*')
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
 
     if False:
@@ -1310,14 +1331,14 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             val = self.inst.search_handle('*dkrz*', CHECKSUM='*123*')
 
             # Check desired outcome:
-            self.assertEqual(type(val),type([]),
+            self.assertEqual(type(val), type([]),
                 '')
 
             # Run code to be tested:
             val = self.inst.search_handle(URL='*dkrz*', CHECKSUM='*123*')
 
             # Check desired outcome:
-            self.assertEqual(type(val),type([]),
+            self.assertEqual(type(val), type([]),
                 '')
 
     @mock.patch('b2handle.handlesystemconnector.requests.Session.get')
@@ -1334,7 +1355,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         val = self.inst.search_handle(URL='*dkrz*', prefix=prefix)
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
         for item in val:
             self.assertEqual(item.split('/')[0], prefix)
@@ -1353,7 +1374,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         val = self.inst.search_handle(URL='*dkrz*', prefix=prefix)
 
         # Check desired outcome:
-        self.assertEqual(type(val),type([]),
+        self.assertEqual(type(val), type([]),
             '')
         for item in val:
             self.assertEqual(item.split('/')[0], prefix)
@@ -1370,5 +1391,5 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Run code to be tested + check exception:
         with self.assertRaises(ReverseLookupException):
-            self.inst.search_handle(URL='*dkrz*', searchterms=['foo','bar'])
+            self.inst.search_handle(URL='*dkrz*', searchterms=['foo', 'bar'])
 

@@ -3,11 +3,16 @@ This module provides some handle-related functions
 that are needed across various modules of the
 b2handle library.
 '''
-
+from __future__ import absolute_import
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.parse import quote
+# from urllib.request import urlopen, Request
+# from urllib.error import HTTPError
 import base64
-import urllib
-import handleexceptions
-import util
+# import urllib
+from . import handleexceptions
+from . import util
 
 def remove_index_from_handle(handle_with_index):
     '''
@@ -108,11 +113,11 @@ def create_authentication_string(username, password):
 
     username_utf8 = username.encode('utf-8')
     userpw_utf8 = password.encode('utf-8')
-    username_perc = urllib.quote(username_utf8)
-    userpw_perc = urllib.quote(userpw_utf8)
+    username_perc = quote(username_utf8)
+    userpw_perc = quote(userpw_utf8)
 
     authinfostring = username_perc + ':' + userpw_perc
-    authinfostring_base64 = base64.b64encode(authinfostring)
+    authinfostring_base64 = base64.b64encode(authinfostring.encode('utf-8')).decode('utf-8')
     return authinfostring_base64
 
 def make_request_log_message(**args):
@@ -141,13 +146,13 @@ def make_request_log_message(**args):
 
     space = '\n   '
     message = ''
-    message += '\n'+args['op']+' '+args['handle']
-    message += space+'URL:          '+args['url']
-    message += space+'HEADERS:      '+str(args['headers'])
-    message += space+'VERIFY:       '+str(args['verify'])
+    message += '\n' + args['op'] + ' ' + args['handle']
+    message += space + 'URL:          ' + args['url']
+    message += space + 'HEADERS:      ' + str(args['headers'])
+    message += space + 'VERIFY:       ' + str(args['verify'])
     if 'payload' in args.keys():
-        message += space+'PAYLOAD:'+space+str(args['payload'])
-    message += space+'RESPONSECODE: '+str(args['resp'].status_code)
-    message += space+'RESPONSE:'+space+str(args['resp'].content)
+        message += space + 'PAYLOAD:' + space + str(args['payload'])
+    message += space + 'RESPONSECODE: ' + str(args['resp'].status_code)
+    message += space + 'RESPONSE:' + space + str(args['resp'].content)
     return message
 

@@ -5,7 +5,8 @@ library.
 Author: Merret Buurman (DKRZ), 2015-2016
 
 '''
-
+from __future__ import absolute_import
+from past.builtins import xrange
 # pylint handleclient.py --method-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --max-line-length=250 --variable-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --attr-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --argument-rgx="[a-z_][a-zA-Z0-9_]{2,30}$"
 
 import json
@@ -13,28 +14,30 @@ import xml.etree.ElementTree as ET
 import uuid
 import logging
 import datetime
-import utilhandle
-import util
-import requests # This import is needed for mocking in unit tests.
-from handleexceptions import HandleNotFoundException
-from handleexceptions import GenericHandleError
-from handleexceptions import BrokenHandleRecordException
-from handleexceptions import HandleAlreadyExistsException
-from handleexceptions import IllegalOperationException
-from handlesystemconnector import HandleSystemConnector
-from searcher import Searcher
-import hsresponses
+from . import utilhandle
+import requests  # This import is needed for mocking in unit tests.
+from .handleexceptions import HandleNotFoundException
+from .handleexceptions import GenericHandleError
+from .handleexceptions import BrokenHandleRecordException
+from .handleexceptions import HandleAlreadyExistsException
+from .handleexceptions import IllegalOperationException
+from .handlesystemconnector import HandleSystemConnector
+from .searcher import Searcher
+from . import hsresponses
+from . import util
+from b2handle.compatibility_helper import decoded_response, set_encoding_variable
 
+      
 # parameters for debugging
-#LOG_FILENAME = 'example.log'
-#logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+# LOG_FILENAME = 'example.log'
+# logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
 REQUESTLOGGER.propagate = False
 REQUESTLOGGER.addHandler(util.NullHandler())
-
+encoding_value = set_encoding_variable()
 class EUDATHandleClient(object):
     '''
     B2Handle main client class.
@@ -95,9 +98,9 @@ class EUDATHandleClient(object):
             certificate and private key, used for authentication in write mode.
         '''
 
-        util.log_instantiation(LOGGER, 'EUDATHandleClient', args, ['password','reverselookup_password'], with_date=True)
+        util.log_instantiation(LOGGER, 'EUDATHandleClient', args, ['password', 'reverselookup_password'], with_date=True)
 
-        LOGGER.debug('\n'+60*'*'+'\nInstantiation of EUDATHandleClient\n'+60*'*')
+        LOGGER.debug('\n' + 60 * '*' + '\nInstantiation of EUDATHandleClient\n' + 60 * '*')
 
         args['handle_server_url'] = handle_server_url
 
@@ -113,7 +116,7 @@ class EUDATHandleClient(object):
 
         # Defaults:
         defaults = {
-            'HS_ADMIN_permissions':'011111110011', # default from hdl-admintool
+            'HS_ADMIN_permissions':'011111110011',  # default from hdl-admintool
             'modify_HS_ADMIN': False
         }
 
@@ -129,32 +132,32 @@ class EUDATHandleClient(object):
 
         if 'HS_ADMIN_permissions' in args.keys():
             self.__HS_ADMIN_permissions = args['HS_ADMIN_permissions']
-            LOGGER.info(' - HS_ADMIN_permissions set to: '+self.__HS_ADMIN_permissions)
+            LOGGER.info(' - HS_ADMIN_permissions set to: ' + self.__HS_ADMIN_permissions)
         else:
             self.__HS_ADMIN_permissions = defaults['HS_ADMIN_permissions']
-            LOGGER.info(' - HS_ADMIN_permissions set to default: '+self.__HS_ADMIN_permissions)
+            LOGGER.info(' - HS_ADMIN_permissions set to default: ' + self.__HS_ADMIN_permissions)
 
 
         if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
-            LOGGER.info(' - 10320LOC_chooseby set to: '+self.__10320LOC_chooseby)
+            LOGGER.info(' - 10320LOC_chooseby set to: ' + self.__10320LOC_chooseby)
         else:
             LOGGER.info(' - 10320LOC_chooseby: No default.')
 
 
         if 'modify_HS_ADMIN' in args.keys():
             self.__modify_HS_ADMIN = args['modify_HS_ADMIN']
-            LOGGER.info(' - modify_HS_ADMIN set to: '+str(self.__modify_HS_ADMIN))
+            LOGGER.info(' - modify_HS_ADMIN set to: ' + str(self.__modify_HS_ADMIN))
         else:
             self.__modify_HS_ADMIN = defaults['modify_HS_ADMIN']
-            LOGGER.info(' - modify_HS_ADMIN set to default: '+str(self.__modify_HS_ADMIN))
+            LOGGER.info(' - modify_HS_ADMIN set to default: ' + str(self.__modify_HS_ADMIN))
 
 
         # Handle owner: The user name to be written into HS_ADMIN.
         # Can be specified in json credentials file (optionally):
         if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
             self.__handleowner = args['handleowner']
-            LOGGER.info(' - handleowner set to: '+self.__handleowner)
+            LOGGER.info(' - handleowner set to: ' + self.__handleowner)
         else:
             self.__handleowner = None
             LOGGER.info(' - handleowner: Will be set to default for each created handle separately.')
@@ -194,7 +197,7 @@ class EUDATHandleClient(object):
         '''
 
         if handle_server_url is None and 'reverselookup_baseuri' not in config.keys():
-            raise TypeError('You must specify either "handle_server_url" or "reverselookup_baseuri".'+\
+            raise TypeError('You must specify either "handle_server_url" or "reverselookup_baseuri".' + \
                 ' Searching not possible without the URL of a search servlet.')
 
         inst = EUDATHandleClient(
@@ -246,7 +249,7 @@ class EUDATHandleClient(object):
         key_value_pairs = credentials.get_all_args()
 
         if config is not None:
-            key_value_pairs.update(**config) # passed config overrides json file
+            key_value_pairs.update(**config)  # passed config overrides json file
 
         inst = EUDATHandleClient(**key_value_pairs)
         return inst
@@ -269,11 +272,16 @@ class EUDATHandleClient(object):
         LOGGER.debug('retrieve_handle_record_json...')
 
         utilhandle.check_handle_syntax(handle)
+        # pdb.set_trace()
         response = self.__send_handle_get_request(handle)
+        response_content = decoded_response(response)
+        
+        # pdb.set_trace()        
         if hsresponses.handle_not_found(response):
             return None
         elif hsresponses.does_handle_exist(response):
-            handlerecord_json = json.loads(response.content)
+         
+            handlerecord_json = json.loads(response_content)
             if not handlerecord_json['handle'] == handle:
                 raise GenericHandleError(
                     operation='retrieving handle record',
@@ -283,7 +291,7 @@ class EUDATHandleClient(object):
                 )
             return handlerecord_json
         elif hsresponses.is_handle_empty(response):
-            handlerecord_json = json.loads(response.content)
+            handlerecord_json = json.loads(response_content)
             return handlerecord_json
         else:
             raise GenericHandleError(
@@ -291,7 +299,8 @@ class EUDATHandleClient(object):
                 handle=handle,
                 response=response
             )
-
+           
+        
     def retrieve_handle_record(self, handle, handlerecord_json=None):
         '''
         Retrieve a handle record from the Handle server as a dict. If there
@@ -311,7 +320,7 @@ class EUDATHandleClient(object):
 
         handlerecord_json = self.__get_handle_record_if_necessary(handle, handlerecord_json)
         if handlerecord_json is None:
-            return None # Instead of HandleNotFoundException!
+            return None  # Instead of HandleNotFoundException!
         list_of_entries = handlerecord_json['values']
 
         record_as_dict = {}
@@ -350,8 +359,8 @@ class EUDATHandleClient(object):
             return None
         else:
             if len(indices) > 1:
-                LOGGER.debug('get_value_from_handle: The handle '+handle+\
-                    ' contains several entries of type "'+key+\
+                LOGGER.debug('get_value_from_handle: The handle ' + handle + \
+                    ' contains several entries of type "' + key + \
                     '". Only the first one is returned.')
             return list_of_entries[indices[0]]['data']['value']
 
@@ -510,38 +519,38 @@ class EUDATHandleClient(object):
         new_list_of_entries = []
         list_of_old_and_new_entries = list_of_entries[:]
         keys = kvpairs.keys()
-        for key, newval in kvpairs.iteritems():
+        for key, newval in kvpairs.items():
             # Change existing entry:
             changed = False
             for i in xrange(len(list_of_entries)):
                 if list_of_entries[i]['type'] == key:
                     if not changed:
                         list_of_entries[i]['data'] = newval
-                        list_of_entries[i].pop('timestamp') # will be ignored anyway
+                        list_of_entries[i].pop('timestamp')  # will be ignored anyway
                         if key == 'HS_ADMIN':
                             newval['permissions'] = self.__HS_ADMIN_permissions
-                            list_of_entries[i].pop('timestamp') # will be ignored anyway
+                            list_of_entries[i].pop('timestamp')  # will be ignored anyway
                             list_of_entries[i]['data'] = {
                                 'format':'admin',
                                 'value':newval
                             }
-                            LOGGER.info('Modified'+\
-                                ' "HS_ADMIN" of handle '+handle)
+                            LOGGER.info('Modified' + \
+                                ' "HS_ADMIN" of handle ' + handle)
                         changed = True
                         nothingchanged = False
                         new_list_of_entries.append(list_of_entries[i])
                         list_of_old_and_new_entries.append(list_of_entries[i])
                     else:
-                        msg = 'There is several entries of type "'+key+'".'+\
-                            ' This can lead to unexpected behaviour.'+\
+                        msg = 'There is several entries of type "' + key + '".' + \
+                            ' This can lead to unexpected behaviour.' + \
                             ' Please clean up before modifying the record.'
                         raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             # If the entry doesn't exist yet, add it:
             if not changed:
                 if add_if_not_exist:
-                    LOGGER.debug('modify_handle_value: Adding entry "'+key+'"'+\
-                        ' to handle '+handle)
+                    LOGGER.debug('modify_handle_value: Adding entry "' + key + '"' + \
+                        ' to handle ' + handle)
                     index = self.__make_another_index(list_of_old_and_new_entries)
                     entry_to_add = self.__create_entry(key, newval, index, ttl)
                     new_list_of_entries.append(entry_to_add)
@@ -556,8 +565,8 @@ class EUDATHandleClient(object):
 
         # append to the old record:
         if nothingchanged:
-            LOGGER.debug('modify_handle_value: There was no entries '+\
-                str(kvpairs.keys())+' to be modified (handle '+handle+').'+\
+            LOGGER.debug('modify_handle_value: There was no entries ' + \
+                str(kvpairs.keys()) + ' to be modified (handle ' + handle + ').' + \
                 ' To add them, set add_if_not_exist = True')
         else:
             op = 'modifying handle values'
@@ -568,9 +577,9 @@ class EUDATHandleClient(object):
                 overwrite=True,
                 op=op)
             if hsresponses.handle_success(resp):
-                LOGGER.info('Handle modified: '+handle)
+                LOGGER.info('Handle modified: ' + handle)
             else:
-                msg = 'Values: '+str(kvpairs)
+                msg = 'Values: ' + str(kvpairs)
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -617,20 +626,20 @@ class EUDATHandleClient(object):
 
             if key not in keys_done:
                 indices_onekey = self.get_handlerecord_indices_for_key(key, list_of_entries)
-                indices = indices+indices_onekey
+                indices = indices + indices_onekey
                 keys_done.append(key)
 
         # Important: If key not found, do not continue, as deleting without indices would delete the entire handle!!
         if not len(indices) > 0:
-            LOGGER.debug('delete_handle_value: No values for key(s) '+str(keys))
+            LOGGER.debug('delete_handle_value: No values for key(s) ' + str(keys))
             return None
         else:
 
             # delete and process response:
-            op = 'deleting "'+str(keys)+'"'
+            op = 'deleting "' + str(keys) + '"'
             resp = self.__send_handle_delete_request(handle, indices=indices, op=op)
             if hsresponses.handle_success(resp):
-                LOGGER.debug("delete_handle_value: Deleted handle values "+str(keys)+"of handle "+handle)
+                LOGGER.debug("delete_handle_value: Deleted handle values " + str(keys) + "of handle " + handle)
             elif hsresponses.values_not_found(resp):
                 pass
             else:
@@ -659,17 +668,17 @@ class EUDATHandleClient(object):
         # deleting handle values (not entire handle) by specifying more
         # parameters.
         if len(other) > 0:
-            message = 'You specified more than one argument. If you wanted'+\
-                ' to delete just some values from a handle, please use the'+\
+            message = 'You specified more than one argument. If you wanted' + \
+                ' to delete just some values from a handle, please use the' + \
                 ' new method "delete_handle_value()".'
             raise TypeError(message)
 
         op = 'deleting handle'
         resp = self.__send_handle_delete_request(handle, op=op)
         if hsresponses.handle_success(resp):
-            LOGGER.info('Handle '+handle+' deleted.')
+            LOGGER.info('Handle ' + handle + ' deleted.')
         elif hsresponses.handle_not_found(resp):
-            msg = ('delete_handle: Handle '+handle+' did not exist, '
+            msg = ('delete_handle: Handle ' + handle + ' did not exist, '
                    'so it could not be deleted.')
             LOGGER.debug(msg)
         else:
@@ -711,7 +720,7 @@ class EUDATHandleClient(object):
             if hsresponses.handle_success(resp):
                 pass
             else:
-                msg = 'Could not exchange URL '+str(old)+' against '+str(new)
+                msg = 'Could not exchange URL ' + str(old) + ' against ' + str(new)
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -763,7 +772,7 @@ class EUDATHandleClient(object):
             if hsresponses.handle_success(resp):
                 pass
             else:
-                msg = 'Could not add URLs '+str(urls)
+                msg = 'Could not add URLs ' + str(urls)
                 raise GenericHandleError(
                     operation=op,
                     handle=handle,
@@ -806,8 +815,8 @@ class EUDATHandleClient(object):
         if hsresponses.handle_success(resp):
             pass
         else:
-            op = 'removing "'+str(urls)+'"'
-            msg = 'Could not remove URLs '+str(urls)
+            op = 'removing "' + str(urls) + '"'
+            msg = 'Could not remove URLs ' + str(urls)
             raise GenericHandleError(
                 operation=op,
                 handle=handle,
@@ -844,7 +853,7 @@ class EUDATHandleClient(object):
             handlerecord_json = self.retrieve_handle_record_json(handle)
             if handlerecord_json is not None:
                 msg = 'Could not register handle'
-                LOGGER.error(msg+', as it already exists.')
+                LOGGER.error(msg + ', as it already exists.')
                 raise HandleAlreadyExistsException(handle=handle, msg=msg)
 
         # Create admin entry
@@ -872,7 +881,7 @@ class EUDATHandleClient(object):
             )
             list_of_entries.append(entryChecksum)
         if extratypes is not None:
-            for key, value in extratypes.iteritems():
+            for key, value in extratypes.items():
                 entry = self.__create_entry(
                     key,
                     value,
@@ -891,10 +900,10 @@ class EUDATHandleClient(object):
             overwrite=overwrite,
             op=op
         )
-
+        resp_content = decoded_response(resp)
         if hsresponses.was_handle_created(resp) or hsresponses.handle_success(resp):
-            LOGGER.info("Handle registered: "+handle)
-            return json.loads(resp.content)['handle']
+            LOGGER.info("Handle registered: " + handle)
+            return json.loads(resp_content)['handle']
         elif hsresponses.is_temporary_redirect(resp):
             oldurl = resp.url
             newurl = resp.headers['location']
@@ -903,7 +912,7 @@ class EUDATHandleClient(object):
                 handle=handle,
                 response=resp,
                 payload=put_payload,
-                msg='Temporary redirect from '+oldurl+' to '+newurl+'.'
+                msg='Temporary redirect from ' + oldurl + ' to ' + newurl + '.'
             )
         elif hsresponses.handle_not_found(resp):
             raise GenericHandleError(
@@ -980,7 +989,7 @@ class EUDATHandleClient(object):
 
         randomuuid = uuid.uuid4()
         if prefix is not None:
-            return prefix+'/'+str(randomuuid)
+            return prefix + '/' + str(randomuuid)
         else:
             return str(randomuuid)
 
@@ -1108,10 +1117,10 @@ class EUDATHandleClient(object):
         prohibited_indices = reserved_for_url | reserved_for_admin
 
         if url:
-            prohibited_indices = prohibited_indices-reserved_for_url
+            prohibited_indices = prohibited_indices - reserved_for_url
             start = 1
         elif hs_admin:
-            prohibited_indices = prohibited_indices-reserved_for_admin
+            prohibited_indices = prohibited_indices - reserved_for_admin
             start = 100
 
         # existing indices
@@ -1122,7 +1131,7 @@ class EUDATHandleClient(object):
 
         # find new index:
         all_prohibited_indices = existing_indices | prohibited_indices
-        searchmax = max(start, max(all_prohibited_indices))+2
+        searchmax = max(start, max(all_prohibited_indices)) + 2
         for index in xrange(start, searchmax):
             if index not in all_prohibited_indices:
                 return index
@@ -1178,7 +1187,7 @@ class EUDATHandleClient(object):
         if handleowner is None:
             adminindex = '200'
             prefix = handle.split('/')[0]
-            adminhandle = '0.NA/'+prefix
+            adminhandle = '0.NA/' + prefix
         else:
             adminindex, adminhandle = utilhandle.remove_index_from_handle(handleowner)
 
@@ -1239,7 +1248,7 @@ class EUDATHandleClient(object):
         if len(python_indices) > 0:
 
             if len(python_indices) > 1:
-                msg = str(len(python_indices))+' entries of type "10320/LOC".'
+                msg = str(len(python_indices)) + ' entries of type "10320/LOC".'
                 raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             for index in python_indices:
@@ -1248,17 +1257,17 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == oldurl:
-                        LOGGER.debug('__exchange_URL_in_13020loc: Exchanging URL '+oldurl +' from 10320/LOC.')
+                        LOGGER.debug('__exchange_URL_in_13020loc: Exchanging URL ' + oldurl + ' from 10320/LOC.')
                         num_exchanged += 1
                         element.set('href', newurl)
-                entry['data']['value'] = ET.tostring(xmlroot)
+                entry['data']['value'] = ET.tostring(xmlroot, encoding=encoding_value)
                 list_of_entries.append(entry)
 
         if num_exchanged == 0:
             LOGGER.debug('__exchange_URL_in_13020loc: No URLs exchanged.')
         else:
-            message = '__exchange_URL_in_13020loc: The URL "'+oldurl+'" was exchanged '+str(num_exchanged)+\
-            ' times against the new url "'+newurl+'" in 10320/LOC.'
+            message = '__exchange_URL_in_13020loc: The URL "' + oldurl + '" was exchanged ' + str(num_exchanged) + \
+            ' times against the new url "' + newurl + '" in 10320/LOC.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
 
@@ -1287,7 +1296,7 @@ class EUDATHandleClient(object):
         if len(python_indices) > 0:
 
             if len(python_indices) > 1:
-                msg = str(len(python_indices))+' entries of type "10320/LOC".'
+                msg = str(len(python_indices)) + ' entries of type "10320/LOC".'
                 raise BrokenHandleRecordException(handle=handle, msg=msg)
 
             for index in python_indices:
@@ -1296,7 +1305,7 @@ class EUDATHandleClient(object):
                 all_URL_elements = xmlroot.findall('location')
                 for element in all_URL_elements:
                     if element.get('href') == url:
-                        LOGGER.debug('__remove_URL_from_10320LOC: Removing URL '+url+'.')
+                        LOGGER.debug('__remove_URL_from_10320LOC: Removing URL ' + url + '.')
                         num_removed += 1
                         xmlroot.remove(element)
                 remaining_URL_elements = xmlroot.findall('location')
@@ -1306,15 +1315,15 @@ class EUDATHandleClient(object):
                     # index (instead of overwriting the entire one), be careful
                     # to delete the ones that became empty!
                 else:
-                    entry['data']['value'] = ET.tostring(xmlroot)
-                    LOGGER.debug('__remove_URL_from_10320LOC: '+str(len(remaining_URL_elements))+' URLs'+\
+                    entry['data']['value'] = ET.tostring(xmlroot, encoding=encoding_value)
+                    LOGGER.debug('__remove_URL_from_10320LOC: ' + str(len(remaining_URL_elements)) + ' URLs' + \
                         ' left after removal operation.')
                     list_of_entries.append(entry)
         if num_removed == 0:
             LOGGER.debug('__remove_URL_from_10320LOC: No URLs removed.')
         else:
-            message = '__remove_URL_from_10320LOC: The URL "'+url+'" was removed '\
-            +str(num_removed)+' times.'
+            message = '__remove_URL_from_10320LOC: The URL "' + url + '" was removed '\
+            + str(num_removed) + ' times.'
             message = message.replace('1 times', 'once')
             LOGGER.debug(message)
 
@@ -1356,7 +1365,7 @@ class EUDATHandleClient(object):
             makenew = True
         else:
             if len(indices) > 1:
-                msg = 'There is '+str(len(indices))+' 10320/LOC entries.'
+                msg = 'There is ' + str(len(indices)) + ' 10320/LOC entries.'
                 raise BrokenHandleRecordException(handle=handle, msg=msg)
             ind = indices[0]
             entry = list_of_entries.pop(ind)
@@ -1372,7 +1381,7 @@ class EUDATHandleClient(object):
                 xmlroot = ET.fromstring(entry['data']['value'])
             except TypeError:
                 xmlroot = ET.fromstring(entry['data'])
-        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (1) "+ET.tostring(xmlroot))
+        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (1) " + ET.tostring(xmlroot, encoding=encoding_value))
 
         # Check if URL already there...
         location_element = None
@@ -1394,18 +1403,18 @@ class EUDATHandleClient(object):
                 if location_id == existing_id:
                     location_id += 1
             location_element = ET.SubElement(xmlroot, 'location')
-            LOGGER.debug("__add_URL_to_10320LOC: location_element is (1) "+ET.tostring(location_element)+', now add id '+str(location_id))
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (1) " + ET.tostring(location_element, encoding=encoding_value) + ', now add id ' + str(location_id))
             location_element.set('id', str(location_id))
-            LOGGER.debug("__add_URL_to_10320LOC: location_element is (2) "+ET.tostring(location_element)+', now add url '+str(url))
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (2) " + ET.tostring(location_element, encoding=encoding_value) + ', now add url ' + str(url))
             location_element.set('href', url)
-            LOGGER.debug("__add_URL_to_10320LOC: location_element is (3) "+ET.tostring(location_element))
+            LOGGER.debug("__add_URL_to_10320LOC: location_element is (3) " + ET.tostring(location_element, encoding=encoding_value))
             self.__set_or_adapt_10320LOC_attributes(location_element, weight, http_role, **kvpairs)
         # FIXME: If we start adapting the Handle Record by index (instead of
         # overwriting the entire one), be careful to add and/or overwrite!
 
         # (Re-)Add entire 10320 to entry, add entry to list of entries:
-        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (2) "+ET.tostring(xmlroot))
-        entry['data'] = ET.tostring(xmlroot)
+        LOGGER.debug("__add_URL_to_10320LOC: xmlroot is (2) " + ET.tostring(xmlroot, encoding=encoding_value))
+        entry['data'] = ET.tostring(xmlroot, encoding=encoding_value)
         list_of_entries.append(entry)
 
     def __set_or_adapt_10320LOC_attributes(self, locelement, weight=None, http_role=None, **kvpairs):
@@ -1426,12 +1435,12 @@ class EUDATHandleClient(object):
         '''
 
         if weight is not None:
-            LOGGER.debug('__set_or_adapt_10320LOC_attributes: weight ('+str(type(weight))+'): '+str(weight))
+            LOGGER.debug('__set_or_adapt_10320LOC_attributes: weight (' + str(type(weight)) + '): ' + str(weight))
             weight = float(weight)
             if weight < 0  or weight > 1:
                 default = 1
-                LOGGER.debug('__set_or_adapt_10320LOC_attributes: Invalid weight ('+str(weight)+\
-                    '), using default value ('+str(default)+') instead.')
+                LOGGER.debug('__set_or_adapt_10320LOC_attributes: Invalid weight (' + str(weight) + \
+                    '), using default value (' + str(default) + ') instead.')
                 weight = default
             weight = str(weight)
             locelement.set('weight', weight)
@@ -1439,7 +1448,7 @@ class EUDATHandleClient(object):
         if http_role is not None:
             locelement.set('http_role', http_role)
 
-        for key, value in kvpairs.iteritems():
+        for key, value in kvpairs.items():
             locelement.set(key, str(value))
 
     def __log_request_response_to_file(self, **args):
