@@ -92,6 +92,7 @@ setup(name='b2handle',
       install_requires=[
           'requests',
           'datetime',
+          'future',
       ],
       tests_require=test_dependencies,
       cmdclass={'test': NoseTestCommand},
