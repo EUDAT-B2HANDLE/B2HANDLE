@@ -356,8 +356,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
-        # sort_lists(passed_payload)
-
+        
         # Compare with expected payload:
         expected_payload = {
         "values":[
@@ -382,7 +381,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
             }]
         }
         replace_timestamps(expected_payload)
-        # sort_lists(expected_payload)
         self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
