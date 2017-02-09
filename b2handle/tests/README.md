@@ -1,10 +1,18 @@
 # B2HANDLE Testing
 
+## Python 3 support
+
+As of version 1.1.0 the B2HANDLE library supports Python 3.
+Only for Python 3 users, the value of PYTHONHASHSEED variable should be set to 0 before running the tests.
+This can be simply performed by:
+
+    export PYTHONHASHSEED=0
+
 ## Testing with plain unittest/unittest2
 
 Simply run:
 
-    python main_test_script.py
+    python setup.py test
 
 
 ## Testing with nose and/or coverage
@@ -24,7 +32,7 @@ The above will generate test results in the standard XUnit XML format and also p
 To generate test coverage reports without `nose`, run:
 
     coverage erase
-    coverage run --branch main_test_script.py
+    coverage run --branch -m b2handle.tests.main_test_script
     coverage xml -i
 
 
@@ -39,6 +47,8 @@ To generate test coverage reports without `nose`, run:
     or alternatively, using nose:
 
         nosetests --with-coverage --cover-erase --cover-inclusive main_test_script.py
+
+
 
 
 ## Testing with Docker
