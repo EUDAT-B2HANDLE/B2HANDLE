@@ -6,7 +6,7 @@ import logging
 import time
 import b2handle
 import b2handle.tests.testcases as testcases
-from b2handle.compatibility_helper import decoded_response
+
 
 # Unit tests:
 from .testcases.handleclient_unit_test import EUDATHandleClientNoaccessTestCase
