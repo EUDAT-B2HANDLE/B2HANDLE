@@ -9,6 +9,7 @@ Author: Merret Buurman (DKRZ), 2015-2016
 '''
 
 import json
+from b2handle.compatibility_helper import decoded_response
 
 def is_redirect_from_http_to_https(response):
     if response.status_code == 302:
@@ -24,7 +25,8 @@ def is_temporary_redirect(response):
     return False
 
 def handle_success(response):
-    if (response.status_code == 200 or response.status_code == 201) and json.loads(response.content)["responseCode"] == 1:
+    response_content = decoded_response(response)
+    if (response.status_code == 200 or response.status_code == 201) and json.loads(response_content)["responseCode"] == 1:
         return True
     return False
 
@@ -34,35 +36,41 @@ def does_handle_exist(response):
     return False
 
 def is_handle_empty(response):
-    if response.status_code == 200 and json.loads(response.content)["responseCode"] == 200:
+    response_content = decoded_response(response)
+    if response.status_code == 200 and json.loads(response_content)["responseCode"] == 200:
         return True
     return False
 
 def was_handle_created(response):
-    if response.status_code == 201 and json.loads(response.content)["responseCode"] == 1:
+    response_content = decoded_response(response)
+    if response.status_code == 201 and json.loads(response_content)["responseCode"] == 1:
         return True
     return False
 
 def handle_not_found(response):
-    if response.status_code == 404 and json.loads(response.content)["responseCode"] == 100:
+    response_content = decoded_response(response)
+    if response.status_code == 404 and json.loads(response_content)["responseCode"] == 100:
         return True
     return False
 
 def not_authenticated(response):
+    response_content = decoded_response(response)
     try:
-        if response.status_code == 401 or json.loads(response.content)["responseCode"] == 402:
+        if response.status_code == 401 or json.loads(response_content)["responseCode"] == 402:
             # need to put 'OR' because the HS responseCode is not always received!
             return True
-    except ValueError as e: # If there is no JSON response.
+    except ValueError as e:  # If there is no JSON response.
         pass 
     return False
 
 def values_not_found(response):
-    if response.status_code == 400 and json.loads(response.content)["responseCode"] == 200:
+    response_content = decoded_response(response)
+    if response.status_code == 400 and json.loads(response_content)["responseCode"] == 200:
         return True
     return False
 
 def handle_already_exists(response):
-    if response.status_code == 409 & json.loads(response.content)["responseCode"] == 101:
+    response_content = decoded_response(response)
+    if response.status_code == 409 & json.loads(response_content)["responseCode"] == 101:
         return True
     return False

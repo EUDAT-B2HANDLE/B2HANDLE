@@ -1,4 +1,5 @@
 
+from past.builtins import xrange
 def add_missing_optional_args_with_value_none(args, optional_args):
     '''
     Adds key-value pairs to the passed dictionary, so that
@@ -47,7 +48,7 @@ def check_presence_of_mandatory_args(args, mandatory_args):
 
 def return_keys_of_value_none(dictionary):
     isnone = []
-    for key,value in dictionary.iteritems():
+    for key,value in dictionary.items():
         if value is None:
             isnone.append(key)
     return isnone

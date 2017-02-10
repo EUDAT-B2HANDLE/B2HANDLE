@@ -5,10 +5,10 @@ libraries interacting with the Handle System.
 Author: Merret Buurman (DKRZ), 2015-2016
 
 '''
-
+from __future__ import absolute_import
 import json
 import re
-from util import add_missing_optional_args_with_value_none
+from .util import add_missing_optional_args_with_value_none
 
 class BrokenHandleRecordException(Exception):
 
