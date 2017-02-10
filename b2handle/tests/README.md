@@ -12,7 +12,7 @@ This can be simply performed by:
 
 Simply run:
 
-    python setup.py test
+    python -m b2handle.tests.main_test_script
 
 
 ## Testing with nose and/or coverage
@@ -35,6 +35,11 @@ To generate test coverage reports without `nose`, run:
     coverage run --branch -m b2handle.tests.main_test_script
     coverage xml -i
 
+Alternatively you may run tests with nose and generate coverage reports as follows:
+
+    python setup.py test
+
+To configure the nosetests command see also nosetests section in setup.cfg.
 
 ### Notes for older versions of nose and coverage
 
