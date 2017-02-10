@@ -11,13 +11,13 @@ import json
 import b2handle
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.utilhandle import check_handle_syntax
-
+from past.builtins import long
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
-RECORD = json.load(open(PATH_RES+'/handlerecord_for_reading.json'))
-RECORD_WITH = json.load(open(PATH_RES+'/handlerecord_with_10320LOC.json'))
-RECORD_WITHOUT = json.load(open(PATH_RES+'/handlerecord_without_10320LOC.json'))
-RECORD_WITH_EMPTY = json.load(open(PATH_RES+'/handlerecord_with_empty_10320LOC.json'))
+RECORD = json.load(open(PATH_RES+'/handlerecord_for_reading_PUBLIC.json'))
+RECORD_WITH = json.load(open(PATH_RES+'/handlerecord_with_10320LOC_PUBLIC.json'))
+RECORD_WITHOUT = json.load(open(PATH_RES+'/handlerecord_without_10320LOC_PUBLIC.json'))
+RECORD_WITH_EMPTY = json.load(open(PATH_RES+'/handlerecord_with_empty_10320LOC_PUBLIC.json'))
 
 class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
     '''Testing methods for retrieving values and indices.'''

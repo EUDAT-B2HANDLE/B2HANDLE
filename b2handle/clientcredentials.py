@@ -11,7 +11,7 @@ import json
 import os
 import logging
 import b2handle
-from b2handle.handleexceptions import CredentialsFormatError
+from b2handle.handleexceptions import CredentialsFormatError, HandleSyntaxError
 import b2handle.util as util
 
 LOGGER = logging.getLogger(__name__)
@@ -50,8 +50,10 @@ class PIDClientCredentials(object):
         :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`
         :return: An instance.
         '''
-
-        jsonfilecontent = json.loads(open(json_filename, 'r').read())
+        try:
+            jsonfilecontent = json.loads(open(json_filename, 'r').read())
+        except ValueError as exc:
+            raise CredentialsFormatError(msg="Invalid JSON syntax: "+str(exc))
         instance = PIDClientCredentials(credentials_filename=json_filename,**jsonfilecontent)
         return instance
 
@@ -202,7 +204,7 @@ class PIDClientCredentials(object):
             path = util.get_absolute_path(path, self.__credentials_filename)
 
         except ValueError: # not a valid path
-            thisdir = utilsget_this_directory(self.__credentials_filename)
+            thisdir = util.get_this_directory(self.__credentials_filename)
             msg = ('Please provide an absolute path or a path relative to '
                    'the location of the credentials file\'s location (%s), '
                    'starting with %s.' % (thisdir, os.path.curdir))

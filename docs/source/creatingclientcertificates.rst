@@ -80,27 +80,32 @@ Transforming the binary private key (.bin) to a .pem file
 Creating the certificate file
 =============================
   
-  * This can be done using openssl without specifying a subject:
-
-      .. code:: json
+This can be done in 2 ways:
   
-        openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem 
-                                        -out /.../301_certificate_and_publickey.pem -sha256
-
-
-  * This can be done using openssl with specifying a subject:
+Case 1: Using openssl with specifying a subject.
 
       .. code:: json
 
-        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar"
+        openssl req -pubkey -x509 -new -sha256 -subj "/CN=301:foo\/bar" -days 3652
                                         -key /.../301_foo_bar_privkey.pem 
                                         -out /.../301_certificate_and_publickey.pem
 
+Done!
+
+Case 2: Using openssl without specifying a subject:
+
+      .. code:: json
+  
+        openssl req -pubkey -x509 -new  -key /.../301_foo_bar_privkey.pem -days 3652
+                                        -out /.../301_certificate_and_publickey.pem -sha256
+
+
+
 
   
-  * The tool is then going to prompt for some information if you don not specify a subject. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
-    However, it is very important to enter the username as Common Name and *leave the Email address blank*, as it is going to be appended to the username otherwise. This will look like
-    this:
+The tool is then going to prompt for some information if you do not specify a subject. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.
+
+However, it is very important to enter the username as Common Name and *leave the Email address blank*, as it is going to be appended to the username otherwise. This will look like this:
 
     .. code-block:: none
        :emphasize-lines: 13,14
@@ -120,6 +125,7 @@ Creating the certificate file
           Common Name (eg, your name or your server's hostname) []:300:foo/bar
           Email Address []:
 
+Done!
 
 .. _step5:
 

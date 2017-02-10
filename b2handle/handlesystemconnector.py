@@ -13,7 +13,7 @@ import requests
 import os
 import b2handle
 from b2handle.handleexceptions import HandleNotFoundException, GenericHandleError, HandleAuthenticationError, CredentialsFormatError
-
+from b2handle.compatibility_helper import decoded_response
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(b2handle.util.NullHandler())
 REQUESTLOGGER = logging.getLogger('log_all_requests_of_testcases_to_file')
@@ -462,8 +462,9 @@ class HandleSystemConnector(object):
         _, handle = b2handle.utilhandle.remove_index_from_handle(username)
 
         resp = self.send_handle_get_request(handle)
+        resp_content = decoded_response(resp)
         if b2handle.hsresponses.does_handle_exist(resp):
-            handlerecord_json = json.loads(resp.content)
+            handlerecord_json = json.loads(resp_content)
             if not handlerecord_json['handle'] == handle:
                 raise GenericHandleError(
                     operation='Checking if username exists',

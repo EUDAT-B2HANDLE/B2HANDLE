@@ -1,1 +1,4 @@
 include README.md
+include b2handle/tests/resources/*PUBLIC.json
+include b2handle/tests/testcredentials/*_PUBLIC.json
+include b2handle/tests/testcredentials/fake_certs_and_keys/*.pem
