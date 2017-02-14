@@ -650,7 +650,7 @@ class EUDATHandleClient(object):
                 )
 
     def delete_handle(self, handle, *other):
-        '''Delete the handle and its handle record.
+        '''Delete the handle and its handle record. If the Handle is not found, an Exception is raised.
 
         :param handle: Handle to be deleted.
         :param other: Deprecated. This only exists to catch wrong method usage
@@ -681,6 +681,7 @@ class EUDATHandleClient(object):
             msg = ('delete_handle: Handle ' + handle + ' did not exist, '
                    'so it could not be deleted.')
             LOGGER.debug(msg)
+            raise HandleNotFoundException(msg=msg, handle=handle, response=resp)
         else:
             raise GenericHandleError(op=op, handle=handle, response=resp)
 
