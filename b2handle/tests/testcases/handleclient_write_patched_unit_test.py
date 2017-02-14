@@ -720,13 +720,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         mock_response_del = MockResponse(notfound=True)
         deletepatch.return_value = mock_response_del
 
-        # Call method to be tested:
-        resp = self.inst.delete_handle('my/testhandle')
-
-        # Check if response is ok:
-        self.assertIsNone(resp,
-            'The response code when deleting inexistent handle should be None but is: ' + str(resp))
-
+        # Call method to be tested, assert exception
+        with self.assertRaises(HandleNotFoundException):
+            resp = self.inst.delete_handle('my/testhandle')
+            
     def test_delete_handle_too_many_args(self):
 
         # Call method to be tested:
