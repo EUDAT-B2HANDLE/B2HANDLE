@@ -272,11 +272,9 @@ class EUDATHandleClient(object):
         LOGGER.debug('retrieve_handle_record_json...')
 
         utilhandle.check_handle_syntax(handle)
-        # pdb.set_trace()
         response = self.__send_handle_get_request(handle)
         response_content = decoded_response(response)
-        
-        # pdb.set_trace()        
+                    
         if hsresponses.handle_not_found(response):
             return None
         elif hsresponses.does_handle_exist(response):
