@@ -8,3 +8,4 @@ The developer team consists of:
 * Robert Verkerk (SURFsara)
 * Tobias Weigel (DKRZ)
 * Themis Zamani (GRNET)
+* Sofiane Bendoukha (DKRZ)

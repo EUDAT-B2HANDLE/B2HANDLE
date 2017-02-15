@@ -464,12 +464,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Get the payload passed to "requests.put"
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
         passed_payload.get('values', {})
-        # sort_lists(passed_payload)
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 2, "type": "TEST100", "data": "new100"}, {"index": 2222, "ttl": 86400, "type": "TEST2", "data": "new2"}, {"index": 4, "ttl": 86400, "type": "TEST4", "data": "new4"}]}
         expected_payload.get('values', {})
         replace_timestamps(expected_payload)
-        # sort_lists(expected_payload)
         self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
@@ -510,9 +508,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {'values': [{'index': 2, 'type': 'TEST100', 'data': 'new100'}, {'index': 2222, 'ttl': 86400, 'type': 'TEST2', 'data': 'new2'}, {'index': 4, 'ttl': 86400, 'type': 'TEST4', 'data': 'new4'}, {'index': 3, 'type': 'TEST101', 'data': 'new101'}]}
         expected_payload.get('values', {})
-        replace_timestamps(expected_payload)
-        sort_lists(expected_payload)
-
         replace_timestamps(expected_payload)
         self.assertEqual(sort_lists(passed_payload), sort_lists(expected_payload),
             failure_message(expected=expected_payload,
@@ -760,10 +755,8 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
 
         # Get the payload passed to "requests.put"
         # For help, please see: http://www.voidspace.org.uk/python/mock/examples.html#checking-multiple-calls-with-mock
-        try:
-            passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
-        except Exception as exc:
-            import pdb; pdb.set_trace()  # breakpoint 6579fbc8x //
+        passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
+                   
 
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:32Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:32Z", "data": {"value": "<locations><location href=\"http://second.foo\" /></locations>", "format": "string"}}]}
@@ -771,7 +764,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         replace_timestamps(expected_payload)
         sort_lists(expected_payload)
 
-        replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
@@ -810,7 +802,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         replace_timestamps(expected_payload)
         sort_lists(expected_payload)
 
-        replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
@@ -850,7 +841,6 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         # Compare with expected payload:
         expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:32Z", "data": {"value": "www.url.foo", "format": "string"}}]}
         replace_timestamps(expected_payload)
-
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload,
                                  passed=passed_payload,
