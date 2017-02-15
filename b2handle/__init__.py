@@ -1,4 +1,4 @@
-__version__ = "1.1.1.dev0"
+__version__ = "1.1.1"
 
 # The version as used in setup.py and docs/source/conf.py.
 
@@ -8,3 +8,4 @@ __version__ = "1.1.1.dev0"
 # (The first comment - empty or not - would be appended to 
 # the package name, the next non-empty comment would be
 # printed as description).
+
