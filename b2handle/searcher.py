@@ -116,7 +116,7 @@ class Searcher(object):
     def __check_and_set_search_url(self):
         if (self.__reverselookup_baseuri is not None and
             self.__reverselookup_url_extension is not None):
-            
+
             self.__search_url = (
                 self.__reverselookup_baseuri.rstrip('/')+'/'+
                 self.__reverselookup_url_extension.strip('/')
@@ -299,7 +299,8 @@ class Searcher(object):
 
         if resp.status_code == 200:
             try:
-                list_of_handles = json.loads(resp.content)
+                values = filter(lambda x: x, resp.content.split("\r\n"))
+                list_of_handles = json.loads("{\"count\": %d, \"values\": [\"%s\"]}" % (len(values), "\",\"".join(values)))
             except ValueError:
                 msg = 'The response is not JSON.'
                 raise ReverseLookupException(msg=msg, query=query, response=resp)
@@ -365,7 +366,7 @@ class Searcher(object):
         fulltext_searchterms = b2handle.util.remove_value_none_from_list(fulltext_searchterms)
         if len(fulltext_searchterms) == 0:
             fulltext_searchterms_given = False
-        
+
         if fulltext_searchterms_given:
             msg = 'Full-text search is not implemented yet.'+\
                 ' The provided searchterms '+str(fulltext_searchterms)+\
