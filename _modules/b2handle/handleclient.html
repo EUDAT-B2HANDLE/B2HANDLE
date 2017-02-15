@@ -1,0 +1,1652 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>b2handle.handleclient &mdash; B2Handle 1.1.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="B2Handle 1.1.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> B2Handle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../handleclient.html">Handle Client documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authentication.html">Authentication at a Handle Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../creatingclientcertificates.html">Creating the client certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../givingpermissiontousers.html">Giving write permissions to users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../handleserverconfig.html">Handle Server Configuration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">B2Handle</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>b2handle.handleclient</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for b2handle.handleclient</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This module provides the main client for the B2Handle</span>
+<span class="sd">library.</span>
+
+<span class="sd">Author: Merret Buurman (DKRZ), 2015-2016</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">past.builtins</span> <span class="k">import</span> <span class="n">xrange</span>
+<span class="c1"># pylint handleclient.py --method-rgx=&quot;[a-z_][a-zA-Z0-9_]{2,30}$&quot; --max-line-length=250 --variable-rgx=&quot;[a-z_][a-zA-Z0-9_]{2,30}$&quot; --attr-rgx=&quot;[a-z_][a-zA-Z0-9_]{2,30}$&quot; --argument-rgx=&quot;[a-z_][a-zA-Z0-9_]{2,30}$&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">utilhandle</span>
+<span class="kn">import</span> <span class="nn">requests</span>  <span class="c1"># This import is needed for mocking in unit tests.</span>
+<span class="kn">from</span> <span class="nn">.handleexceptions</span> <span class="k">import</span> <span class="n">HandleNotFoundException</span>
+<span class="kn">from</span> <span class="nn">.handleexceptions</span> <span class="k">import</span> <span class="n">GenericHandleError</span>
+<span class="kn">from</span> <span class="nn">.handleexceptions</span> <span class="k">import</span> <span class="n">BrokenHandleRecordException</span>
+<span class="kn">from</span> <span class="nn">.handleexceptions</span> <span class="k">import</span> <span class="n">HandleAlreadyExistsException</span>
+<span class="kn">from</span> <span class="nn">.handleexceptions</span> <span class="k">import</span> <span class="n">IllegalOperationException</span>
+<span class="kn">from</span> <span class="nn">.handlesystemconnector</span> <span class="k">import</span> <span class="n">HandleSystemConnector</span>
+<span class="kn">from</span> <span class="nn">.searcher</span> <span class="k">import</span> <span class="n">Searcher</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">hsresponses</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">b2handle.compatibility_helper</span> <span class="k">import</span> <span class="n">decoded_response</span><span class="p">,</span> <span class="n">set_encoding_variable</span>
+
+      
+<span class="c1"># parameters for debugging</span>
+<span class="c1"># LOG_FILENAME = &#39;example.log&#39;</span>
+<span class="c1"># logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOGGER</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">REQUESTLOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;log_all_requests_of_testcases_to_file&#39;</span><span class="p">)</span>
+<span class="n">REQUESTLOGGER</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">REQUESTLOGGER</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">encoding_value</span> <span class="o">=</span> <span class="n">set_encoding_variable</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">EUDATHandleClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    B2Handle main client class.</span>
+<span class="sd">    (formerly B2SAFE epic client)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># Instantiation:</span>
+
+<div class="viewcode-block" id="EUDATHandleClient.__init__"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle_server_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the client. Depending on the arguments passed, it is set to</span>
+<span class="sd">        read-only, write and/or search mode. All arguments are optional.</span>
+<span class="sd">        If none is set, the client is in read-only mode, reading from</span>
+<span class="sd">        the global handle resolver.</span>
+
+<span class="sd">        :param handle_server_url: Optional. The URL of the Handle System</span>
+<span class="sd">            server to read from. Defaults to &#39;https://hdl.handle.net&#39;</span>
+<span class="sd">        :param username: Optional. This must be a handle value reference in</span>
+<span class="sd">            the format &quot;index:prefix/suffix&quot;. The method will throw an exception</span>
+<span class="sd">            upon bad syntax or non-existing Handle. The existence or validity</span>
+<span class="sd">            of the password in the handle is not checked at this moment.</span>
+<span class="sd">        :param password: Optional. This is the password stored as secret key</span>
+<span class="sd">            in the actual Handle value the username points to.</span>
+<span class="sd">        :param REST_API_url_extension: Optional. The extension of a Handle</span>
+<span class="sd">            Server&#39;s URL to access its REST API. Defaults to &#39;/api/handles/&#39;.</span>
+<span class="sd">        :param allowed_search_keys: Optional. The keys that can be used for</span>
+<span class="sd">            reverse lookup of handles, as a list of strings. Defaults to &#39;URL&#39;</span>
+<span class="sd">            and &#39;CHECKSUM&#39;. If the list is empty, all keys are passed to the</span>
+<span class="sd">            reverse lookup servlet and exceptions are passed on to the user.</span>
+<span class="sd">        :param 10320LOC_chooseby: Optional. The value to give to a handle</span>
+<span class="sd">            record&#39;s 10320/LOC entry&#39;s &#39;chooseby&#39; attribute as string (e.g.</span>
+<span class="sd">            &#39;locatt,weighted&#39;). Defaults to None (attribute not set).</span>
+<span class="sd">        :param modify_HS_ADMIN: Optional. Advanced usage. Determines whether</span>
+<span class="sd">            the HS_ADMIN handle record entry can be modified using this library.</span>
+<span class="sd">            Defaults to False and should not be modified.</span>
+<span class="sd">        :param HTTPS_verify: Optional. This parameter can have three values.</span>
+<span class="sd">            &#39;True&#39;, &#39;False&#39; or &#39;the path to a CA_BUNDLE file or directory with</span>
+<span class="sd">            certificates of trusted CAs&#39;. If set to False, the certificate is</span>
+<span class="sd">            not verified in HTTP requests. Defaults to True.</span>
+<span class="sd">        :param reverselookup_baseuri: Optional. The base URL of the reverse</span>
+<span class="sd">            lookup service. If not set, the handle server base URL is used.</span>
+<span class="sd">        :param reverselookup_url_extension: Optional. The path to append to</span>
+<span class="sd">            the reverse lookup base URL to reach the reverse lookup service.</span>
+<span class="sd">            Defaults to &#39;/hrls/handles/&#39;.</span>
+<span class="sd">        :param handleowner: Optional. The username that will be given admin</span>
+<span class="sd">            permissions over every newly created handle. By default, it is</span>
+<span class="sd">            &#39;200:0.NA/xyz&#39; (where xyz is the prefix of the handle being created.</span>
+<span class="sd">        :param HS_ADMIN_permissions: Optional. Advanced usage. This indicates</span>
+<span class="sd">            the permissions that are given to the handle owner of newly</span>
+<span class="sd">            created handles in the HS_ADMIN entry.</span>
+<span class="sd">        :param private_key: Optional. The path to a file containing the private</span>
+<span class="sd">            key that will be used for authentication in write mode. If this is</span>
+<span class="sd">            specified, a certificate needs to be specified too.</span>
+<span class="sd">        :param certificate_only: Optional. The path to a file containing the</span>
+<span class="sd">            client certificate that will be used for authentication in write</span>
+<span class="sd">            mode. If this is specified, a private key needs to be specified too.</span>
+<span class="sd">        :param certificate_and_key: Optional. The path to a file containing both</span>
+<span class="sd">            certificate and private key, used for authentication in write mode.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">util</span><span class="o">.</span><span class="n">log_instantiation</span><span class="p">(</span><span class="n">LOGGER</span><span class="p">,</span> <span class="s1">&#39;EUDATHandleClient&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;reverselookup_password&#39;</span><span class="p">],</span> <span class="n">with_date</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Instantiation of EUDATHandleClient</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+
+        <span class="n">args</span><span class="p">[</span><span class="s1">&#39;handle_server_url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handle_server_url</span>
+
+        <span class="c1"># Args that the constructor understands:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__handleowner</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__10320LOC_chooseby</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Other attributes:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__handlesystemconnector</span> <span class="o">=</span> <span class="n">HandleSystemConnector</span><span class="p">(</span><span class="n">handleclient</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__searcher</span> <span class="o">=</span> <span class="n">Searcher</span><span class="p">(</span><span class="n">handleclient</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># Defaults:</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;HS_ADMIN_permissions&#39;</span><span class="p">:</span><span class="s1">&#39;011111110011&#39;</span><span class="p">,</span>  <span class="c1"># default from hdl-admintool</span>
+            <span class="s1">&#39;modify_HS_ADMIN&#39;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="p">}</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__store_args_or_set_to_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span>
+
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; - (end of initialisation)&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__store_args_or_set_to_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
+
+        <span class="c1"># Needed for creating handles:</span>
+
+        <span class="k">if</span> <span class="s1">&#39;HS_ADMIN_permissions&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;HS_ADMIN_permissions&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - HS_ADMIN_permissions set to: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;HS_ADMIN_permissions&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - HS_ADMIN_permissions set to default: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="s1">&#39;10320LOC_chooseby&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__10320LOC_chooseby</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;10320LOC_chooseby&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - 10320LOC_chooseby set to: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__10320LOC_chooseby</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - 10320LOC_chooseby: No default.&#39;</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="s1">&#39;modify_HS_ADMIN&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;modify_HS_ADMIN&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - modify_HS_ADMIN set to: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span> <span class="o">=</span> <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;modify_HS_ADMIN&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - modify_HS_ADMIN set to default: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span><span class="p">))</span>
+
+
+        <span class="c1"># Handle owner: The user name to be written into HS_ADMIN.</span>
+        <span class="c1"># Can be specified in json credentials file (optionally):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;handleowner&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;handleowner&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handleowner</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;handleowner&#39;</span><span class="p">]</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - handleowner set to: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handleowner</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handleowner</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39; - handleowner: Will be set to default for each created handle separately.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="EUDATHandleClient.instantiate_for_read_access"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_access">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate_for_read_access</span><span class="p">(</span><span class="n">handle_server_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the client in read-only mode. Access is anonymous,</span>
+<span class="sd">        thus no credentials are required.</span>
+
+<span class="sd">        :param handle_server_url: Optional. The URL of the Handle System</span>
+<span class="sd">            server to read from. Defaults to &#39;https://hdl.handle.net&#39;</span>
+<span class="sd">        :param \**config: More key-value pairs may be passed that will be passed</span>
+<span class="sd">            on to the constructor as config. Config options from the</span>
+<span class="sd">            credentials object are overwritten by this.</span>
+<span class="sd">        :return: An instance of the client.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="p">(</span><span class="n">handle_server_url</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="EUDATHandleClient.instantiate_for_read_and_search"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_and_search">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate_for_read_and_search</span><span class="p">(</span><span class="n">handle_server_url</span><span class="p">,</span> <span class="n">reverselookup_username</span><span class="p">,</span> <span class="n">reverselookup_password</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize client with read access and with search function.</span>
+
+<span class="sd">        :param handle_server_url: The URL of the Handle Server. May be None</span>
+<span class="sd">            (then, the default &#39;https://hdl.handle.net&#39; is used).</span>
+<span class="sd">        :param reverselookup_username: The username to authenticate at the</span>
+<span class="sd">            reverse lookup servlet.</span>
+<span class="sd">        :param reverselookup_password: The password to authenticate at the</span>
+<span class="sd">            reverse lookup servlet.</span>
+<span class="sd">        :param \**config: More key-value pairs may be passed that will be passed</span>
+<span class="sd">            on to the constructor as config. Config options from the</span>
+<span class="sd">            credentials object are overwritten by this.</span>
+<span class="sd">        :return: An instance of the client.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">handle_server_url</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;reverselookup_baseuri&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;You must specify either &quot;handle_server_url&quot; or &quot;reverselookup_baseuri&quot;.&#39;</span> <span class="o">+</span> \
+                <span class="s1">&#39; Searching not possible without the URL of a search servlet.&#39;</span><span class="p">)</span>
+
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="p">(</span>
+            <span class="n">handle_server_url</span><span class="p">,</span>
+            <span class="n">reverselookup_username</span><span class="o">=</span><span class="n">reverselookup_username</span><span class="p">,</span>
+            <span class="n">reverselookup_password</span><span class="o">=</span><span class="n">reverselookup_password</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">config</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="EUDATHandleClient.instantiate_with_username_and_password"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate_with_username_and_password</span><span class="p">(</span><span class="n">handle_server_url</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize client against an HSv8 instance with full read/write access.</span>
+
+<span class="sd">        The method will throw an exception upon bad syntax or non-existing</span>
+<span class="sd">        Handle. The existence or validity of the password in the handle is</span>
+<span class="sd">        not checked at this moment.</span>
+
+<span class="sd">        :param handle_server_url: The URL of the Handle System server.</span>
+<span class="sd">        :param username: This must be a handle value reference in the format</span>
+<span class="sd">            &quot;index:prefix/suffix&quot;.</span>
+<span class="sd">        :param password: This is the password stored as secret key in the</span>
+<span class="sd">            actual Handle value the username points to.</span>
+<span class="sd">        :param \**config: More key-value pairs may be passed that will be passed</span>
+<span class="sd">            on to the constructor as config.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :return: An instance of the client.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="p">(</span><span class="n">handle_server_url</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="EUDATHandleClient.instantiate_with_credentials"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.instantiate_with_credentials">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate_with_credentials</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the client against an HSv8 instance with full read/write</span>
+<span class="sd">        access.</span>
+
+<span class="sd">        :param credentials: A credentials object, see separate class</span>
+<span class="sd">            PIDClientCredentials.</span>
+<span class="sd">        :param \**config: More key-value pairs may be passed that will be passed</span>
+<span class="sd">            on to the constructor as config. Config options from the</span>
+<span class="sd">            credentials object are overwritten by this.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`: If the username handle is not found.</span>
+<span class="sd">        :return: An instance of the client.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">get_all_args</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key_value_pairs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># passed config overrides json file</span>
+
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="p">(</span><span class="o">**</span><span class="n">key_value_pairs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inst</span></div>
+
+    <span class="c1"># Methods with read access to Handle Server:</span>
+
+<div class="viewcode-block" id="EUDATHandleClient.retrieve_handle_record_json"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record_json">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_handle_record_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Retrieve a handle record from the Handle server as a complete nested</span>
+<span class="sd">        dict (including index, ttl, timestamp, ...) for later use.</span>
+
+<span class="sd">        Note: For retrieving a simple dict with only the keys and values,</span>
+<span class="sd">        please use :meth:`~b2handle.handleclient.EUDATHandleClient.retrieve_handle_record`.</span>
+
+<span class="sd">        :param handle: The Handle whose record to retrieve.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :return: The handle record as a nested dict. If the handle does not</span>
+<span class="sd">            exist, returns None.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;retrieve_handle_record_json...&#39;</span><span class="p">)</span>
+
+        <span class="n">utilhandle</span><span class="o">.</span><span class="n">check_handle_syntax</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_get_request</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">response_content</span> <span class="o">=</span> <span class="n">decoded_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+                    
+        <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_not_found</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">does_handle_exist</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+         
+            <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response_content</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                    <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;retrieving handle record&#39;</span><span class="p">,</span>
+                    <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                    <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+                    <span class="n">custom_message</span><span class="o">=</span><span class="s1">&#39;The retrieve returned a different handle than was asked for.&#39;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">handlerecord_json</span>
+        <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">is_handle_empty</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+            <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response_content</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">handlerecord_json</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;retrieving&#39;</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">=</span><span class="n">response</span>
+            <span class="p">)</span></div>
+           
+        
+<div class="viewcode-block" id="EUDATHandleClient.retrieve_handle_record"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_handle_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Retrieve a handle record from the Handle server as a dict. If there</span>
+<span class="sd">        is several entries of the same type, only the first one is</span>
+<span class="sd">        returned. Values of complex types (such as HS_ADMIN) are</span>
+<span class="sd">        transformed to strings.</span>
+
+<span class="sd">        :param handle: The handle whose record to retrieve.</span>
+<span class="sd">        :param handlerecord_json: Optional. If the handlerecord has already</span>
+<span class="sd">            been retrieved from the server, it can be reused.</span>
+<span class="sd">        :return: A dict where the keys are keys from the Handle record (except</span>
+<span class="sd">            for hidden entries) and every value is a string. The result will be</span>
+<span class="sd">            None if the Handle does not exist.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;retrieve_handle_record...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_handle_record_if_necessary</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Instead of HandleNotFoundException!</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="n">record_as_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">record_as_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">record_as_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">record_as_dict</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.get_value_from_handle"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.get_value_from_handle">[docs]</a>    <span class="k">def</span> <span class="nf">get_value_from_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Retrieve a single value from a single Handle. If several entries with</span>
+<span class="sd">        this key exist, the methods returns the first one. If the handle</span>
+<span class="sd">        does not exist, the method will raise a HandleNotFoundException.</span>
+
+<span class="sd">        :param handle: The handle to take the value from.</span>
+<span class="sd">        :param key: The key.</span>
+<span class="sd">        :return: A string containing the value or None if the Handle record</span>
+<span class="sd">         does not contain the key.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;get_value_from_handle...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_handle_record_if_necessary</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;get_value_from_handle: The handle &#39;</span> <span class="o">+</span> <span class="n">handle</span> <span class="o">+</span> \
+                    <span class="s1">&#39; contains several entries of type &quot;&#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> \
+                    <span class="s1">&#39;&quot;. Only the first one is returned.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">list_of_entries</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.is_10320LOC_empty"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.is_10320LOC_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_10320LOC_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if there is a 10320/LOC entry in the handle record.</span>
+<span class="sd">        *Note:* In the unlikely case that there is a 10320/LOC entry, but it does</span>
+<span class="sd">        not contain any locations, it is treated as if there was none.</span>
+
+<span class="sd">        :param handle: The handle.</span>
+<span class="sd">        :param handlerecord_json: Optional. The content of the response of a</span>
+<span class="sd">            GET request for the handle as a dict. Avoids another GET request.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :return: True if the record contains NO 10320/LOC entry; False if it</span>
+<span class="sd">            does contain one.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;is_10320LOC_empty...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_handle_record_if_necessary</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="n">num_entries</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_URL</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;10320/LOC&#39;</span><span class="p">:</span>
+                <span class="n">num_entries</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                <span class="n">list_of_locations</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_of_locations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">num_URL</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">num_entries</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_URL</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.is_URL_contained_in_10320LOC"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.is_URL_contained_in_10320LOC">[docs]</a>    <span class="k">def</span> <span class="nf">is_URL_contained_in_10320LOC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the URL is already present in the handle record&#39;s</span>
+<span class="sd">        10320/LOC entry.</span>
+
+<span class="sd">        :param handle: The handle.</span>
+<span class="sd">        :param url: The URL.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :return: True if the handle record&#39;s 10320/LOC entry contains the URL;</span>
+<span class="sd">            False otherwise. If the entry is empty or does not exist, False</span>
+<span class="sd">            is returned.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;is_URL_contained_in_10320LOC...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_handle_record_if_necessary</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="n">num_entries</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_URL</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;10320/LOC&#39;</span><span class="p">:</span>
+                <span class="n">num_entries</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                <span class="n">list_of_locations</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_of_locations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">url</span><span class="p">:</span>
+                        <span class="n">num_URL</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">num_entries</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_URL</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="c1"># Methods with write access to Handle Server:</span>
+
+<div class="viewcode-block" id="EUDATHandleClient.generate_and_register_handle"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.generate_and_register_handle">[docs]</a>    <span class="k">def</span> <span class="nf">generate_and_register_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">checksum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_URLs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extratypes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Register a new Handle with a unique random name (random UUID).</span>
+
+<span class="sd">        :param prefix: The prefix of the handle to be registered. The method</span>
+<span class="sd">            will generate a suffix.</span>
+<span class="sd">        :param location: The URL of the data entity to be referenced.</span>
+<span class="sd">        :param checksum: Optional. The checksum string.</span>
+<span class="sd">        :param extratypes: Optional. Additional key value pairs as dict.</span>
+<span class="sd">        :param additional_URLs: Optional. A list of URLs (as strings) to be</span>
+<span class="sd">            added to the handle record as 10320/LOC entry.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        :return: The new handle name.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;generate_and_register_handle...&#39;</span><span class="p">)</span>
+
+        <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_PID_name</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_handle</span><span class="p">(</span>
+            <span class="n">handle</span><span class="p">,</span>
+            <span class="n">location</span><span class="p">,</span>
+            <span class="n">checksum</span><span class="p">,</span>
+            <span class="n">additional_URLs</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">extratypes</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">handle</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.modify_handle_value"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.modify_handle_value">[docs]</a>    <span class="k">def</span> <span class="nf">modify_handle_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_if_not_exist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kvpairs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Modify entries (key-value-pairs) in a handle record. If the key</span>
+<span class="sd">        does not exist yet, it is created.</span>
+
+<span class="sd">        *Note:* We assume that a key exists only once. In case a key exists</span>
+<span class="sd">        several time, an exception will be raised.</span>
+
+<span class="sd">        *Note:* To modify 10320/LOC, please use :meth:`~b2handle.handleclient.EUDATHandleClient.add_additional_URL` or</span>
+<span class="sd">        :meth:`~b2handle.handleclient.EUDATHandleClient.remove_additional_URL`.</span>
+
+<span class="sd">        :param handle: Handle whose record is to be modified</span>
+<span class="sd">        :param ttl: Optional. Integer value. If ttl should be set to a</span>
+<span class="sd">            non-default value.</span>
+<span class="sd">        :param all other args: The user can specify several key-value-pairs.</span>
+<span class="sd">            These will be the handle value types and values that will be</span>
+<span class="sd">            modified. The keys are the names or the handle value types (e.g.</span>
+<span class="sd">            &quot;URL&quot;). The values are the new values to store in &quot;data&quot;. If the</span>
+<span class="sd">            key is &#39;HS_ADMIN&#39;, the new value needs to be of the form</span>
+<span class="sd">            {&#39;handle&#39;:&#39;xyz&#39;, &#39;index&#39;:xyz}. The permissions will be set to the</span>
+<span class="sd">            default permissions.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;modify_handle_value...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Read handle record:</span>
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot modify unexisting handle&#39;</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="c1"># HS_ADMIN</span>
+        <span class="k">if</span> <span class="s1">&#39;HS_ADMIN&#39;</span> <span class="ow">in</span> <span class="n">kvpairs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__modify_HS_ADMIN</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;You may not modify HS_ADMIN&#39;</span>
+            <span class="k">raise</span> <span class="n">IllegalOperationException</span><span class="p">(</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;modifying HS_ADMIN&#39;</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span>
+            <span class="p">)</span>
+
+        <span class="n">nothingchanged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">new_list_of_entries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_of_old_and_new_entries</span> <span class="o">=</span> <span class="n">list_of_entries</span><span class="p">[:]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">kvpairs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">newval</span> <span class="ow">in</span> <span class="n">kvpairs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Change existing entry:</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">changed</span><span class="p">:</span>
+                        <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newval</span>
+                        <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>  <span class="c1"># will be ignored anyway</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HS_ADMIN&#39;</span><span class="p">:</span>
+                            <span class="n">newval</span><span class="p">[</span><span class="s1">&#39;permissions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span>
+                            <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>  <span class="c1"># will be ignored anyway</span>
+                            <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s1">&#39;format&#39;</span><span class="p">:</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;value&#39;</span><span class="p">:</span><span class="n">newval</span>
+                            <span class="p">}</span>
+                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Modified&#39;</span> <span class="o">+</span> \
+                                <span class="s1">&#39; &quot;HS_ADMIN&quot; of handle &#39;</span> <span class="o">+</span> <span class="n">handle</span><span class="p">)</span>
+                        <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">nothingchanged</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">new_list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="n">list_of_old_and_new_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;There is several entries of type &quot;&#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;&quot;.&#39;</span> <span class="o">+</span> \
+                            <span class="s1">&#39; This can lead to unexpected behaviour.&#39;</span> <span class="o">+</span> \
+                            <span class="s1">&#39; Please clean up before modifying the record.&#39;</span>
+                        <span class="k">raise</span> <span class="n">BrokenHandleRecordException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="c1"># If the entry doesn&#39;t exist yet, add it:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">changed</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">add_if_not_exist</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;modify_handle_value: Adding entry &quot;&#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> \
+                        <span class="s1">&#39; to handle &#39;</span> <span class="o">+</span> <span class="n">handle</span><span class="p">)</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_old_and_new_entries</span><span class="p">)</span>
+                    <span class="n">entry_to_add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_entry</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">newval</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
+                    <span class="n">new_list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry_to_add</span><span class="p">)</span>
+                    <span class="n">list_of_old_and_new_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry_to_add</span><span class="p">)</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">nothingchanged</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Add the indices</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_list_of_entries</span><span class="p">)):</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+
+        <span class="c1"># append to the old record:</span>
+        <span class="k">if</span> <span class="n">nothingchanged</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;modify_handle_value: There was no entries &#39;</span> <span class="o">+</span> \
+                <span class="nb">str</span><span class="p">(</span><span class="n">kvpairs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="s1">&#39; to be modified (handle &#39;</span> <span class="o">+</span> <span class="n">handle</span> <span class="o">+</span> <span class="s1">&#39;).&#39;</span> <span class="o">+</span> \
+                <span class="s1">&#39; To add them, set add_if_not_exist = True&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;modifying handle values&#39;</span>
+            <span class="n">resp</span><span class="p">,</span> <span class="n">put_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_put_request</span><span class="p">(</span>
+                <span class="n">handle</span><span class="p">,</span>
+                <span class="n">new_list_of_entries</span><span class="p">,</span>
+                <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Handle modified: &#39;</span> <span class="o">+</span> <span class="n">handle</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Values: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kvpairs</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                    <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                    <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                    <span class="n">response</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                    <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.delete_handle_value"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.delete_handle_value">[docs]</a>    <span class="k">def</span> <span class="nf">delete_handle_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Delete a key-value pair from a handle record. If the key exists more</span>
+<span class="sd">        than once, all key-value pairs with this key are deleted.</span>
+
+<span class="sd">        :param handle: Handle from whose record the entry should be deleted.</span>
+<span class="sd">        :param key: Key to be deleted. Also accepts a list of keys.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;delete_handle_value...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># read handle record:</span>
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot modify unexisting handle&#39;</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+
+        <span class="c1"># find indices to delete:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">([]):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="n">keys_done</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+
+            <span class="c1"># filter HS_ADMIN</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;HS_ADMIN&#39;</span><span class="p">:</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;deleting &quot;HS_ADMIN&quot;&#39;</span>
+                <span class="k">raise</span> <span class="n">IllegalOperationException</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys_done</span><span class="p">:</span>
+                <span class="n">indices_onekey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_handlerecord_indices_for_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">)</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span> <span class="o">+</span> <span class="n">indices_onekey</span>
+                <span class="n">keys_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># Important: If key not found, do not continue, as deleting without indices would delete the entire handle!!</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;delete_handle_value: No values for key(s) &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># delete and process response:</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;deleting &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_delete_request</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete_handle_value: Deleted handle values &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;of handle &quot;</span> <span class="o">+</span> <span class="n">handle</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">values_not_found</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                    <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                    <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                    <span class="n">response</span><span class="o">=</span><span class="n">resp</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.delete_handle"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.delete_handle">[docs]</a>    <span class="k">def</span> <span class="nf">delete_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Delete the handle and its handle record. If the Handle is not found, an Exception is raised.</span>
+
+<span class="sd">        :param handle: Handle to be deleted.</span>
+<span class="sd">        :param other: Deprecated. This only exists to catch wrong method usage</span>
+<span class="sd">            by users who are used to delete handle VALUES with the method.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;delete_handle...&#39;</span><span class="p">)</span>
+
+        <span class="n">utilhandle</span><span class="o">.</span><span class="n">check_handle_syntax</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+
+        <span class="c1"># Safety check. In old epic client, the method could be used for</span>
+        <span class="c1"># deleting handle values (not entire handle) by specifying more</span>
+        <span class="c1"># parameters.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;You specified more than one argument. If you wanted&#39;</span> <span class="o">+</span> \
+                <span class="s1">&#39; to delete just some values from a handle, please use the&#39;</span> <span class="o">+</span> \
+                <span class="s1">&#39; new method &quot;delete_handle_value()&quot;.&#39;</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;deleting handle&#39;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_delete_request</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Handle &#39;</span> <span class="o">+</span> <span class="n">handle</span> <span class="o">+</span> <span class="s1">&#39; deleted.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_not_found</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;delete_handle: Handle &#39;</span> <span class="o">+</span> <span class="n">handle</span> <span class="o">+</span> <span class="s1">&#39; did not exist, &#39;</span>
+                   <span class="s1">&#39;so it could not be deleted.&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span><span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">resp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.exchange_additional_URL"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.exchange_additional_URL">[docs]</a>    <span class="k">def</span> <span class="nf">exchange_additional_URL</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Exchange an URL in the 10320/LOC entry against another, keeping the same id</span>
+<span class="sd">        and other attributes.</span>
+
+<span class="sd">        :param handle: The handle to modify.</span>
+<span class="sd">        :param old: The URL to replace.</span>
+<span class="sd">        :param new: The URL to set as new URL.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;exchange_additional_URL...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot exchange URLs in unexisting handle&#39;</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">msg</span>
+            <span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_URL_contained_in_10320LOC</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;exchange_additional_URL: No URLs exchanged, as the url was not in the record.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__exchange_URL_in_13020loc</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;exchanging URLs&#39;</span>
+            <span class="n">resp</span><span class="p">,</span> <span class="n">put_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_put_request</span><span class="p">(</span>
+                <span class="n">handle</span><span class="p">,</span>
+                <span class="n">list_of_entries</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">op</span><span class="o">=</span><span class="n">op</span>
+            <span class="p">)</span>
+            <span class="c1"># TODO FIXME (one day): Implement overwriting by index (less risky)</span>
+            <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Could not exchange URL &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">old</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; against &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                    <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                    <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                    <span class="n">reponse</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                    <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.add_additional_URL"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.add_additional_URL">[docs]</a>    <span class="k">def</span> <span class="nf">add_additional_URL</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="o">*</span><span class="n">urls</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Add a URL entry to the handle record&#39;s 10320/LOC entry. If 10320/LOC</span>
+<span class="sd">        does not exist yet, it is created. If the 10320/LOC entry already</span>
+<span class="sd">        contains the URL, it is not added a second time.</span>
+
+<span class="sd">        :param handle: The handle to add the URL to.</span>
+<span class="sd">        :param urls: The URL(s) to be added. Several URLs may be specified.</span>
+<span class="sd">        :param attributes: Optional. Additional key-value pairs to set as</span>
+<span class="sd">            attributes to the &lt;location&gt; elements, e.g. weight, http_role or</span>
+<span class="sd">            custom attributes. Note: If the URL already exists but the</span>
+<span class="sd">            attributes are different, they are updated!</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;add_additional_URL...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot add URLS to unexisting handle!&#39;</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="n">is_new</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_URL_contained_in_10320LOC</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">):</span>
+                <span class="n">is_new</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add_additional_URL: No new URL to be added (so no URL is added at all).&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__add_URL_to_10320LOC</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;adding URLs&#39;</span>
+            <span class="n">resp</span><span class="p">,</span> <span class="n">put_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_put_request</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+            <span class="c1"># TODO FIXME (one day) Overwrite by index.</span>
+
+            <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Could not add URLs &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                    <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                    <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                    <span class="n">reponse</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                    <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                    <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.remove_additional_URL"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.remove_additional_URL">[docs]</a>    <span class="k">def</span> <span class="nf">remove_additional_URL</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="o">*</span><span class="n">urls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Remove a URL from the handle record&#39;s 10320/LOC entry.</span>
+
+<span class="sd">        :param handle: The handle to modify.</span>
+<span class="sd">        :param urls: The URL(s) to be removed. Several URLs may be specified.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleNotFoundException`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;remove_additional_URL...&#39;</span><span class="p">)</span>
+
+        <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Cannot remove URLs from unexisting handle&#39;</span>
+            <span class="k">raise</span> <span class="n">HandleNotFoundException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__remove_URL_from_10320LOC</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+
+        <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;removing URLs&#39;</span>
+        <span class="n">resp</span><span class="p">,</span> <span class="n">put_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_put_request</span><span class="p">(</span>
+            <span class="n">handle</span><span class="p">,</span>
+            <span class="n">list_of_entries</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">=</span><span class="n">op</span>
+        <span class="p">)</span>
+        <span class="c1"># TODO FIXME (one day): Implement overwriting by index (less risky),</span>
+        <span class="c1"># once HS have fixed the issue with the indices.</span>
+        <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;removing &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Could not remove URLs &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">reponse</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.register_handle"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.register_handle">[docs]</a>    <span class="k">def</span> <span class="nf">register_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">checksum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_URLs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extratypes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Registers a new Handle with given name. If the handle already exists</span>
+<span class="sd">        and overwrite is not set to True, the method will throw an</span>
+<span class="sd">        exception.</span>
+
+<span class="sd">        :param handle: The full name of the handle to be registered (prefix</span>
+<span class="sd">            and suffix)</span>
+<span class="sd">        :param location: The URL of the data entity to be referenced</span>
+<span class="sd">        :param checksum: Optional. The checksum string.</span>
+<span class="sd">        :param extratypes: Optional. Additional key value pairs.</span>
+<span class="sd">        :param additional_URLs: Optional. A list of URLs (as strings) to be</span>
+<span class="sd">            added to the handle record as 10320/LOC entry.</span>
+<span class="sd">        :param overwrite: Optional. If set to True, an existing handle record</span>
+<span class="sd">            will be overwritten. Defaults to False.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAlreadyExistsException` Only if overwrite is not set or</span>
+<span class="sd">            set to False.</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleAuthenticationError`</span>
+<span class="sd">        :raises: :exc:`~b2handle.handleexceptions.HandleSyntaxError`</span>
+<span class="sd">        :return: The handle name.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;register_handle...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># If already exists and can&#39;t be overwritten:</span>
+        <span class="k">if</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Could not register handle&#39;</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="s1">&#39;, as it already exists.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">HandleAlreadyExistsException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Create admin entry</span>
+        <span class="n">list_of_entries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">adminentry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_admin_entry</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__handleowner</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__HS_ADMIN_permissions</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">,</span> <span class="n">hs_admin</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">handle</span>
+        <span class="p">)</span>
+        <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adminentry</span><span class="p">)</span>
+
+        <span class="c1"># Create other entries</span>
+        <span class="n">entry_URL</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_entry</span><span class="p">(</span>
+            <span class="s1">&#39;URL&#39;</span><span class="p">,</span>
+            <span class="n">location</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry_URL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">checksum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entryChecksum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_entry</span><span class="p">(</span>
+                <span class="s1">&#39;CHECKSUM&#39;</span><span class="p">,</span>
+                <span class="n">checksum</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entryChecksum</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">extratypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">extratypes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_entry</span><span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span>
+                    <span class="n">value</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">additional_URLs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">additional_URLs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">additional_URLs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__add_URL_to_10320LOC</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+
+        <span class="c1"># Create record itself and put to server</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;registering handle&#39;</span>
+        <span class="n">resp</span><span class="p">,</span> <span class="n">put_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__send_handle_put_request</span><span class="p">(</span>
+            <span class="n">handle</span><span class="p">,</span>
+            <span class="n">list_of_entries</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">=</span><span class="n">op</span>
+        <span class="p">)</span>
+        <span class="n">resp_content</span> <span class="o">=</span> <span class="n">decoded_response</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">was_handle_created</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span> <span class="ow">or</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_success</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Handle registered: &quot;</span> <span class="o">+</span> <span class="n">handle</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp_content</span><span class="p">)[</span><span class="s1">&#39;handle&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">is_temporary_redirect</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="n">oldurl</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">url</span>
+            <span class="n">newurl</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Temporary redirect from &#39;</span> <span class="o">+</span> <span class="n">oldurl</span> <span class="o">+</span> <span class="s1">&#39; to &#39;</span> <span class="o">+</span> <span class="n">newurl</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">hsresponses</span><span class="o">.</span><span class="n">handle_not_found</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span><span class="p">,</span>
+                <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Could not create handle. Possibly you used HTTP instead of HTTPS?&#39;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GenericHandleError</span><span class="p">(</span>
+                <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span>
+                <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+                <span class="n">reponse</span><span class="o">=</span><span class="n">resp</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="n">put_payload</span>
+            <span class="p">)</span></div>
+
+    <span class="c1"># No HS access:</span>
+
+<div class="viewcode-block" id="EUDATHandleClient.search_handle"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.search_handle">[docs]</a>    <span class="k">def</span> <span class="nf">search_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">URL</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">key_value_pairs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Search for handles containing the specified key with the specified</span>
+<span class="sd">        value. The search terms are passed on to the reverse lookup servlet</span>
+<span class="sd">        as-is. The servlet is supposed to be case-insensitive, but if it</span>
+<span class="sd">        isn&#39;t, the wrong case will cause a :exc:`~b2handle.handleexceptions.ReverseLookupException`.</span>
+
+<span class="sd">        *Note:* If allowed search keys are configured, only these are used. If</span>
+<span class="sd">        no allowed search keys are specified, all key-value pairs are</span>
+<span class="sd">        passed on to the reverse lookup servlet, possibly causing a</span>
+<span class="sd">        :exc:`~b2handle.handleexceptions.ReverseLookupException`.</span>
+
+<span class="sd">        Example calls:</span>
+
+<span class="sd">            .. code:: python</span>
+
+<span class="sd">                list_of_handles = search_handle(&#39;http://www.foo.com&#39;)</span>
+<span class="sd">                list_of_handles = search_handle(&#39;http://www.foo.com&#39;, CHECKSUM=99999)</span>
+<span class="sd">                list_of_handles = search_handle(URL=&#39;http://www.foo.com&#39;, CHECKSUM=99999)</span>
+
+
+<span class="sd">        :param URL: Optional. The URL to search for (reverse lookup). [This is</span>
+<span class="sd">            NOT the URL of the search servlet!]</span>
+<span class="sd">        :param prefix: Optional. The Handle prefix to which the search should</span>
+<span class="sd">            be limited to. If unspecified, the method will search across all</span>
+<span class="sd">            prefixes present at the server given to the constructor.</span>
+<span class="sd">        :param key_value_pairs: Optional. Several search fields and values can</span>
+<span class="sd">            be specified as key-value-pairs,</span>
+<span class="sd">            e.g. CHECKSUM=123456, URL=www.foo.com</span>
+<span class="sd">        :raise: :exc:`~b2handle.handleexceptions.ReverseLookupException`: If a search field is specified that</span>
+<span class="sd">            cannot be used, or if something else goes wrong.</span>
+<span class="sd">        :return: A list of all Handles (strings) that bear the given key with</span>
+<span class="sd">            given value of given prefix or server. The list may be empty and</span>
+<span class="sd">            may also contain more than one element.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;search_handle...&#39;</span><span class="p">)</span>
+
+        <span class="n">list_of_handles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__searcher</span><span class="o">.</span><span class="n">search_handle</span><span class="p">(</span><span class="n">URL</span><span class="o">=</span><span class="n">URL</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">key_value_pairs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">list_of_handles</span></div>
+
+<div class="viewcode-block" id="EUDATHandleClient.generate_PID_name"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.generate_PID_name">[docs]</a>    <span class="k">def</span> <span class="nf">generate_PID_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generate a unique random Handle name (random UUID). The Handle is not</span>
+<span class="sd">        registered. If a prefix is specified, the PID name has the syntax</span>
+<span class="sd">        &lt;prefix&gt;/&lt;generatedname&gt;, otherwise it just returns the generated</span>
+<span class="sd">        random name (suffix for the Handle).</span>
+
+<span class="sd">        :param prefix: Optional. The prefix to be used for the Handle name.</span>
+<span class="sd">        :return: The handle name in the form &lt;prefix&gt;/&lt;generatedsuffix&gt; or</span>
+<span class="sd">            &lt;generatedsuffix&gt;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;generate_PID_name...&#39;</span><span class="p">)</span>
+
+        <span class="n">randomuuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">randomuuid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">randomuuid</span><span class="p">)</span></div>
+
+    <span class="c1"># Other public methods</span>
+
+<div class="viewcode-block" id="EUDATHandleClient.get_handlerecord_indices_for_key"><a class="viewcode-back" href="../../handleclient.html#b2handle.handleclient.EUDATHandleClient.get_handlerecord_indices_for_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_handlerecord_indices_for_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Finds the Handle entry indices of all entries that have a specific</span>
+<span class="sd">        type.</span>
+
+<span class="sd">        *Important:* It finds the Handle System indices! These are not</span>
+<span class="sd">        the python indices of the list, so they can not be used for</span>
+<span class="sd">        iteration.</span>
+
+<span class="sd">        :param key: The key (Handle Record type)</span>
+<span class="sd">        :param list_of_entries: A list of the existing entries in which to find</span>
+<span class="sd">            the indices.</span>
+<span class="sd">        :return: A list of strings, the indices of the entries of type &quot;key&quot; in</span>
+<span class="sd">            the given handle record.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;get_handlerecord_indices_for_key...&#39;</span><span class="p">)</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">indices</span></div>
+
+    <span class="c1"># Private methods:</span>
+
+    <span class="k">def</span> <span class="nf">__send_handle_delete_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Send a HTTP DELETE request to the handle server to delete either an</span>
+<span class="sd">            entire handle or to some specified values from a handle record,</span>
+<span class="sd">            using the requests module.</span>
+
+<span class="sd">        :param handle: The handle.</span>
+<span class="sd">        :param indices: Optional. A list of indices to delete. Defaults to</span>
+<span class="sd">            None (i.e. the entire handle is deleted.). The list can contain</span>
+<span class="sd">            integers or strings.</span>
+<span class="sd">        :return: The server&#39;s response.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handlesystemconnector</span><span class="o">.</span><span class="n">send_handle_delete_request</span><span class="p">(</span>
+            <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">def</span> <span class="nf">__send_handle_put_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Send a HTTP PUT request to the handle server to write either an entire</span>
+<span class="sd">            handle or to some specified values to an handle record, using the</span>
+<span class="sd">            requests module.</span>
+
+<span class="sd">        :param handle: The handle.</span>
+<span class="sd">        :param list_of_entries: A list of handle record entries to be written,</span>
+<span class="sd">         in the format [{&quot;index&quot;:xyz, &quot;type&quot;:&quot;xyz&quot;, &quot;data&quot;:&quot;xyz&quot;}] or similar.</span>
+<span class="sd">        :param indices: Optional. A list of indices to modify. Defaults</span>
+<span class="sd">         to None (i.e. the entire handle is updated.). The list can</span>
+<span class="sd">         contain integers or strings.</span>
+<span class="sd">        :param overwrite: Optional. Whether the handle should be overwritten</span>
+<span class="sd">         if it exists already.</span>
+<span class="sd">        :return: The server&#39;s response.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">resp</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handlesystemconnector</span><span class="o">.</span><span class="n">send_handle_put_request</span><span class="p">(</span>
+            <span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span>
+            <span class="n">list_of_entries</span><span class="o">=</span><span class="n">list_of_entries</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">=</span><span class="n">op</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="p">,</span> <span class="n">payload</span>
+
+    <span class="k">def</span> <span class="nf">__send_handle_get_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Send a HTTP GET request to the handle server to read either an entire</span>
+<span class="sd">            handle or to some specified values from a handle record, using the</span>
+<span class="sd">            requests module.</span>
+
+<span class="sd">        :param handle: The handle.</span>
+<span class="sd">        :param indices: Optional. A list of indices to delete. Defaults to</span>
+<span class="sd">            None (i.e. the entire handle is deleted.). The list can contain</span>
+<span class="sd">            integers or strings.</span>
+<span class="sd">        :return: The server&#39;s response.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__handlesystemconnector</span><span class="o">.</span><span class="n">send_handle_get_request</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">def</span> <span class="nf">__get_handle_record_if_necessary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">handlerecord_json</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the handle record if it is None or if its handle is not the</span>
+<span class="sd">            same as the specified handle.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">handlerecord_json</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">handle</span> <span class="o">!=</span> <span class="n">handlerecord_json</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]:</span>
+                <span class="n">handlerecord_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_handle_record_json</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">handlerecord_json</span>
+
+    <span class="k">def</span> <span class="nf">__make_another_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hs_admin</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Find an index not yet used in the handle record and not reserved for</span>
+<span class="sd">            any (other) special type.</span>
+
+<span class="sd">        :param: list_of_entries: List of all entries to find which indices are</span>
+<span class="sd">            used already.</span>
+<span class="sd">        :param url: If True, an index for an URL entry is returned (1, unless</span>
+<span class="sd">            it is already in use).</span>
+<span class="sd">        :param hs_admin: If True, an index for HS_ADMIN is returned (100 or one</span>
+<span class="sd">            of the following).</span>
+<span class="sd">        :return: An integer.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="c1"># reserved indices:</span>
+        <span class="n">reserved_for_url</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">reserved_for_admin</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+        <span class="n">prohibited_indices</span> <span class="o">=</span> <span class="n">reserved_for_url</span> <span class="o">|</span> <span class="n">reserved_for_admin</span>
+
+        <span class="k">if</span> <span class="n">url</span><span class="p">:</span>
+            <span class="n">prohibited_indices</span> <span class="o">=</span> <span class="n">prohibited_indices</span> <span class="o">-</span> <span class="n">reserved_for_url</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">hs_admin</span><span class="p">:</span>
+            <span class="n">prohibited_indices</span> <span class="o">=</span> <span class="n">prohibited_indices</span> <span class="o">-</span> <span class="n">reserved_for_admin</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mi">100</span>
+
+        <span class="c1"># existing indices</span>
+        <span class="n">existing_indices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">list_of_entries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
+                <span class="n">existing_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]))</span>
+
+        <span class="c1"># find new index:</span>
+        <span class="n">all_prohibited_indices</span> <span class="o">=</span> <span class="n">existing_indices</span> <span class="o">|</span> <span class="n">prohibited_indices</span>
+        <span class="n">searchmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_prohibited_indices</span><span class="p">))</span> <span class="o">+</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">searchmax</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_prohibited_indices</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span>
+
+    <span class="k">def</span> <span class="nf">__create_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entrytype</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create an entry of any type except HS_ADMIN.</span>
+
+<span class="sd">        :param entrytype: THe type of entry to create, e.g. &#39;URL&#39; or</span>
+<span class="sd">            &#39;checksum&#39; or ... Note: For entries of type &#39;HS_ADMIN&#39;, please</span>
+<span class="sd">            use __create_admin_entry(). For type &#39;10320/LOC&#39;, please use</span>
+<span class="sd">            &#39;add_additional_URL()&#39;</span>
+<span class="sd">        :param data: The actual value for the entry. Can be a simple string,</span>
+<span class="sd">            e.g. &quot;example&quot;, or a dict {&quot;format&quot;:&quot;string&quot;, &quot;value&quot;:&quot;example&quot;}.</span>
+<span class="sd">        :param index: The integer to be used as index.</span>
+<span class="sd">        :param ttl: Optional. If not set, the library&#39;s default is set. If</span>
+<span class="sd">            there is no default, it is not set by this library, so Handle</span>
+<span class="sd">            System sets it.</span>
+<span class="sd">        :return: The entry as a dict.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">entrytype</span> <span class="o">==</span> <span class="s1">&#39;HS_ADMIN&#39;</span><span class="p">:</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;creating HS_ADMIN entry&#39;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;This method can not create HS_ADMIN entries.&#39;</span>
+            <span class="k">raise</span> <span class="n">IllegalOperationException</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="n">entrytype</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="n">data</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">ttl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;ttl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ttl</span>
+
+        <span class="k">return</span> <span class="n">entry</span>
+
+    <span class="k">def</span> <span class="nf">__create_admin_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handleowner</span><span class="p">,</span> <span class="n">permissions</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create an entry of type &quot;HS_ADMIN&quot;.</span>
+
+<span class="sd">        :param username: The username, i.e. a handle with an index</span>
+<span class="sd">            (index:prefix/suffix). The value referenced by the index contains</span>
+<span class="sd">            authentcation information, e.g. a hidden entry containing a key.</span>
+<span class="sd">        :param permissions: The permissions as a string of zeros and ones,</span>
+<span class="sd">            e.g. &#39;0111011101011&#39;. If not all twelve bits are set, the remaining</span>
+<span class="sd">            ones are set to zero.</span>
+<span class="sd">        :param index: The integer to be used as index of this admin entry (not</span>
+<span class="sd">            of the username!). Should be 1xx.</span>
+<span class="sd">        :param ttl: Optional. If not set, the library&#39;s default is set. If</span>
+<span class="sd">            there is no default, it is not set by this library, so Handle</span>
+<span class="sd">            System sets it.</span>
+<span class="sd">        :return: The entry as a dict.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># If the handle owner is specified, use it. Otherwise, use 200:0.NA/prefix</span>
+        <span class="c1"># With the prefix taken from the handle that is being created, not from anywhere else.</span>
+        <span class="k">if</span> <span class="n">handleowner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">adminindex</span> <span class="o">=</span> <span class="s1">&#39;200&#39;</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">adminhandle</span> <span class="o">=</span> <span class="s1">&#39;0.NA/&#39;</span> <span class="o">+</span> <span class="n">prefix</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">adminindex</span><span class="p">,</span> <span class="n">adminhandle</span> <span class="o">=</span> <span class="n">utilhandle</span><span class="o">.</span><span class="n">remove_index_from_handle</span><span class="p">(</span><span class="n">handleowner</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;value&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;index&#39;</span><span class="p">:</span><span class="n">adminindex</span><span class="p">,</span>
+                <span class="s1">&#39;handle&#39;</span><span class="p">:</span><span class="n">adminhandle</span><span class="p">,</span>
+                <span class="s1">&#39;permissions&#39;</span><span class="p">:</span><span class="n">permissions</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;format&#39;</span><span class="p">:</span><span class="s1">&#39;admin&#39;</span>
+        <span class="p">}</span>
+
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;HS_ADMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="n">data</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">ttl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;ttl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ttl</span>
+
+        <span class="k">return</span> <span class="n">entry</span>
+
+    <span class="k">def</span> <span class="nf">__get_python_indices_for_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Finds the indices of all entries that have a specific type. Important:</span>
+<span class="sd">            This method finds the python indices of the list of entries! These</span>
+<span class="sd">            are not the Handle System index values!</span>
+
+<span class="sd">        :param key: The key (Handle Record type)</span>
+<span class="sd">        :param list_of_entries: A list of the existing entries in which to find</span>
+<span class="sd">            the indices.</span>
+<span class="sd">        :return: A list of integers, the indices of the entries of type &quot;key&quot;</span>
+<span class="sd">            in the given list.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">list_of_entries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">indices</span>
+
+    <span class="k">def</span> <span class="nf">__exchange_URL_in_13020loc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldurl</span><span class="p">,</span> <span class="n">newurl</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Exchange every occurrence of oldurl against newurl in a 10320/LOC entry.</span>
+<span class="sd">            This does not change the ids or other xml attributes of the</span>
+<span class="sd">            &lt;location&gt; element.</span>
+
+<span class="sd">        :param oldurl: The URL that will be overwritten.</span>
+<span class="sd">        :param newurl: The URL to write into the entry.</span>
+<span class="sd">        :param list_of_entries: A list of the existing entries (to find and</span>
+<span class="sd">            remove the correct one).</span>
+<span class="sd">        :param handle: Only for the exception message.</span>
+<span class="sd">        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find existing 10320/LOC entries</span>
+        <span class="n">python_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_python_indices_for_key</span><span class="p">(</span>
+            <span class="s1">&#39;10320/LOC&#39;</span><span class="p">,</span>
+            <span class="n">list_of_entries</span>
+        <span class="p">)</span>
+
+        <span class="n">num_exchanged</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; entries of type &quot;10320/LOC&quot;.&#39;</span>
+                <span class="k">raise</span> <span class="n">BrokenHandleRecordException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">python_indices</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">list_of_entries</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                <span class="n">all_URL_elements</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">all_URL_elements</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">oldurl</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__exchange_URL_in_13020loc: Exchanging URL &#39;</span> <span class="o">+</span> <span class="n">oldurl</span> <span class="o">+</span> <span class="s1">&#39; from 10320/LOC.&#39;</span><span class="p">)</span>
+                        <span class="n">num_exchanged</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">element</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">,</span> <span class="n">newurl</span><span class="p">)</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">)</span>
+                <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_exchanged</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__exchange_URL_in_13020loc: No URLs exchanged.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;__exchange_URL_in_13020loc: The URL &quot;&#39;</span> <span class="o">+</span> <span class="n">oldurl</span> <span class="o">+</span> <span class="s1">&#39;&quot; was exchanged &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_exchanged</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="s1">&#39; times against the new url &quot;&#39;</span> <span class="o">+</span> <span class="n">newurl</span> <span class="o">+</span> <span class="s1">&#39;&quot; in 10320/LOC.&#39;</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;1 times&#39;</span><span class="p">,</span> <span class="s1">&#39;once&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__remove_URL_from_10320LOC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Remove an URL from the handle record&#39;s &quot;10320/LOC&quot; entry.</span>
+<span class="sd">        If it exists several times in the entry, all occurences are removed.</span>
+<span class="sd">        If the URL is not present, nothing happens.</span>
+<span class="sd">        If after removing, there is no more URLs in the entry, the entry is</span>
+<span class="sd">            removed.</span>
+
+<span class="sd">        :param url: The URL to be removed.</span>
+<span class="sd">        :param list_of_entries: A list of the existing entries (to find and</span>
+<span class="sd">            remove the correct one).</span>
+<span class="sd">        :param handle: Only for the exception message.</span>
+<span class="sd">        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find existing 10320/LOC entries</span>
+        <span class="n">python_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_python_indices_for_key</span><span class="p">(</span>
+            <span class="s1">&#39;10320/LOC&#39;</span><span class="p">,</span>
+            <span class="n">list_of_entries</span>
+        <span class="p">)</span>
+
+        <span class="n">num_removed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">python_indices</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; entries of type &quot;10320/LOC&quot;.&#39;</span>
+                <span class="k">raise</span> <span class="n">BrokenHandleRecordException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">python_indices</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">list_of_entries</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+                <span class="n">all_URL_elements</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">all_URL_elements</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">url</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__remove_URL_from_10320LOC: Removing URL &#39;</span> <span class="o">+</span> <span class="n">url</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                        <span class="n">num_removed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">xmlroot</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+                <span class="n">remaining_URL_elements</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">remaining_URL_elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__remove_URL_from_10320LOC: All URLs removed.&quot;</span><span class="p">)</span>
+                    <span class="c1"># TODO FIXME: If we start adapting the Handle Record by</span>
+                    <span class="c1"># index (instead of overwriting the entire one), be careful</span>
+                    <span class="c1"># to delete the ones that became empty!</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__remove_URL_from_10320LOC: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">remaining_URL_elements</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; URLs&#39;</span> <span class="o">+</span> \
+                        <span class="s1">&#39; left after removal operation.&#39;</span><span class="p">)</span>
+                    <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_removed</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__remove_URL_from_10320LOC: No URLs removed.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;__remove_URL_from_10320LOC: The URL &quot;&#39;</span> <span class="o">+</span> <span class="n">url</span> <span class="o">+</span> <span class="s1">&#39;&quot; was removed &#39;</span>\
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_removed</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; times.&#39;</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;1 times&#39;</span><span class="p">,</span> <span class="s1">&#39;once&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__add_URL_to_10320LOC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">http_role</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kvpairs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Add a url to the handle record&#39;s &quot;10320/LOC&quot; entry.</span>
+<span class="sd">            If no 10320/LOC entry exists, a new one is created (using the</span>
+<span class="sd">            default &quot;chooseby&quot; attribute, if configured).</span>
+<span class="sd">            If the URL is already present, it is not added again, but</span>
+<span class="sd">            the attributes (e.g. weight) are updated/added.</span>
+<span class="sd">            If the existing 10320/LOC entry is mal-formed, an exception will be</span>
+<span class="sd">            thrown (xml.etree.ElementTree.ParseError)</span>
+<span class="sd">            Note: In the unlikely case that several &quot;10320/LOC&quot; entries exist,</span>
+<span class="sd">            an exception is raised.</span>
+
+<span class="sd">        :param url: The URL to be added.</span>
+<span class="sd">        :param list_of_entries: A list of the existing entries (to find and</span>
+<span class="sd">            adapt the correct one).</span>
+<span class="sd">        :param weight: Optional. The weight to be set (integer between 0 and</span>
+<span class="sd">            1). If None, no weight attribute is set. If the value is outside</span>
+<span class="sd">            the accepted range, it is set to 1.</span>
+<span class="sd">        :param http_role: Optional. The http_role to be set. This accepts any</span>
+<span class="sd">            string. Currently, Handle System can process &#39;conneg&#39;. In future,</span>
+<span class="sd">            it may be able to process &#39;no_conneg&#39; and &#39;browser&#39;.</span>
+<span class="sd">        :param handle: Optional. Only for the exception message.</span>
+<span class="sd">        :param all others: Optional. All other key-value pairs will be set to</span>
+<span class="sd">            the element. Any value is accepted and transformed to string.</span>
+<span class="sd">        :raise: GenericHandleError: If several 10320/LOC exist (unlikely).</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Find existing 10320/LOC entry or create new</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_python_indices_for_key</span><span class="p">(</span><span class="s1">&#39;10320/LOC&#39;</span><span class="p">,</span> <span class="n">list_of_entries</span><span class="p">)</span>
+        <span class="n">makenew</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__make_another_index</span><span class="p">(</span><span class="n">list_of_entries</span><span class="p">)</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_entry</span><span class="p">(</span><span class="s1">&#39;10320/LOC&#39;</span><span class="p">,</span> <span class="s1">&#39;add_later&#39;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">makenew</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;There is &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; 10320/LOC entries.&#39;</span>
+                <span class="k">raise</span> <span class="n">BrokenHandleRecordException</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">list_of_entries</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+
+        <span class="c1"># Get xml data or make new:</span>
+        <span class="n">xmlroot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">makenew</span><span class="p">:</span>
+            <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;locations&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__10320LOC_chooseby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">xmlroot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;chooseby&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__10320LOC_chooseby</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">xmlroot</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__add_URL_to_10320LOC: xmlroot is (1) &quot;</span> <span class="o">+</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">))</span>
+
+        <span class="c1"># Check if URL already there...</span>
+        <span class="n">location_element</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">existing_location_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">makenew</span><span class="p">:</span>
+            <span class="n">list_of_locations</span> <span class="o">=</span> <span class="n">xmlroot</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_of_locations</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">existing_location_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)))</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">url</span><span class="p">:</span>
+                    <span class="n">location_element</span> <span class="o">=</span> <span class="n">item</span>
+            <span class="n">existing_location_ids</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="c1"># ... if not, add it!</span>
+        <span class="k">if</span> <span class="n">location_element</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">location_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">existing_id</span> <span class="ow">in</span> <span class="n">existing_location_ids</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">location_id</span> <span class="o">==</span> <span class="n">existing_id</span><span class="p">:</span>
+                    <span class="n">location_id</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">location_element</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__add_URL_to_10320LOC: location_element is (1) &quot;</span> <span class="o">+</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">location_element</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, now add id &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">location_id</span><span class="p">))</span>
+            <span class="n">location_element</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">location_id</span><span class="p">))</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__add_URL_to_10320LOC: location_element is (2) &quot;</span> <span class="o">+</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">location_element</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, now add url &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+            <span class="n">location_element</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;href&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__add_URL_to_10320LOC: location_element is (3) &quot;</span> <span class="o">+</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">location_element</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_or_adapt_10320LOC_attributes</span><span class="p">(</span><span class="n">location_element</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">http_role</span><span class="p">,</span> <span class="o">**</span><span class="n">kvpairs</span><span class="p">)</span>
+        <span class="c1"># FIXME: If we start adapting the Handle Record by index (instead of</span>
+        <span class="c1"># overwriting the entire one), be careful to add and/or overwrite!</span>
+
+        <span class="c1"># (Re-)Add entire 10320 to entry, add entry to list of entries:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__add_URL_to_10320LOC: xmlroot is (2) &quot;</span> <span class="o">+</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">))</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xmlroot</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding_value</span><span class="p">)</span>
+        <span class="n">list_of_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__set_or_adapt_10320LOC_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locelement</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">http_role</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kvpairs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Adds or updates attributes of a &lt;location&gt; element. Existing attributes</span>
+<span class="sd">            are not removed!</span>
+
+<span class="sd">        :param locelement: A location element as xml snippet</span>
+<span class="sd">            (xml.etree.ElementTree.Element).</span>
+<span class="sd">        :param weight: Optional. The weight to be set (integer between 0 and</span>
+<span class="sd">            1). If None, no weight attribute is set. If the value is outside</span>
+<span class="sd">            the accepted range, it is set to 1.</span>
+<span class="sd">        :param http_role: Optional. The http_role to be set. This accepts any</span>
+<span class="sd">            string. Currently, Handle System can process &#39;conneg&#39;. In future,</span>
+<span class="sd">            it may be able to process &#39;no_conneg&#39; and &#39;browser&#39;.</span>
+<span class="sd">        :param all others: Optional. All other key-value pairs will be set to</span>
+<span class="sd">            the element. Any value is accepted and transformed to string.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__set_or_adapt_10320LOC_attributes: weight (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">weight</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;): &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">weight</span><span class="p">))</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">weight</span> <span class="o">&lt;</span> <span class="mi">0</span>  <span class="ow">or</span> <span class="n">weight</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__set_or_adapt_10320LOC_attributes: Invalid weight (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="o">+</span> \
+                    <span class="s1">&#39;), using default value (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">default</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;) instead.&#39;</span><span class="p">)</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="n">default</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+            <span class="n">locelement</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">http_role</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">locelement</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;http_role&#39;</span><span class="p">,</span> <span class="n">http_role</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kvpairs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">locelement</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__log_request_response_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">make_request_log_message</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">args</span><span class="p">[</span><span class="s1">&#39;logger&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

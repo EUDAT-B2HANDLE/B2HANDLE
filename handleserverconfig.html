@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Handle Server Configuration &mdash; B2Handle 1.1.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="B2Handle 1.1.1 documentation" href="index.html"/>
+        <link rel="prev" title="Giving write permissions to users" href="givingpermissiontousers.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> B2Handle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="handleclient.html">Handle Client documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication at a Handle Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creatingclientcertificates.html">Creating the client certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="givingpermissiontousers.html">Giving write permissions to users</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Handle Server Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#replace-the-default-certificate">Replace the default certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-the-keystore">Creating the keystore</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">B2Handle</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Handle Server Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/handleserverconfig.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="handle-server-configuration">
+<h1>Handle Server Configuration<a class="headerlink" href="#handle-server-configuration" title="Permalink to this headline">¶</a></h1>
+<p>The methods offered by the library make calls against the Handle Server REST interface of server version 8.1.0 and later.
+For security reasons, the Handle server enforces usage of SSL/TLS when contacting the REST interface. Therefore, it is required
+to set up the Handle server to use proper certificates. A default installation will have a default self-signed certificate,
+which should be replaced for production scenarios. The following short guide explains how to provide a signed certificate
+to the Handle server instance.</p>
+<p>In case your clients encounter SSL warnings due to missing chain parts, you may decide to use a Java keystore to deliver the
+missing parts of your certificate chain. Some hints how to do this are given further below as well. Note that the workflow is based
+on a CentOS 7 installation and may be different on other operating systems. If you are not running the Handle server yourself, you need to contact the responsible
+administrators and ask them to fix the issues, of course.</p>
+<div class="section" id="replace-the-default-certificate">
+<h2>Replace the default certificate<a class="headerlink" href="#replace-the-default-certificate" title="Permalink to this headline">¶</a></h2>
+<p>The Handle server delivers a certificate taken from the <em>serverCertificate.pem</em> file in the instance directory. To replace this
+with a proper certificate, do the following (based on a CentOS installation):</p>
+<ol class="arabic simple">
+<li>Convert your certificate to serverCertificate.pem:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ openssl x509 -in /etc/pki/tls/certs/&lt;your .crt&gt; -out serverCertificate.pem -outform pem</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Convert certificate private key to pkcs8 format:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ openssl pkcs8 -in /etc/pki/tls/private/&lt;your key file&gt; -out serverCertificatePrivateKey.pem -inform pem -nocrypt -topk8</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Convert to Handle binary key format using hdl-convert-key:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ ../hsj-8.1.0/bin/hdl-convert-key serverCertificatePrivateKey.pem serverCertificatePrivateKey.bin</div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="creating-the-keystore">
+<h2>Creating the keystore<a class="headerlink" href="#creating-the-keystore" title="Permalink to this headline">¶</a></h2>
+<p>This may be purely optional, depending on whether your clients encounter security warnings due to an incomplete security
+chain and also depending on your strategy to solve the issue. The following is a description of how to provide missing
+chain parts through a Java keystore.</p>
+<ol class="arabic simple">
+<li>Create a Java keystore based on your signed server certificate and your trust chain:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ openssl pkcs12 -export -in serverCertificate.pem -inkey &lt;private key.pem&gt; -certfile &lt;your CA bundle.crt&gt; -name &#8220;handle&#8221; -out keystore.p12</div>
+<div class="line">$ keytool -importkeystore -srckeystore keystore.p12 -srcstoretype pkcs12 -destkeystore handle_keystore -deststoretype JKS</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Set a key password:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ keytool -keypasswd -keystore handle_keystore -alias handle</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Now check with the keytool that the store contains 1 entry with a full chain. Check that the chain length is correct and all certificates in the chain are listed:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">$ keytool -list -v -keystore handle_keystore</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li>Finally, include a section in config.dct to load the keystore. The following properties must be included in the &#8220;hdl_http_config&#8221; sections, which may appear twice if you have a dual stack server:</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">&#8220;https_default_self_signed_cert&#8221; = &#8220;no&#8221;</div>
+<div class="line">&#8220;https_keystore_file&#8221; = &#8220;handle_keystore&#8221;</div>
+<div class="line">&#8220;https_alias&#8221; = &#8220;handle&#8221;</div>
+<div class="line">&#8220;https_keystore_password&#8221; = &#8221;...&#8221;</div>
+<div class="line">&#8220;https_key_password&#8221; = &#8221;...&#8221;</div>
+</div>
+</div></blockquote>
+<p>Keystore password and key password may be the same, but also differ, depending on what you entered in step 1 and 2.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="givingpermissiontousers.html" class="btn btn-neutral" title="Giving write permissions to users" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

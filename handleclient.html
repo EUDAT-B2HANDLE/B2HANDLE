@@ -1,0 +1,1310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Handle Client documentation &mdash; B2Handle 1.1.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="B2Handle 1.1.1 documentation" href="index.html"/>
+        <link rel="next" title="Authentication at a Handle Server" href="authentication.html"/>
+        <link rel="prev" title="Welcome to the B2Handle documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> B2Handle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Handle Client documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-usage">General usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instantiation">Instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authentication-using-client-certificates">Authentication using client certificates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authentication-using-username-and-password">Authentication using username and password</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#credentials-json-file">Credentials JSON file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-handle-interaction">Basic Handle interaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-multiple-urls-with-10320-loc">Managing multiple URLs with 10320/loc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-method-documentation">Full method documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constructors">Constructors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#handle-record-methods">Handle record methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods-for-managing-10320-loc-entries">Methods for managing 10320/loc entries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#helper-methods">Helper methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-b2handle.utilhandle">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-b2handle.clientcredentials">Client credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-b2handle.handleexceptions">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication at a Handle Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="creatingclientcertificates.html">Creating the client certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="givingpermissiontousers.html">Giving write permissions to users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="handleserverconfig.html">Handle Server Configuration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">B2Handle</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Handle Client documentation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/handleclient.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="handle-client-documentation">
+<h1>Handle Client documentation<a class="headerlink" href="#handle-client-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">If you encounter security warnings when using the library, contact your Handle server administrators and ask them to set up the server certificates correctly! (see <a class="reference internal" href="handleserverconfig.html"><span class="doc">Handle Server Configuration</span></a>)</p>
+</div>
+<p>The EUDATHandleClient class provides a Python-level interface for interactions with a Handle server through its native REST interface. The class provides common methods for working with Handles and their records:</p>
+<ul class="simple">
+<li>Create and modify Handles</li>
+<li>Search across Handles (using an additional servlet)</li>
+<li>Manage multiple URLs through special 10320/loc entries</li>
+</ul>
+<div class="section" id="general-usage">
+<h2>General usage<a class="headerlink" href="#general-usage" title="Permalink to this headline">¶</a></h2>
+<p>First, you create an instance of the client. It holds all necessary information, such as from which handle server to read, which
+user credentials to use etc. Several different instantiation methods are available for different usages (see below).</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="o">.</span><span class="n">instantiate_</span><span class="o">...</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Then, use the client&#8217;s methods to read, create and modify handles.</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">value</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">some_method</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Search functionality is not offered by the Handle System. For searching, you need access to a customized search servlet.</p>
+</div>
+<div class="section" id="instantiation">
+<h2>Instantiation<a class="headerlink" href="#instantiation" title="Permalink to this headline">¶</a></h2>
+<p>Before reading or modifying handles, you need to instantiate the client. The client class offers several constructors with differences in
+the permissions and thus possible actions on the Handle server.
+Aside from the default constructor <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.__init__" title="b2handle.handleclient.EUDATHandleClient.__init__"><code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code></a>, there are several shorthand constructors:</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_access" title="b2handle.handleclient.EUDATHandleClient.instantiate_for_read_access"><code class="xref py py-meth docutils literal"><span class="pre">instantiate_for_read_access()</span></code></a></dt>
+<dd>Anonymous read-only access, no credentials needed, no search capabilities. Handles are read from the global Handle Registry.</dd>
+<dt><a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_and_search" title="b2handle.handleclient.EUDATHandleClient.instantiate_for_read_and_search"><code class="xref py py-meth docutils literal"><span class="pre">instantiate_for_read_and_search()</span></code></a></dt>
+<dd>Read-only access, credentials for search functions required.</dd>
+<dt><a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password" title="b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password"><code class="xref py py-meth docutils literal"><span class="pre">instantiate_with_username_and_password()</span></code></a></dt>
+<dd>Full read and write access, credentials required (username and password).</dd>
+<dt><a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.instantiate_with_credentials" title="b2handle.handleclient.EUDATHandleClient.instantiate_with_credentials"><code class="xref py py-meth docutils literal"><span class="pre">instantiate_with_credentials()</span></code></a></dt>
+<dd>Full read and write access, credentials required (username and password or client certificates). Credentials can conveniently be loaded from a JSON file. For this, please see documentation of <code class="xref py py-mod docutils literal"><span class="pre">cliencredentials</span></code>.</dd>
+</dl>
+<p>On top of the required arguments, more arguments can be passed to the constructors as key-value pairs. Please see the documentation of
+the default constructor to find out which values are understood.</p>
+</div>
+<div class="section" id="authentication">
+<h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<p>For creating and modifying handles* you need to authenticate at the Handle Server you&#8217;d like to write to. Authentication using b2handle is straightforward. There are two possibilities:</p>
+<ul class="simple">
+<li>Authenticating using username and password</li>
+<li>Authenticating using client certificates</li>
+</ul>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Here we assume that you know your username and password or have your private key file and your certificate file ready. If you need to set these up, please see <a class="reference internal" href="authentication.html"><span class="doc">Authentication at a Handle Server</span></a>.</p>
+</div>
+<div class="section" id="authentication-using-client-certificates">
+<h3>Authentication using client certificates<a class="headerlink" href="#authentication-using-client-certificates" title="Permalink to this headline">¶</a></h3>
+<p>Using client certificates, you need to provide paths to the file containing your private key and to the certificate in a JSON file. The class <code class="xref py py-class docutils literal"><span class="pre">PIDClientCredentials</span></code> provides a method <code class="xref py py-meth docutils literal"><span class="pre">load_from_JSON()</span></code>. This can be read as follows:</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">cred</span> <span class="o">=</span> <span class="n">PIDClientCredentials</span><span class="o">.</span><span class="n">load_from_JSON</span><span class="p">(</span><span class="s1">&#39;my_credentials.json&#39;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="o">.</span><span class="n">instantiate_with_credentials</span><span class="p">(</span><span class="n">cred</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The JSON file should look like this:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;baseuri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://my.handle.server&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;private_key&quot;</span><span class="p">:</span> <span class="s2">&quot;my_private_key.pem&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;certificate_only&quot;</span><span class="p">:</span> <span class="s2">&quot;my_certificate.pem&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="authentication-using-username-and-password">
+<h3>Authentication using username and password<a class="headerlink" href="#authentication-using-username-and-password" title="Permalink to this headline">¶</a></h3>
+<p>If you have a username (something that looks like <strong>300:foo/bar</strong>) and a password, we recommend using this constructor: <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password" title="b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password"><code class="xref py py-meth docutils literal"><span class="pre">instantiate_with_username_and_password()</span></code></a>:</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="o">.</span><span class="n">instantiate_with_username_and_password</span><span class="p">(</span>
+  <span class="s1">&#39;https://my.handle.server&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;300:foo/bar&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;mypassword123&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="docutils">
+<dt>Alternatively, you can store your username and password in a JSON file, instead of paths to certificate and key::</dt>
+<dd>{
+&#8220;baseuri&#8221;: &#8220;<a class="reference external" href="https://my.handle.server">https://my.handle.server</a>&#8221;,
+&#8220;username&#8221;: &#8220;300:foo/bar&#8221;,
+&#8220;password&#8221;: &#8220;mypassword123&#8221;
+}</dd>
+</dl>
+<p>Like above, you can read the JSON like as shown above:</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">cred</span> <span class="o">=</span> <span class="n">PIDClientCredentials</span><span class="o">.</span><span class="n">load_from_JSON</span><span class="p">(</span><span class="s1">&#39;my_credentials.json&#39;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">EUDATHandleClient</span><span class="o">.</span><span class="n">instantiate_with_credentials</span><span class="p">(</span><span class="n">cred</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="credentials-json-file">
+<h3>Credentials JSON file<a class="headerlink" href="#credentials-json-file" title="Permalink to this headline">¶</a></h3>
+<p>The JSON file can contain more information. All items it contains are passed to the client constructor as config. Please see <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.__init__" title="b2handle.handleclient.EUDATHandleClient.__init__"><code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code></a> to find out which configuration items the client constructor understands.</p>
+</div>
+</div>
+<div class="section" id="basic-handle-interaction">
+<h2>Basic Handle interaction<a class="headerlink" href="#basic-handle-interaction" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Creating a Handle</dt>
+<dd>Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.register_handle" title="b2handle.handleclient.EUDATHandleClient.register_handle"><code class="xref py py-meth docutils literal"><span class="pre">register_handle()</span></code></a> to create a Handle with a custom name or <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.generate_and_register_handle" title="b2handle.handleclient.EUDATHandleClient.generate_and_register_handle"><code class="xref py py-meth docutils literal"><span class="pre">generate_and_register_handle()</span></code></a> to create a Handle with a random UUID-based name.</dd>
+<dt>Deleting a Handle</dt>
+<dd>Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.delete_handle" title="b2handle.handleclient.EUDATHandleClient.delete_handle"><code class="xref py py-meth docutils literal"><span class="pre">delete_handle()</span></code></a>.</dd>
+<dt>Retrieving a full Handle record</dt>
+<dd>This can be done either through <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record" title="b2handle.handleclient.EUDATHandleClient.retrieve_handle_record"><code class="xref py py-meth docutils literal"><span class="pre">retrieve_handle_record()</span></code></a> or <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record_json" title="b2handle.handleclient.EUDATHandleClient.retrieve_handle_record_json"><code class="xref py py-meth docutils literal"><span class="pre">retrieve_handle_record_json()</span></code></a>.</dd>
+<dt>Retrieving a single value</dt>
+<dd>Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.get_value_from_handle" title="b2handle.handleclient.EUDATHandleClient.get_value_from_handle"><code class="xref py py-meth docutils literal"><span class="pre">get_value_from_handle()</span></code></a> to retrieve a single Handle record value.</dd>
+<dt>Modifying a Handle record</dt>
+<dd>Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.modify_handle_value" title="b2handle.handleclient.EUDATHandleClient.modify_handle_value"><code class="xref py py-meth docutils literal"><span class="pre">modify_handle_value()</span></code></a> to modify any number of values in a specific Handle record. To remove individual values, use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.delete_handle_value" title="b2handle.handleclient.EUDATHandleClient.delete_handle_value"><code class="xref py py-meth docutils literal"><span class="pre">delete_handle_value()</span></code></a>.</dd>
+<dt>Searching for a Handle</dt>
+<dd>Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.search_handle" title="b2handle.handleclient.EUDATHandleClient.search_handle"><code class="xref py py-meth docutils literal"><span class="pre">search_handle()</span></code></a> to search for Handles with a specific key and value.
+Please note that searching requires access to a search servlet whose access information, if it differs from the handle server,
+has to be specified at client instantiation.</dd>
+</dl>
+</div>
+<div class="section" id="managing-multiple-urls-with-10320-loc">
+<h2>Managing multiple URLs with 10320/loc<a class="headerlink" href="#managing-multiple-urls-with-10320-loc" title="Permalink to this headline">¶</a></h2>
+<p>The client class offers several methods to adequately manage multiple URLs in a single Handle record. The Handle System mechanism used for this are entries with type <em>10320/loc</em>.
+Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.add_additional_URL" title="b2handle.handleclient.EUDATHandleClient.add_additional_URL"><code class="xref py py-meth docutils literal"><span class="pre">add_additional_URL()</span></code></a>, <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.exchange_additional_URL" title="b2handle.handleclient.EUDATHandleClient.exchange_additional_URL"><code class="xref py py-meth docutils literal"><span class="pre">exchange_additional_URL()</span></code></a> and <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.remove_additional_URL" title="b2handle.handleclient.EUDATHandleClient.remove_additional_URL"><code class="xref py py-meth docutils literal"><span class="pre">remove_additional_URL()</span></code></a> to manage such entries.</p>
+<p>In addition to these basic management methods, there are also two helper methods. Use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.is_10320LOC_empty" title="b2handle.handleclient.EUDATHandleClient.is_10320LOC_empty"><code class="xref py py-meth docutils literal"><span class="pre">is_10320LOC_empty()</span></code></a> to check whether a Handle already contains a 10320/loc entry and <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.is_URL_contained_in_10320LOC" title="b2handle.handleclient.EUDATHandleClient.is_URL_contained_in_10320LOC"><code class="xref py py-meth docutils literal"><span class="pre">is_URL_contained_in_10320LOC()</span></code></a> to check whether a given URL is already present in a record.</p>
+</div>
+<div class="section" id="full-method-documentation">
+<h2>Full method documentation<a class="headerlink" href="#full-method-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="constructors">
+<h3>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.__init__">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>handle_server_url=None</em>, <em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the client. Depending on the arguments passed, it is set to
+read-only, write and/or search mode. All arguments are optional.
+If none is set, the client is in read-only mode, reading from
+the global handle resolver.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>handle_server_url</strong> &#8211; Optional. The URL of the Handle System
+server to read from. Defaults to &#8216;<a class="reference external" href="https://hdl.handle.net">https://hdl.handle.net</a>&#8216;</li>
+<li><strong>username</strong> &#8211; Optional. This must be a handle value reference in
+the format &#8220;index:prefix/suffix&#8221;. The method will throw an exception
+upon bad syntax or non-existing Handle. The existence or validity
+of the password in the handle is not checked at this moment.</li>
+<li><strong>password</strong> &#8211; Optional. This is the password stored as secret key
+in the actual Handle value the username points to.</li>
+<li><strong>REST_API_url_extension</strong> &#8211; Optional. The extension of a Handle
+Server&#8217;s URL to access its REST API. Defaults to &#8216;/api/handles/&#8217;.</li>
+<li><strong>allowed_search_keys</strong> &#8211; Optional. The keys that can be used for
+reverse lookup of handles, as a list of strings. Defaults to &#8216;URL&#8217;
+and &#8216;CHECKSUM&#8217;. If the list is empty, all keys are passed to the
+reverse lookup servlet and exceptions are passed on to the user.</li>
+<li><strong>10320LOC_chooseby</strong> &#8211; Optional. The value to give to a handle
+record&#8217;s 10320/LOC entry&#8217;s &#8216;chooseby&#8217; attribute as string (e.g.
+&#8216;locatt,weighted&#8217;). Defaults to None (attribute not set).</li>
+<li><strong>modify_HS_ADMIN</strong> &#8211; Optional. Advanced usage. Determines whether
+the HS_ADMIN handle record entry can be modified using this library.
+Defaults to False and should not be modified.</li>
+<li><strong>HTTPS_verify</strong> &#8211; Optional. This parameter can have three values.
+&#8216;True&#8217;, &#8216;False&#8217; or &#8216;the path to a CA_BUNDLE file or directory with
+certificates of trusted CAs&#8217;. If set to False, the certificate is
+not verified in HTTP requests. Defaults to True.</li>
+<li><strong>reverselookup_baseuri</strong> &#8211; Optional. The base URL of the reverse
+lookup service. If not set, the handle server base URL is used.</li>
+<li><strong>reverselookup_url_extension</strong> &#8211; Optional. The path to append to
+the reverse lookup base URL to reach the reverse lookup service.
+Defaults to &#8216;/hrls/handles/&#8217;.</li>
+<li><strong>handleowner</strong> &#8211; Optional. The username that will be given admin
+permissions over every newly created handle. By default, it is
+&#8216;200:0.NA/xyz&#8217; (where xyz is the prefix of the handle being created.</li>
+<li><strong>HS_ADMIN_permissions</strong> &#8211; Optional. Advanced usage. This indicates
+the permissions that are given to the handle owner of newly
+created handles in the HS_ADMIN entry.</li>
+<li><strong>private_key</strong> &#8211; Optional. The path to a file containing the private
+key that will be used for authentication in write mode. If this is
+specified, a certificate needs to be specified too.</li>
+<li><strong>certificate_only</strong> &#8211; Optional. The path to a file containing the
+client certificate that will be used for authentication in write
+mode. If this is specified, a private key needs to be specified too.</li>
+<li><strong>certificate_and_key</strong> &#8211; Optional. The path to a file containing both
+certificate and private key, used for authentication in write mode.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="b2handle.handleclient.EUDATHandleClient.instantiate_for_read_access">
+<em class="property">static </em><code class="descclassname">EUDATHandleClient.</code><code class="descname">instantiate_for_read_access</code><span class="sig-paren">(</span><em>handle_server_url=None</em>, <em>**config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.instantiate_for_read_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the client in read-only mode. Access is anonymous,
+thus no credentials are required.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle_server_url</strong> &#8211; Optional. The URL of the Handle System
+server to read from. Defaults to &#8216;<a class="reference external" href="https://hdl.handle.net">https://hdl.handle.net</a>&#8216;</li>
+<li><strong>**config</strong> &#8211; More key-value pairs may be passed that will be passed
+on to the constructor as config. Config options from the
+credentials object are overwritten by this.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An instance of the client.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="b2handle.handleclient.EUDATHandleClient.instantiate_for_read_and_search">
+<em class="property">static </em><code class="descclassname">EUDATHandleClient.</code><code class="descname">instantiate_for_read_and_search</code><span class="sig-paren">(</span><em>handle_server_url</em>, <em>reverselookup_username</em>, <em>reverselookup_password</em>, <em>**config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.instantiate_for_read_and_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.instantiate_for_read_and_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize client with read access and with search function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle_server_url</strong> &#8211; The URL of the Handle Server. May be None
+(then, the default &#8216;<a class="reference external" href="https://hdl.handle.net">https://hdl.handle.net</a>&#8216; is used).</li>
+<li><strong>reverselookup_username</strong> &#8211; The username to authenticate at the
+reverse lookup servlet.</li>
+<li><strong>reverselookup_password</strong> &#8211; The password to authenticate at the
+reverse lookup servlet.</li>
+<li><strong>**config</strong> &#8211; More key-value pairs may be passed that will be passed
+on to the constructor as config. Config options from the
+credentials object are overwritten by this.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An instance of the client.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password">
+<em class="property">static </em><code class="descclassname">EUDATHandleClient.</code><code class="descname">instantiate_with_username_and_password</code><span class="sig-paren">(</span><em>handle_server_url</em>, <em>username</em>, <em>password</em>, <em>**config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.instantiate_with_username_and_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.instantiate_with_username_and_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize client against an HSv8 instance with full read/write access.</p>
+<p>The method will throw an exception upon bad syntax or non-existing
+Handle. The existence or validity of the password in the handle is
+not checked at this moment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle_server_url</strong> &#8211; The URL of the Handle System server.</li>
+<li><strong>username</strong> &#8211; This must be a handle value reference in the format
+&#8220;index:prefix/suffix&#8221;.</li>
+<li><strong>password</strong> &#8211; This is the password stored as secret key in the
+actual Handle value the username points to.</li>
+<li><strong>**config</strong> &#8211; More key-value pairs may be passed that will be passed
+on to the constructor as config.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a>: If the username handle is not found.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An instance of the client.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="b2handle.handleclient.EUDATHandleClient.instantiate_with_credentials">
+<em class="property">static </em><code class="descclassname">EUDATHandleClient.</code><code class="descname">instantiate_with_credentials</code><span class="sig-paren">(</span><em>credentials</em>, <em>**config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.instantiate_with_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.instantiate_with_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the client against an HSv8 instance with full read/write
+access.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>credentials</strong> &#8211; A credentials object, see separate class
+PIDClientCredentials.</li>
+<li><strong>**config</strong> &#8211; More key-value pairs may be passed that will be passed
+on to the constructor as config. Config options from the
+credentials object are overwritten by this.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a>: If the username handle is not found.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An instance of the client.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="handle-record-methods">
+<h3>Handle record methods<a class="headerlink" href="#handle-record-methods" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.register_handle">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">register_handle</code><span class="sig-paren">(</span><em>handle</em>, <em>location</em>, <em>checksum=None</em>, <em>additional_URLs=None</em>, <em>overwrite=False</em>, <em>**extratypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.register_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.register_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new Handle with given name. If the handle already exists
+and overwrite is not set to True, the method will throw an
+exception.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The full name of the handle to be registered (prefix
+and suffix)</li>
+<li><strong>location</strong> &#8211; The URL of the data entity to be referenced</li>
+<li><strong>checksum</strong> &#8211; Optional. The checksum string.</li>
+<li><strong>extratypes</strong> &#8211; Optional. Additional key value pairs.</li>
+<li><strong>additional_URLs</strong> &#8211; Optional. A list of URLs (as strings) to be
+added to the handle record as 10320/LOC entry.</li>
+<li><strong>overwrite</strong> &#8211; Optional. If set to True, an existing handle record
+will be overwritten. Defaults to False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAlreadyExistsException" title="b2handle.handleexceptions.HandleAlreadyExistsException"><code class="xref py py-exc docutils literal"><span class="pre">HandleAlreadyExistsException</span></code></a> Only if overwrite is not set or
+set to False.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The handle name.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.generate_and_register_handle">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">generate_and_register_handle</code><span class="sig-paren">(</span><em>prefix</em>, <em>location</em>, <em>checksum=None</em>, <em>additional_URLs=None</em>, <em>**extratypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.generate_and_register_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.generate_and_register_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a new Handle with a unique random name (random UUID).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prefix</strong> &#8211; The prefix of the handle to be registered. The method
+will generate a suffix.</li>
+<li><strong>location</strong> &#8211; The URL of the data entity to be referenced.</li>
+<li><strong>checksum</strong> &#8211; Optional. The checksum string.</li>
+<li><strong>extratypes</strong> &#8211; Optional. Additional key value pairs as dict.</li>
+<li><strong>additional_URLs</strong> &#8211; Optional. A list of URLs (as strings) to be
+added to the handle record as 10320/LOC entry.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The new handle name.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.delete_handle">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">delete_handle</code><span class="sig-paren">(</span><em>handle</em>, <em>*other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.delete_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.delete_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the handle and its handle record. If the Handle is not found, an Exception is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; Handle to be deleted.</li>
+<li><strong>other</strong> &#8211; Deprecated. This only exists to catch wrong method usage
+by users who are used to delete handle VALUES with the method.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.retrieve_handle_record">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">retrieve_handle_record</code><span class="sig-paren">(</span><em>handle</em>, <em>handlerecord_json=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.retrieve_handle_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a handle record from the Handle server as a dict. If there
+is several entries of the same type, only the first one is
+returned. Values of complex types (such as HS_ADMIN) are
+transformed to strings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle whose record to retrieve.</li>
+<li><strong>handlerecord_json</strong> &#8211; Optional. If the handlerecord has already
+been retrieved from the server, it can be reused.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dict where the keys are keys from the Handle record (except
+for hidden entries) and every value is a string. The result will be
+None if the Handle does not exist.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.retrieve_handle_record_json">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">retrieve_handle_record_json</code><span class="sig-paren">(</span><em>handle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.retrieve_handle_record_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a handle record from the Handle server as a complete nested
+dict (including index, ttl, timestamp, ...) for later use.</p>
+<p>Note: For retrieving a simple dict with only the keys and values,
+please use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.retrieve_handle_record" title="b2handle.handleclient.EUDATHandleClient.retrieve_handle_record"><code class="xref py py-meth docutils literal"><span class="pre">retrieve_handle_record()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>handle</strong> &#8211; The Handle whose record to retrieve.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The handle record as a nested dict. If the handle does not
+exist, returns None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.get_value_from_handle">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">get_value_from_handle</code><span class="sig-paren">(</span><em>handle</em>, <em>key</em>, <em>handlerecord_json=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.get_value_from_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.get_value_from_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a single value from a single Handle. If several entries with
+this key exist, the methods returns the first one. If the handle
+does not exist, the method will raise a HandleNotFoundException.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle to take the value from.</li>
+<li><strong>key</strong> &#8211; The key.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A string containing the value or None if the Handle record
+does not contain the key.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.modify_handle_value">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">modify_handle_value</code><span class="sig-paren">(</span><em>handle</em>, <em>ttl=None</em>, <em>add_if_not_exist=True</em>, <em>**kvpairs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.modify_handle_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.modify_handle_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify entries (key-value-pairs) in a handle record. If the key
+does not exist yet, it is created.</p>
+<p><em>Note:</em> We assume that a key exists only once. In case a key exists
+several time, an exception will be raised.</p>
+<p><em>Note:</em> To modify 10320/LOC, please use <a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.add_additional_URL" title="b2handle.handleclient.EUDATHandleClient.add_additional_URL"><code class="xref py py-meth docutils literal"><span class="pre">add_additional_URL()</span></code></a> or
+<a class="reference internal" href="#b2handle.handleclient.EUDATHandleClient.remove_additional_URL" title="b2handle.handleclient.EUDATHandleClient.remove_additional_URL"><code class="xref py py-meth docutils literal"><span class="pre">remove_additional_URL()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; Handle whose record is to be modified</li>
+<li><strong>ttl</strong> &#8211; Optional. Integer value. If ttl should be set to a
+non-default value.</li>
+<li><strong>other args</strong> (<em>all</em>) &#8211; The user can specify several key-value-pairs.
+These will be the handle value types and values that will be
+modified. The keys are the names or the handle value types (e.g.
+&#8220;URL&#8221;). The values are the new values to store in &#8220;data&#8221;. If the
+key is &#8216;HS_ADMIN&#8217;, the new value needs to be of the form
+{&#8216;handle&#8217;:&#8217;xyz&#8217;, &#8216;index&#8217;:xyz}. The permissions will be set to the
+default permissions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.delete_handle_value">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">delete_handle_value</code><span class="sig-paren">(</span><em>handle</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.delete_handle_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.delete_handle_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a key-value pair from a handle record. If the key exists more
+than once, all key-value pairs with this key are deleted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; Handle from whose record the entry should be deleted.</li>
+<li><strong>key</strong> &#8211; Key to be deleted. Also accepts a list of keys.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.search_handle">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">search_handle</code><span class="sig-paren">(</span><em>URL=None</em>, <em>prefix=None</em>, <em>**key_value_pairs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.search_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.search_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for handles containing the specified key with the specified
+value. The search terms are passed on to the reverse lookup servlet
+as-is. The servlet is supposed to be case-insensitive, but if it
+isn&#8217;t, the wrong case will cause a <a class="reference internal" href="#b2handle.handleexceptions.ReverseLookupException" title="b2handle.handleexceptions.ReverseLookupException"><code class="xref py py-exc docutils literal"><span class="pre">ReverseLookupException</span></code></a>.</p>
+<p><em>Note:</em> If allowed search keys are configured, only these are used. If
+no allowed search keys are specified, all key-value pairs are
+passed on to the reverse lookup servlet, possibly causing a
+<a class="reference internal" href="#b2handle.handleexceptions.ReverseLookupException" title="b2handle.handleexceptions.ReverseLookupException"><code class="xref py py-exc docutils literal"><span class="pre">ReverseLookupException</span></code></a>.</p>
+<p>Example calls:</p>
+<blockquote>
+<div><div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">list_of_handles</span> <span class="o">=</span> <span class="n">search_handle</span><span class="p">(</span><span class="s1">&#39;http://www.foo.com&#39;</span><span class="p">)</span>
+<span class="n">list_of_handles</span> <span class="o">=</span> <span class="n">search_handle</span><span class="p">(</span><span class="s1">&#39;http://www.foo.com&#39;</span><span class="p">,</span> <span class="n">CHECKSUM</span><span class="o">=</span><span class="mi">99999</span><span class="p">)</span>
+<span class="n">list_of_handles</span> <span class="o">=</span> <span class="n">search_handle</span><span class="p">(</span><span class="n">URL</span><span class="o">=</span><span class="s1">&#39;http://www.foo.com&#39;</span><span class="p">,</span> <span class="n">CHECKSUM</span><span class="o">=</span><span class="mi">99999</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>URL</strong> &#8211; Optional. The URL to search for (reverse lookup). [This is
+NOT the URL of the search servlet!]</li>
+<li><strong>prefix</strong> &#8211; Optional. The Handle prefix to which the search should
+be limited to. If unspecified, the method will search across all
+prefixes present at the server given to the constructor.</li>
+<li><strong>key_value_pairs</strong> &#8211; Optional. Several search fields and values can
+be specified as key-value-pairs,
+e.g. CHECKSUM=123456, URL=www.foo.com</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.ReverseLookupException" title="b2handle.handleexceptions.ReverseLookupException"><code class="xref py py-exc docutils literal"><span class="pre">ReverseLookupException</span></code></a>: If a search field is specified that
+cannot be used, or if something else goes wrong.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of all Handles (strings) that bear the given key with
+given value of given prefix or server. The list may be empty and
+may also contain more than one element.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="methods-for-managing-10320-loc-entries">
+<h3>Methods for managing 10320/loc entries<a class="headerlink" href="#methods-for-managing-10320-loc-entries" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.add_additional_URL">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">add_additional_URL</code><span class="sig-paren">(</span><em>handle</em>, <em>*urls</em>, <em>**attributes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.add_additional_URL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.add_additional_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a URL entry to the handle record&#8217;s 10320/LOC entry. If 10320/LOC
+does not exist yet, it is created. If the 10320/LOC entry already
+contains the URL, it is not added a second time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle to add the URL to.</li>
+<li><strong>urls</strong> &#8211; The URL(s) to be added. Several URLs may be specified.</li>
+<li><strong>attributes</strong> &#8211; Optional. Additional key-value pairs to set as
+attributes to the &lt;location&gt; elements, e.g. weight, http_role or
+custom attributes. Note: If the URL already exists but the
+attributes are different, they are updated!</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.exchange_additional_URL">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">exchange_additional_URL</code><span class="sig-paren">(</span><em>handle</em>, <em>old</em>, <em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.exchange_additional_URL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.exchange_additional_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exchange an URL in the 10320/LOC entry against another, keeping the same id
+and other attributes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>handle</strong> &#8211; The handle to modify.</li>
+<li><strong>old</strong> &#8211; The URL to replace.</li>
+<li><strong>new</strong> &#8211; The URL to set as new URL.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.remove_additional_URL">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">remove_additional_URL</code><span class="sig-paren">(</span><em>handle</em>, <em>*urls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.remove_additional_URL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.remove_additional_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a URL from the handle record&#8217;s 10320/LOC entry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle to modify.</li>
+<li><strong>urls</strong> &#8211; The URL(s) to be removed. Several URLs may be specified.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleAuthenticationError" title="b2handle.handleexceptions.HandleAuthenticationError"><code class="xref py py-exc docutils literal"><span class="pre">HandleAuthenticationError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.is_10320LOC_empty">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">is_10320LOC_empty</code><span class="sig-paren">(</span><em>handle</em>, <em>handlerecord_json=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.is_10320LOC_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.is_10320LOC_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there is a 10320/LOC entry in the handle record.
+<em>Note:</em> In the unlikely case that there is a 10320/LOC entry, but it does
+not contain any locations, it is treated as if there was none.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle.</li>
+<li><strong>handlerecord_json</strong> &#8211; Optional. The content of the response of a
+GET request for the handle as a dict. Avoids another GET request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if the record contains NO 10320/LOC entry; False if it
+does contain one.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.is_URL_contained_in_10320LOC">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">is_URL_contained_in_10320LOC</code><span class="sig-paren">(</span><em>handle</em>, <em>url</em>, <em>handlerecord_json=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.is_URL_contained_in_10320LOC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.is_URL_contained_in_10320LOC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the URL is already present in the handle record&#8217;s
+10320/LOC entry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle</strong> &#8211; The handle.</li>
+<li><strong>url</strong> &#8211; The URL.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleNotFoundException" title="b2handle.handleexceptions.HandleNotFoundException"><code class="xref py py-exc docutils literal"><span class="pre">HandleNotFoundException</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if the handle record&#8217;s 10320/LOC entry contains the URL;
+False otherwise. If the entry is empty or does not exist, False
+is returned.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="helper-methods">
+<h3>Helper methods<a class="headerlink" href="#helper-methods" title="Permalink to this headline">¶</a></h3>
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.generate_PID_name">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">generate_PID_name</code><span class="sig-paren">(</span><em>prefix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.generate_PID_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.generate_PID_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a unique random Handle name (random UUID). The Handle is not
+registered. If a prefix is specified, the PID name has the syntax
+&lt;prefix&gt;/&lt;generatedname&gt;, otherwise it just returns the generated
+random name (suffix for the Handle).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prefix</strong> &#8211; Optional. The prefix to be used for the Handle name.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The handle name in the form &lt;prefix&gt;/&lt;generatedsuffix&gt; or
+&lt;generatedsuffix&gt;.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.handleclient.EUDATHandleClient.get_handlerecord_indices_for_key">
+<code class="descclassname">EUDATHandleClient.</code><code class="descname">get_handlerecord_indices_for_key</code><span class="sig-paren">(</span><em>key</em>, <em>list_of_entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleclient.html#EUDATHandleClient.get_handlerecord_indices_for_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleclient.EUDATHandleClient.get_handlerecord_indices_for_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the Handle entry indices of all entries that have a specific
+type.</p>
+<p><em>Important:</em> It finds the Handle System indices! These are not
+the python indices of the list, so they can not be used for
+iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; The key (Handle Record type)</li>
+<li><strong>list_of_entries</strong> &#8211; A list of the existing entries in which to find
+the indices.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of strings, the indices of the entries of type &#8220;key&#8221; in
+the given handle record.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-b2handle.utilhandle">
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-b2handle.utilhandle" title="Permalink to this headline">¶</a></h2>
+<p>This module provides some handle-related functions
+that are needed across various modules of the
+b2handle library.</p>
+<dl class="function">
+<dt id="b2handle.utilhandle.check_handle_syntax">
+<code class="descclassname">b2handle.utilhandle.</code><code class="descname">check_handle_syntax</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/utilhandle.html#check_handle_syntax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.utilhandle.check_handle_syntax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the syntax of a handle without an index (are prefix
+and suffix there, are there too many slashes?).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">String:</th><td class="field-body">The handle without index, as string prefix/suffix.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True. If it&#8217;s not ok, exceptions are raised.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="b2handle.utilhandle.check_handle_syntax_with_index">
+<code class="descclassname">b2handle.utilhandle.</code><code class="descname">check_handle_syntax_with_index</code><span class="sig-paren">(</span><em>string</em>, <em>base_already_checked=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/utilhandle.html#check_handle_syntax_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.utilhandle.check_handle_syntax_with_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the syntax of a handle with an index (is index there, is it an
+integer?), and of the handle itself.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">String:</th><td class="field-body">The handle with index, as string index:prefix/suffix.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True. If it&#8217;s not ok, exceptions are raised.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="b2handle.utilhandle.create_authentication_string">
+<code class="descclassname">b2handle.utilhandle.</code><code class="descname">create_authentication_string</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/utilhandle.html#create_authentication_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.utilhandle.create_authentication_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an authentication string from the username and password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Username:</th><td class="field-body">Username.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Password:</th><td class="field-body">Password.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The encoded string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="b2handle.utilhandle.make_request_log_message">
+<code class="descclassname">b2handle.utilhandle.</code><code class="descname">make_request_log_message</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/utilhandle.html#make_request_log_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.utilhandle.make_request_log_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a string containing all relevant information
+about a request made to the Handle System, for
+logging purposes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Handle:</th><td class="field-body">The handle that the request is about.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Url:</th><td class="field-body">The url the request is sent to.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Headers:</th><td class="field-body">The headers sent along with the request.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Verify:</th><td class="field-body">Boolean parameter passed to the requests
+module (https verification).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Resp:</th><td class="field-body">The request&#8217;s response.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Op:</th><td class="field-body">The library operation during which the request
+was sent.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Payload:</th><td class="field-body">Optional. The payload sent with the request.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A formatted string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="b2handle.utilhandle.remove_index_from_handle">
+<code class="descclassname">b2handle.utilhandle.</code><code class="descname">remove_index_from_handle</code><span class="sig-paren">(</span><em>handle_with_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/utilhandle.html#remove_index_from_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.utilhandle.remove_index_from_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns index and handle separately, in a tuple.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Handle_with_index:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The handle string with an index (e.g.
+500:prefix/suffix)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">index and handle as a tuple.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-b2handle.clientcredentials">
+<span id="client-credentials"></span><h2>Client credentials<a class="headerlink" href="#module-b2handle.clientcredentials" title="Permalink to this headline">¶</a></h2>
+<p>This module provides the class PIDClientCredentials
+which handles the credentials for Handle server
+Interaction and for the Search Servlet.</p>
+<p>Author: Merret Buurman (DKRZ), 2015-2016</p>
+<dl class="staticmethod">
+<dt id="b2handle.clientcredentials.PIDClientCredentials.load_from_JSON">
+<em class="property">static </em><code class="descclassname">PIDClientCredentials.</code><code class="descname">load_from_JSON</code><span class="sig-paren">(</span><em>json_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/clientcredentials.html#PIDClientCredentials.load_from_JSON"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.clientcredentials.PIDClientCredentials.load_from_JSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new instance of a PIDClientCredentials with information read
+from a local JSON file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>json_filename</strong> &#8211; <p>The path to the json credentials file. The json
+file should have the following format:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;handle_server_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://url.to.your.handle.server&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;index:prefix/suffix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;ZZZZZZZ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;prefix_to_use_for_writing_handles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;handleowner&quot;</span><span class="p">:</span> <span class="s2">&quot;username_to_own_handles&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Any additional key-value-pairs are stored in the instance as
+config.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#b2handle.handleexceptions.CredentialsFormatError" title="b2handle.handleexceptions.CredentialsFormatError"><code class="xref py py-exc docutils literal"><span class="pre">CredentialsFormatError</span></code></a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="b2handle.clientcredentials.PIDClientCredentials.__init__">
+<code class="descclassname">PIDClientCredentials.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/clientcredentials.html#PIDClientCredentials.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.clientcredentials.PIDClientCredentials.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize client credentials instance.</p>
+<p>The constructor checks if enough arguments are passed to
+authenticate at a handle server or search servlet. For this,
+the following parameters are checked. Depending on the
+chosen authentication method, only a subset of them are
+required.</p>
+<p>All other parameters passed are stored and can be retrieved
+using &#8216;get_config()&#8217;. If a credentials objects is used to
+initialize the client, these key-value pairs are passed on
+to the client constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>handle_server_url</strong> &#8211; Optional. The URL of the Handle System
+server to read from. Defaults to &#8216;<a class="reference external" href="https://hdl.handle.net">https://hdl.handle.net</a>&#8216;</li>
+<li><strong>username</strong> &#8211; Optional. This must be a handle value reference in
+the format &#8220;index:prefix/suffix&#8221;. The method will throw an exception
+upon bad syntax or non-existing Handle. The existence or validity
+of the password in the handle is not checked at this moment.</li>
+<li><strong>password</strong> &#8211; Optional. This is the password stored as secret key
+in the actual Handle value the username points to.</li>
+<li><strong>handleowner</strong> &#8211; Optional. The username that will be given admin
+permissions over every newly created handle. By default, it is
+&#8216;200:0.NA/xyz&#8217; (where xyz is the prefix of the handle being created.</li>
+<li><strong>private_key</strong> &#8211; Optional. The path to a file containing the private
+key that will be used for authentication in write mode. If this is
+specified, a certificate needs to be specified too.</li>
+<li><strong>certificate_only</strong> &#8211; Optional. The path to a file containing the
+client certificate that will be used for authentication in write
+mode. If this is specified, a private key needs to be specified too.</li>
+<li><strong>certificate_and_key</strong> &#8211; Optional. The path to a file containing both
+certificate and private key, used for authentication in write mode.</li>
+<li><strong>prefix</strong> &#8211; Prefix. This is not used by the library, but may be
+retrieved by the user.</li>
+<li><strong>**args</strong> &#8211; Any other key-value pairs are stored and can be accessed
+using &#8216;get_config()&#8217;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Credentials_filename:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first">This is the file location of the credentials file,
+if read from JSON. It is used to find the certificate/key files, if any.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#b2handle.handleexceptions.HandleSyntaxError" title="b2handle.handleexceptions.HandleSyntaxError"><code class="xref py py-exc docutils literal"><span class="pre">HandleSyntaxError</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-b2handle.handleexceptions">
+<span id="exceptions"></span><h2>Exceptions<a class="headerlink" href="#module-b2handle.handleexceptions" title="Permalink to this headline">¶</a></h2>
+<p>This module contains the exceptions that may occur in
+libraries interacting with the Handle System.</p>
+<p>Author: Merret Buurman (DKRZ), 2015-2016</p>
+<dl class="exception">
+<dt id="b2handle.handleexceptions.CredentialsFormatError">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">CredentialsFormatError</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#CredentialsFormatError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.CredentialsFormatError" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if credentials are ill-formatted or miss essential items.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.GenericHandleError">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">GenericHandleError</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#GenericHandleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.GenericHandleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised when the Handle Server returned an unexpected status code
+that does not map to any other specific exception.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.HandleAlreadyExistsException">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">HandleAlreadyExistsException</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#HandleAlreadyExistsException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.HandleAlreadyExistsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if self.handle already exists.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.HandleAuthenticationError">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">HandleAuthenticationError</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#HandleAuthenticationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.HandleAuthenticationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if authentication failed, if there was no
+write permission for creating, modifying, deleting.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.HandleNotFoundException">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">HandleNotFoundException</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#HandleNotFoundException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.HandleNotFoundException" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if the self.handle was not found on the Handle Server.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.HandleSyntaxError">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">HandleSyntaxError</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#HandleSyntaxError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.HandleSyntaxError" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if the Handle does not have correct syntax.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.IllegalOperationException">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">IllegalOperationException</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#IllegalOperationException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.IllegalOperationException" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised when the user tries to create a HS_ADMIN self.handle,
+when he wants to create or remove 10320/loc entries using the
+wrong method, ...</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="b2handle.handleexceptions.ReverseLookupException">
+<em class="property">exception </em><code class="descclassname">b2handle.handleexceptions.</code><code class="descname">ReverseLookupException</code><span class="sig-paren">(</span><em>**args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/b2handle/handleexceptions.html#ReverseLookupException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#b2handle.handleexceptions.ReverseLookupException" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be raised if the reverse lookup servlet returns an error.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="authentication.html" class="btn btn-neutral float-right" title="Authentication at a Handle Server" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to the B2Handle documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

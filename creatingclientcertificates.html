@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating the client certificate &mdash; B2Handle 1.1.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="B2Handle 1.1.1 documentation" href="index.html"/>
+        <link rel="next" title="Giving write permissions to users" href="givingpermissiontousers.html"/>
+        <link rel="prev" title="Authentication at a Handle Server" href="authentication.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> B2Handle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="handleclient.html">Handle Client documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication at a Handle Server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Creating the client certificate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-private-public-key-pair">Creating a private/public key pair</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upload-the-user-s-public-key-to-the-hs-pubkey-entry">Upload the user&#8217;s public key to the <code class="docutils literal"><span class="pre">HS_PUBKEY</span></code> entry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transforming-the-binary-private-key-bin-to-a-pem-file">Transforming the binary private key (.bin) to a .pem file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-the-certificate-file">Creating the certificate file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-the-public-key-from-the-certificate-file">Removing the public key from the certificate file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="givingpermissiontousers.html">Giving write permissions to users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="handleserverconfig.html">Handle Server Configuration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">B2Handle</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Creating the client certificate</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/creatingclientcertificates.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="creating-the-client-certificate">
+<span id="creatingclientcertificate"></span><h1>Creating the client certificate<a class="headerlink" href="#creating-the-client-certificate" title="Permalink to this headline">¶</a></h1>
+<p>For authentication using client certificates, a special pair of keys and a certificate file is required.
+Follow these five steps to create them for your users:</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#step1"><span class="std std-ref">Creating a private/public key pair</span></a>.</li>
+<li><a class="reference internal" href="#step2"><span class="std std-ref">Upload the user&#8217;s public key to the HS_PUBKEY entry</span></a>.</li>
+<li><a class="reference internal" href="#step3"><span class="std std-ref">Transforming the binary private key (.bin) to a .pem file</span></a>.</li>
+<li><a class="reference internal" href="#step4"><span class="std std-ref">Creating the certificate file</span></a>.</li>
+<li><a class="reference internal" href="#step5"><span class="std std-ref">Removing the public key from the certificate file</span></a>.</li>
+</ol>
+<div class="section" id="creating-a-private-public-key-pair">
+<span id="step1"></span><h2>Creating a private/public key pair<a class="headerlink" href="#creating-a-private-public-key-pair" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p class="first">For this, you can use the command line tool &#8220;hdl-keygen&#8221; that is shipped together with the handle system software:</p>
+<div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="o">/.../</span><span class="n">handlesystem_software</span><span class="o">/</span><span class="n">hsj</span><span class="o">-</span><span class="mf">8.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">hdl</span><span class="o">-</span><span class="n">keygen</span>
+              <span class="o">-</span><span class="n">alg</span> <span class="n">rsa</span>
+              <span class="o">-</span><span class="n">keysize</span> <span class="mi">4096</span>
+               <span class="mi">301</span><span class="n">_foo_bar_privkey</span><span class="o">.</span><span class="n">bin</span> <span class="mi">301</span><span class="n">_foo_bar_pubkey</span><span class="o">.</span><span class="n">bin</span>
+</pre></div>
+</div>
+<p>Note: We put 301_foo_bar into the name to remember for which username this keypair is generated!</p>
+</li>
+<li><p class="first">When it asks whether you want to encrypt the key, type &#8216;n&#8217;:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span>Would you like to encrypt your private key? (y/n) [y] n
+</pre></div>
+</div>
+</div></blockquote>
+<p>Why? The b2handle library uses the python library <em>requests</em> which does not support encrypted private keys:
+<em>&#8220;The private key to your local certificate must be unencrypted. Currently, requests does not support
+using encrypted keys.&#8221;</em> (see <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#ssl-cert-verification">requests documentation on this topic</a>).</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="upload-the-user-s-public-key-to-the-hs-pubkey-entry">
+<span id="step2"></span><h2>Upload the user&#8217;s public key to the <code class="docutils literal"><span class="pre">HS_PUBKEY</span></code> entry<a class="headerlink" href="#upload-the-user-s-public-key-to-the-hs-pubkey-entry" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p class="first">For this, you can use the command line tool &#8220;hdl-admintool&#8221; that is shipped together with the handle system software:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="o">/.../</span><span class="n">handlesystem_software</span><span class="o">/</span><span class="n">hsj</span><span class="o">-</span><span class="mf">8.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">hdl</span><span class="o">-</span><span class="n">admintool</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Authenticate with your handle-server-admin credentials</p>
+</li>
+<li><p class="first">Lookup the handle where you want to store the user&#8217;s public key (foo/bar)</p>
+</li>
+<li><p class="first">&#8220;Edit&#8221;</p>
+</li>
+<li><p class="first">&#8220;Add&#8221; &gt; &#8220;Blank Value&#8221;</p>
+</li>
+<li><p class="first">Index: In this example, we use 301. As a convention, take the lowest value &gt;= 301 that is not in use yet.</p>
+</li>
+<li><p class="first">&#8220;Load from file&#8221; &gt; Choose the file &#8220;301_foo_bar_pubkey.bin&#8221;</p>
+</li>
+<li><p class="first">The value type should have set itself to <em>&#8220;Hex&#8221;</em> now.</p>
+</li>
+<li><p class="first">Don&#8217;t forget to give admin permissions to the username 301:foo/bar, where you just uploaded the public key!</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="transforming-the-binary-private-key-bin-to-a-pem-file">
+<span id="step3"></span><h2>Transforming the binary private key (.bin) to a .pem file<a class="headerlink" href="#transforming-the-binary-private-key-bin-to-a-pem-file" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p class="first">For this, you can use the command line tool &#8220;hdl-convert-key&#8221; that is shipped together with the handle system software:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="o">/.../</span><span class="n">handlesystem_software</span><span class="o">/</span><span class="n">hsj</span><span class="o">-</span><span class="mf">8.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">hdl</span><span class="o">-</span><span class="n">convert</span><span class="o">-</span><span class="n">key</span>
+                                    <span class="o">/.../</span><span class="mi">301</span><span class="n">_foo_bar_privkey</span><span class="o">.</span><span class="n">bin</span>
+                                 <span class="o">-</span><span class="n">o</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_foo_bar_privkey</span><span class="o">.</span><span class="n">pem</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="creating-the-certificate-file">
+<span id="step4"></span><h2>Creating the certificate file<a class="headerlink" href="#creating-the-certificate-file" title="Permalink to this headline">¶</a></h2>
+<p>This can be done in 2 ways:</p>
+<p>Case 1: Using openssl with specifying a subject.</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">pubkey</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">new</span> <span class="o">-</span><span class="n">sha256</span> <span class="o">-</span><span class="n">subj</span> <span class="s2">&quot;/CN=301:foo\/bar&quot;</span> <span class="o">-</span><span class="n">days</span> <span class="mi">3652</span>
+                                <span class="o">-</span><span class="n">key</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_foo_bar_privkey</span><span class="o">.</span><span class="n">pem</span>
+                                <span class="o">-</span><span class="n">out</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_certificate_and_publickey</span><span class="o">.</span><span class="n">pem</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Done!</p>
+<p>Case 2: Using openssl without specifying a subject:</p>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">pubkey</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">new</span>  <span class="o">-</span><span class="n">key</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_foo_bar_privkey</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">days</span> <span class="mi">3652</span>
+                                <span class="o">-</span><span class="n">out</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_certificate_and_publickey</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">sha256</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The tool is then going to prompt for some information if you do not specify a subject. For the first 5 prompts, it does not matter what you enter- the entries are going to be ignored by the Handle Server.</p>
+<p>However, it is very important to enter the username as Common Name and <em>leave the Email address blank</em>, as it is going to be appended to the username otherwise. This will look like this:</p>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>   You are about to be asked to enter information that will be incorporated
+   into your certificate request.
+   What you are about to enter is what is called a Distinguished Name or a DN.
+   There are quite a few fields but you can leave some blank
+   For some fields there will be a default value,
+   If you enter &#39;.&#39;, the field will be left blank.
+   -----
+   Country Name (2 letter code) [XX]:
+   State or Province Name (full name) []:
+   Locality Name (eg, city) [Default City]:
+   Organization Name (eg, company) [Default Company Ltd]:
+   Organizational Unit Name (eg, section) []:
+<span class="hll">   Common Name (eg, your name or your server&#39;s hostname) []:300:foo/bar
+</span><span class="hll">   Email Address []:
+</span></pre></div>
+</div>
+</div></blockquote>
+<p>Done!</p>
+</div>
+<div class="section" id="removing-the-public-key-from-the-certificate-file">
+<span id="step5"></span><h2>Removing the public key from the certificate file<a class="headerlink" href="#removing-the-public-key-from-the-certificate-file" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="n">inform</span> <span class="n">PEM</span> <span class="o">-</span><span class="ow">in</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_certificate_and_publickey</span><span class="o">.</span><span class="n">pem</span>
+                         <span class="o">-</span><span class="n">out</span> <span class="o">/.../</span><span class="mi">301</span><span class="n">_certificate_only</span><span class="o">.</span><span class="n">pem</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Now, the certificate_only.pem file and the private_key.pem file can be used for authentication.
+The paths to these files should be entered into the JSON credentials file asfollows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;handle_server_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://my.handle.server&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;private_key&quot;</span><span class="p">:</span> <span class="s2">&quot;301_foo_bar_privkey.pem&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;certificate_only&quot;</span><span class="p">:</span> <span class="s2">&quot;301_certificate_only.pem&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Please follow the client documentation to see how a user can use this JSON file to authenticate while using the b2handle library.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="givingpermissiontousers.html" class="btn btn-neutral float-right" title="Giving write permissions to users" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="authentication.html" class="btn btn-neutral" title="Authentication at a Handle Server" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
