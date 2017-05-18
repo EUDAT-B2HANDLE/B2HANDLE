@@ -168,7 +168,7 @@ class Searcher(object):
         if args['reverselookup_baseuri']:
             self.__reverselookup_baseuri = args['reverselookup_baseuri']
             LOGGER.info(' - solrbaseurl set to: '+self.__reverselookup_baseuri)
-        elif 'handle_server_url' in list(args.keys()) and args['handle_server_url'] is not None:
+        elif 'handle_server_url' in args.keys() and args['handle_server_url'] is not None:
             self.__reverselookup_baseuri = args['handle_server_url']
             LOGGER.info(' - solrbaseurl set to same as handle server: '+str(self.__reverselookup_baseuri))
         else:
@@ -253,12 +253,12 @@ class Searcher(object):
 
         # Prefix specified? Remove them from the key value pairs to be searched.
         prefix = None
-        if 'prefix' in list(args.keys()):
+        if 'prefix' in args.keys():
             prefix = args.pop('prefix')
 
         # Any fulltext search terms specified? Remove them from the key value pairs to be searched.
         fulltext_searchterms = []
-        if 'searchterms' in list(args.keys()):
+        if 'searchterms' in args.keys():
             fulltext_searchterms = args.pop('searchterms')
 
         # Check if there is any key-value pairs to be searched.
@@ -330,7 +330,7 @@ class Searcher(object):
         if prefix is not None:
             LOGGER.debug('search_handle: Restricting search to prefix '+prefix)
             filteredlist_of_handles = []
-            for i in range(len(list_of_handles)):
+            for i in xrange(len(list_of_handles)):
                 if list_of_handles[i].split('/')[0] == prefix:
                     filteredlist_of_handles.append(list_of_handles[i])
             list_of_handles = filteredlist_of_handles
@@ -384,7 +384,7 @@ class Searcher(object):
 
         counter = 0
         query = '?'
-        for key, value in list(keyvalue_searchterms.items()):
+        for key, value in keyvalue_searchterms.items():
 
             if only_search_for_allowed_keys and key not in allowed_search_keys:
                 msg = 'Cannot search for key "'+key+'". Only searches '+\

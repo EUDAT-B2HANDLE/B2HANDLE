@@ -3,7 +3,7 @@ This module provides some handle-related functions
 that are needed across various modules of the
 b2handle library.
 '''
-
+from __future__ import absolute_import
 import base64
 from future.standard_library import install_aliases
 install_aliases()
@@ -147,7 +147,7 @@ def make_request_log_message(**args):
     message += space+'URL:          '+args['url']
     message += space+'HEADERS:      '+str(args['headers'])
     message += space+'VERIFY:       '+str(args['verify'])
-    if 'payload' in list(args.keys()):
+    if 'payload' in args.keys():
         message += space+'PAYLOAD:'+space+str(args['payload'])
     message += space+'RESPONSECODE: '+str(args['resp'].status_code)
     message += space+'RESPONSE:'+space+str(args['resp'].content)

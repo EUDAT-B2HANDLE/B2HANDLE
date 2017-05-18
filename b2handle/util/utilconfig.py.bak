@@ -18,7 +18,7 @@ def get_valid_https_verify(value):
 
     if isinstance(value, bool):
         http_verify_value = value
-    elif (isinstance(value, str) or isinstance(value, str)) and value.lower() in list(bool_values.keys()):
+    elif (isinstance(value, str) or isinstance(value, unicode)) and value.lower() in bool_values.keys():
         http_verify_value = bool_values[value.lower()]
 
     return http_verify_value

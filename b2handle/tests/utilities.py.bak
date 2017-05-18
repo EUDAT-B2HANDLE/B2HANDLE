@@ -30,7 +30,7 @@ def replace_timestamps(jsonobject):
 
     # Recursion:
     if type(jsonobject) == type({'b':2}):
-        for item in list(jsonobject.items()):
+        for item in jsonobject.items():
             replace_timestamps(item)
 
     elif type(jsonobject) == type([2, 2]) or type(jsonobject) == type((2, 2)):
@@ -68,7 +68,7 @@ def sort_lists(jsonobject):
         
     # Recursion:
     if type(jsonobject) == type({'b':2}):
-        for item in list(jsonobject.items()):
+        for item in jsonobject.items():
             sort_lists(item)
 
     elif type(jsonobject) == type([2, 2]) or type(jsonobject) == type((2, 2)):

@@ -38,10 +38,10 @@ class EUDATHandleClientReadaccessTestCase(unittest.TestCase):
         if 'HTTPS_verify' in self.testvalues:
             self.https_verify = self.testvalues['HTTPS_verify']
         self.url = 'http://hdl.handle.net'
-        if 'handle_server_url_read' in list(self.testvalues.keys()):
+        if 'handle_server_url_read' in self.testvalues.keys():
             self.url = self.testvalues['handle_server_url_read']
         self.path_to_api = None
-        if 'url_extension_REST_API' in list(self.testvalues.keys()):
+        if 'url_extension_REST_API' in self.testvalues.keys():
             self.path_to_api = self.testvalues['url_extension_REST_API']
 
         # Others

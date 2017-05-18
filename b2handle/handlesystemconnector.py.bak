@@ -144,7 +144,7 @@ class HandleSystemConnector(object):
     def __check_if_write_access(self, args):
         write_access_argnames = ['username', 'password', 'certificate_only', 'private_key', 'certificate_and_key']
         for argname in write_access_argnames:
-            if argname in list(args.keys()) and args[argname] is not None:
+            if argname in args.keys() and args[argname] is not None:
                 LOGGER.debug('Connector got argument "'+argname+'", so write access is desired.')
                 return True
         return False

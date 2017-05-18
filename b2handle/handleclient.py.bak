@@ -5,7 +5,7 @@ library.
 Author: Merret Buurman (DKRZ), 2015-2016
 
 '''
-
+from __future__ import absolute_import
 from past.builtins import xrange
 # pylint handleclient.py --method-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --max-line-length=250 --variable-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --attr-rgx="[a-z_][a-zA-Z0-9_]{2,30}$" --argument-rgx="[a-z_][a-zA-Z0-9_]{2,30}$"
 
@@ -130,7 +130,7 @@ class EUDATHandleClient(object):
 
         # Needed for creating handles:
 
-        if 'HS_ADMIN_permissions' in list(args.keys()):
+        if 'HS_ADMIN_permissions' in args.keys():
             self.__HS_ADMIN_permissions = args['HS_ADMIN_permissions']
             LOGGER.info(' - HS_ADMIN_permissions set to: ' + self.__HS_ADMIN_permissions)
         else:
@@ -138,14 +138,14 @@ class EUDATHandleClient(object):
             LOGGER.info(' - HS_ADMIN_permissions set to default: ' + self.__HS_ADMIN_permissions)
 
 
-        if '10320LOC_chooseby' in list(args.keys()):
+        if '10320LOC_chooseby' in args.keys():
             self.__10320LOC_chooseby = args['10320LOC_chooseby']
             LOGGER.info(' - 10320LOC_chooseby set to: ' + self.__10320LOC_chooseby)
         else:
             LOGGER.info(' - 10320LOC_chooseby: No default.')
 
 
-        if 'modify_HS_ADMIN' in list(args.keys()):
+        if 'modify_HS_ADMIN' in args.keys():
             self.__modify_HS_ADMIN = args['modify_HS_ADMIN']
             LOGGER.info(' - modify_HS_ADMIN set to: ' + str(self.__modify_HS_ADMIN))
         else:
@@ -155,7 +155,7 @@ class EUDATHandleClient(object):
 
         # Handle owner: The user name to be written into HS_ADMIN.
         # Can be specified in json credentials file (optionally):
-        if ('handleowner' in list(args.keys())) and (args['handleowner'] is not None):
+        if ('handleowner' in args.keys()) and (args['handleowner'] is not None):
             self.__handleowner = args['handleowner']
             LOGGER.info(' - handleowner set to: ' + self.__handleowner)
         else:
@@ -196,7 +196,7 @@ class EUDATHandleClient(object):
         :return: An instance of the client.
         '''
 
-        if handle_server_url is None and 'reverselookup_baseuri' not in list(config.keys()):
+        if handle_server_url is None and 'reverselookup_baseuri' not in config.keys():
             raise TypeError('You must specify either "handle_server_url" or "reverselookup_baseuri".' + \
                 ' Searching not possible without the URL of a search servlet.')
 
@@ -324,7 +324,7 @@ class EUDATHandleClient(object):
         record_as_dict = {}
         for entry in list_of_entries:
             key = entry['type']
-            if not key in list(record_as_dict.keys()):
+            if not key in record_as_dict.keys():
                 record_as_dict[key] = str(entry['data']['value'])
         return record_as_dict
 
@@ -349,7 +349,7 @@ class EUDATHandleClient(object):
         list_of_entries = handlerecord_json['values']
 
         indices = []
-        for i in range(len(list_of_entries)):
+        for i in xrange(len(list_of_entries)):
             if list_of_entries[i]['type'] == key:
                 indices.append(i)
 
@@ -505,7 +505,7 @@ class EUDATHandleClient(object):
         list_of_entries = handlerecord_json['values']
 
         # HS_ADMIN
-        if 'HS_ADMIN' in list(kvpairs.keys()) and not self.__modify_HS_ADMIN:
+        if 'HS_ADMIN' in kvpairs.keys() and not self.__modify_HS_ADMIN:
             msg = 'You may not modify HS_ADMIN'
             raise IllegalOperationException(
                 msg=msg,
@@ -516,11 +516,11 @@ class EUDATHandleClient(object):
         nothingchanged = True
         new_list_of_entries = []
         list_of_old_and_new_entries = list_of_entries[:]
-        keys = list(kvpairs.keys())
-        for key, newval in list(kvpairs.items()):
+        keys = kvpairs.keys()
+        for key, newval in kvpairs.items():
             # Change existing entry:
             changed = False
-            for i in range(len(list_of_entries)):
+            for i in xrange(len(list_of_entries)):
                 if list_of_entries[i]['type'] == key:
                     if not changed:
                         list_of_entries[i]['data'] = newval
@@ -558,13 +558,13 @@ class EUDATHandleClient(object):
 
         # Add the indices
         indices = []
-        for i in range(len(new_list_of_entries)):
+        for i in xrange(len(new_list_of_entries)):
             indices.append(new_list_of_entries[i]['index'])
 
         # append to the old record:
         if nothingchanged:
             LOGGER.debug('modify_handle_value: There was no entries ' + \
-                str(list(kvpairs.keys())) + ' to be modified (handle ' + handle + ').' + \
+                str(kvpairs.keys()) + ' to be modified (handle ' + handle + ').' + \
                 ' To add them, set add_if_not_exist = True')
         else:
             op = 'modifying handle values'
@@ -880,7 +880,7 @@ class EUDATHandleClient(object):
             )
             list_of_entries.append(entryChecksum)
         if extratypes is not None:
-            for key, value in list(extratypes.items()):
+            for key, value in extratypes.items():
                 entry = self.__create_entry(
                     key,
                     value,
@@ -1131,7 +1131,7 @@ class EUDATHandleClient(object):
         # find new index:
         all_prohibited_indices = existing_indices | prohibited_indices
         searchmax = max(start, max(all_prohibited_indices)) + 2
-        for index in range(start, searchmax):
+        for index in xrange(start, searchmax):
             if index not in all_prohibited_indices:
                 return index
 
@@ -1218,7 +1218,7 @@ class EUDATHandleClient(object):
             in the given list.
         '''
         indices = []
-        for i in range(len(list_of_entries)):
+        for i in xrange(len(list_of_entries)):
             if list_of_entries[i]['type'] == key:
                 indices.append(i)
         return indices
@@ -1447,7 +1447,7 @@ class EUDATHandleClient(object):
         if http_role is not None:
             locelement.set('http_role', http_role)
 
-        for key, value in list(kvpairs.items()):
+        for key, value in kvpairs.items():
             locelement.set(key, str(value))
 
     def __log_request_response_to_file(self, **args):

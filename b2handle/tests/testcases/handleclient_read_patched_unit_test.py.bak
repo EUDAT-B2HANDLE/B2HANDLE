@@ -11,7 +11,7 @@ import json
 import b2handle
 from b2handle.handleclient import EUDATHandleClient
 from b2handle.utilhandle import check_handle_syntax
-from past.builtins import int
+from past.builtins import long
 # Load some data that is needed for testing
 PATH_RES = b2handle.util.get_neighbour_directory(__file__, 'resources')
 RECORD = json.load(open(PATH_RES+'/handlerecord_for_reading_PUBLIC.json'))
@@ -72,7 +72,7 @@ class EUDATHandleClientReadaccessFakedTestCase(unittest.TestCase):
         syntax_ok = check_handle_syntax(val['handle'])
         self.assertTrue(syntax_ok,
             'The handle in HS_ADMIN is not well-formatted.')
-        self.assertIsInstance(val['index'], (int, int),
+        self.assertIsInstance(val['index'], (int, long),
             'The index of the HS_ADMIN is not an integer.')
         self.assertEqual(str(val['permissions']).replace('0','').replace('1',''), '',
             'The permission value in the HS_ADMIN contains not just 0 and 1.')
