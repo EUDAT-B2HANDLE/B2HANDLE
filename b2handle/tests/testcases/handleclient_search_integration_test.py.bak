@@ -46,16 +46,16 @@ class EUDATHandleClientSearchTestCase(unittest.TestCase):
 
         # Optional:
         self.url = None
-        if 'handle_server_url_read' in list(self.testvalues.keys()):
+        if 'handle_server_url_read' in self.testvalues.keys():
             self.url = self.testvalues['handle_server_url_read']
         self.https_verify = True
-        if 'HTTPS_verify' in list(self.testvalues.keys()):
+        if 'HTTPS_verify' in self.testvalues.keys():
             self.https_verify = self.testvalues['HTTPS_verify']
         self.searchpath = None
-        if 'reverselookup_url_extension' in list(self.testvalues.keys()):
+        if 'reverselookup_url_extension' in self.testvalues.keys():
             self.searchpath = self.testvalues['reverselookup_url_extension']
         self.path_to_api = None
-        if 'url_extension_REST_API' in list(self.testvalues.keys()):
+        if 'url_extension_REST_API' in self.testvalues.keys():
             self.path_to_api = self.testvalues['url_extension_REST_API']
 
         # Others:

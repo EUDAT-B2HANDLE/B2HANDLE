@@ -16,7 +16,7 @@ def add_missing_optional_args_with_value_none(args, optional_args):
     '''
 
     for name in optional_args:
-        if not name in list(args.keys()):
+        if not name in args.keys():
             args[name] = None
     return args
 
@@ -39,7 +39,7 @@ def check_presence_of_mandatory_args(args, mandatory_args):
     '''
     missing_args = []
     for name in mandatory_args:
-        if name not in list(args.keys()):
+        if name not in args.keys():
             missing_args.append(name)
     if len(missing_args) > 0:
         raise ValueError('Missing mandatory arguments: '+', '.join(missing_args))
@@ -48,7 +48,7 @@ def check_presence_of_mandatory_args(args, mandatory_args):
 
 def return_keys_of_value_none(dictionary):
     isnone = []
-    for key,value in list(dictionary.items()):
+    for key,value in dictionary.items():
         if value is None:
             isnone.append(key)
     return isnone
@@ -62,7 +62,7 @@ def remove_value_none_from_dict(dictionary):
 
 def return_indices_of_value_none(mylist):
     isnone = []
-    for i in range(len(mylist)):
+    for i in xrange(len(mylist)):
         if mylist[i] is None:
             isnone.append(i)
     return isnone
