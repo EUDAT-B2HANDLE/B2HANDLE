@@ -9,7 +9,7 @@ RUN        apt-get update && apt-get install -y --no-install-recommends \
 RUN        easy_install pip
 RUN        pip install \
            sphinx \
-           sphinx_rtd_theme
+           sphinxjp.themes.bizstyle
 
 VOLUME     /opt/B2HANDLE/docs
 
