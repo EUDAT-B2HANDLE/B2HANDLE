@@ -84,6 +84,8 @@ class HandleSystemConnector(object):
 
         LOGGER.debug('End of instantiation of the handle system connector.')
 
+    def __del__(self):
+        self.__session.close()
 
     # Helpers for init method:
 
