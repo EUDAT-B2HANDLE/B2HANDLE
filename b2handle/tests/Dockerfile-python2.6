@@ -1,11 +1,11 @@
 # vim:set ft=dockerfile:
-FROM       eudat-b2handle:python2.6
+FROM       eudat-26
 
 RUN        easy_install pip
 RUN        pip install \
            argparse \
            unittest2 \
-           mock \
+           mock==2.0.0 \
            coverage==4.5.4 \
            nose
 
