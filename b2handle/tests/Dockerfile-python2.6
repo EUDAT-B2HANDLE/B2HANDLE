@@ -6,9 +6,8 @@ RUN        pip install \
            argparse \
            unittest2 \
            mock \
-           coverage \
+           coverage==4.5.4 \
            nose
-RUN        pip install setuptools --upgrade
 
 VOLUME     /opt/B2HANDLE/b2handle/tests
 
