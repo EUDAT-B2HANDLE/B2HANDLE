@@ -2,8 +2,10 @@
 FROM       centos:6
 
 RUN        yum -y update && yum clean all && yum -y install \
-           python-setuptools
+           epel-release
+RUN        yum -y install python-pip
 
+RUN        pip install setuptools==36.8.0 requests==2.18.4 zope.interface==4.1.3
 ADD        . /opt/B2HANDLE
 
 WORKDIR    /opt/B2HANDLE
