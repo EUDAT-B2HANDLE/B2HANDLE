@@ -145,7 +145,7 @@ RUN set -ex; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends wget; \
 	\
-	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
+	wget --auth-no-challenge -O get-pip.py "$PYTHON_GET_PIP_URL"; \
 	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum --check --strict -; \
 	\
 	apt-mark auto '.*' > /dev/null; \
