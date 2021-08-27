@@ -79,6 +79,24 @@ pipeline {
                 }
             }
         }
+        stage ('Deploy Docs') {
+            when {
+                changeset 'docs/**'
+            }
+            agent {
+                docker {
+                    image 'python:3.7'
+                }
+            }
+            steps {
+                echo 'Building docs...'
+                sh '''
+                    cd $WORKSPACE/$PROJECT_DIR
+                    pip install sphinx
+                    python setup.py build_sphinx
+                '''
+            }
+        }
     }
     post {
         always {
