@@ -1,17 +1,13 @@
 # vim:set ft=dockerfile:
-FROM       eudat-b2handle:py3.6
+FROM       python:3.6
 
-RUN        pip3 install \
+RUN        pip install \
            mock \
            coverage \
            nose
 
-VOLUME     /opt/B2HANDLE/b2handle/tests
+ADD        . /opt/B2HANDLE
+RUN        cd /opt/B2HANDLE && \
+           python setup.py install
 
 WORKDIR    /opt/B2HANDLE/b2handle/tests
-
-COPY       docker-entrypoint.sh ./
-
-ENTRYPOINT ["./docker-entrypoint.sh"]
-
-CMD        ["coverage"]
