@@ -20,9 +20,10 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            cd /opt/B2HANDLE/b2handle/tests
+                            cd $WORKSPACE/$PROJECT_DIR/b2handle/tests
                             ./docker-entrypoint.sh coverage
                         '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
                     }
                 }
                 stage ('Test python 3.5') {
@@ -36,9 +37,10 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            cd /opt/B2HANDLE/b2handle/tests
+                            cd $WORKSPACE/$PROJECT_DIR/b2handle/tests
                             ./docker-entrypoint.sh coverage
                         '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
                     }
                 }
                 stage ('Test python 3.6') {
@@ -52,9 +54,10 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            cd /opt/B2HANDLE/b2handle/tests
+                            cd $WORKSPACE/$PROJECT_DIR/b2handle/tests
                             ./docker-entrypoint.sh coverage
                         '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
                     }
                 }
                 stage ('Test python 3.7') {
@@ -68,9 +71,10 @@ pipeline {
                     }
                     steps {
                         sh '''
-                            cd /opt/B2HANDLE/b2handle/tests
+                            cd $WORKSPACE/$PROJECT_DIR/b2handle/tests
                             ./docker-entrypoint.sh coverage
                         '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
                     }
                 }
             }
