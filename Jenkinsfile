@@ -5,6 +5,8 @@ pipeline {
     }
     environment {
         PROJECT_DIR="B2HANDLE"
+        GH_USER = 'newgrnetci'
+        GH_EMAIL = '<argo@grnet.gr>'
     }
     stages {
         stage ('Run tests for each python version') {
@@ -86,6 +88,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.7'
+                    args "-u root:root"
                 }
             }
             steps {
@@ -103,6 +106,8 @@ pipeline {
                         cd ${WORKSPACE}/b2handle-pages
                         cp -R $WORKSPACE/$PROJECT_DIR/docs/build/html/* .
                         git add .
+                        git config --global user.email ${GH_EMAIL}
+                        git config --global user.name ${GH_USER}
                         git commit -m 'Update docs'
                         git push origin gh-pages
                     """
