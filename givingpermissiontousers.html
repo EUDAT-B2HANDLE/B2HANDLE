@@ -1,712 +1,617 @@
 
 
-<!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Giving write permissions to users &mdash; B2Handle 1.1.1 documentation</title>
-  
+<!doctype html>
 
-  
-  
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-
-  
-  
+    <title>Giving write permissions to users &#8212; B2Handle 1.2.0-dev0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Handle Server Configuration" href="handleserverconfig.html" />
+    <link rel="prev" title="Creating the client certificate" href="creatingclientcertificates.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="handleserverconfig.html" title="Handle Server Configuration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="creatingclientcertificates.html" title="Creating the client certificate"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">B2Handle 1.2.0-dev0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Giving write permissions to users</a></li> 
+      </ul>
+    </div>  
 
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="B2Handle 1.1.1 documentation" href="index.html"/>
-        <link rel="next" title="Handle Server Configuration" href="handleserverconfig.html"/>
-        <link rel="prev" title="Creating the client certificate" href="creatingclientcertificates.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
-</head>
-
-<body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-
-    
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
-            <a href="index.html" class="icon icon-home"> B2Handle
-          
-
-          
-          </a>
-
-          
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
-            
-              <div class="version">
-                1.1.1
-              </div>
-            
-          
-
-          
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-                <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="handleclient.html">Handle Client documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication at a Handle Server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="creatingclientcertificates.html">Creating the client certificate</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Giving write permissions to users</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#hs-admin-entry-for-each-username-in-the-prefix-owner-handle-record">HS_ADMIN entry for each username in the prefix owner handle record</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hs-vlist-entry-containing-usernames-in-the-prefix-owner-handle-record">HS_VLIST entry containing usernames in the prefix owner handle record</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#hs-vlist-entry-containing-usernames-in-another-place">HS_VLIST entry containing usernames in another place</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="handleserverconfig.html">Handle Server Configuration</a></li>
-</ul>
-
-            
-          
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">B2Handle</a>
-      </nav>
-
-
-      
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          
-
- 
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Giving write permissions to users</li>
-      <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="_sources/givingpermissiontousers.rst.txt" rel="nofollow"> View page source</a>
-          
-        
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-            
-  <div class="section" id="giving-write-permissions-to-users">
+  <section id="giving-write-permissions-to-users">
 <span id="givingpermissiontousers"></span><h1>Giving write permissions to users<a class="headerlink" href="#giving-write-permissions-to-users" title="Permalink to this headline">¶</a></h1>
 <p>No matter which of the methods for <em>authentication</em> is used, in both cases the
 Handle Server admin (or prefix owner) has to give write permissions to
 the user (<em>authorisation</em>):</p>
 <ul class="simple">
-<li>Authentication: Are you who you claim to be?</li>
-<li>Authorisation: Are you allowed to do what you are trying to do?</li>
+<li><p>Authentication: Are you who you claim to be?</p></li>
+<li><p>Authorisation: Are you allowed to do what you are trying to do?</p></li>
 </ul>
 <p>These are several ways to grant write permissions to users <strong>300:foo/bar</strong>
 and <strong>301:foo/bar</strong> and <strong>300:foo/doe</strong>:</p>
 <ol class="arabic simple">
-<li><a class="reference internal" href="#method1"><span class="std std-ref">HS_ADMIN entry for each username in the prefix owner handle record</span></a>.</li>
-<li><a class="reference internal" href="#method2"><span class="std std-ref">HS_VLIST entry containing usernames in the prefix owner handle record</span></a>.</li>
-<li><a class="reference internal" href="#method3"><span class="std std-ref">HS_VLIST entry containing usernames in another place</span></a>.</li>
+<li><p><a class="reference internal" href="#method1"><span class="std std-ref">HS_ADMIN entry for each username in the prefix owner handle record</span></a>.</p></li>
+<li><p><a class="reference internal" href="#method2"><span class="std std-ref">HS_VLIST entry containing usernames in the prefix owner handle record</span></a>.</p></li>
+<li><p><a class="reference internal" href="#method3"><span class="std std-ref">HS_VLIST entry containing usernames in another place</span></a>.</p></li>
 </ol>
 <p>Please note that while the third method looks most complex, it may be
 the easiest one, as it is most easily modified and extended (without
 having to contact the prefix provider to make changes in the <strong>0.NA/foo</strong> record).</p>
-<div class="section" id="hs-admin-entry-for-each-username-in-the-prefix-owner-handle-record">
+<section id="hs-admin-entry-for-each-username-in-the-prefix-owner-handle-record">
 <span id="method1"></span><h2>HS_ADMIN entry for each username in the prefix owner handle record<a class="headerlink" href="#hs-admin-entry-for-each-username-in-the-prefix-owner-handle-record" title="Permalink to this headline">¶</a></h2>
-<p>We can give users write permissions by creating a <code class="docutils literal"><span class="pre">HS_ADMIN</span></code> entry
+<p>We can give users write permissions by creating a <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code> entry
 for each username in the prefix owner handle record (i.e. somewhere
 in the record <strong>0.NA/foo</strong>).</p>
 <blockquote>
 <div><p><strong>Handle record 0.NA/foo:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="14%" />
-<col width="24%" />
-<col width="62%" />
+<col style="width: 14%" />
+<col style="width: 24%" />
+<col style="width: 62%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 300:foo/bar)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 300:foo/bar)</p></td>
 </tr>
-<tr class="row-even"><td>101</td>
-<td>HS_ADMIN</td>
-<td>(refers to 301:foo/bar)</td>
+<tr class="row-even"><td><p>101</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 301:foo/bar)</p></td>
 </tr>
-<tr class="row-odd"><td>102</td>
-<td>HS_ADMIN</td>
-<td>(refers to 300:foo/doe)</td>
+<tr class="row-odd"><td><p>102</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 300:foo/doe)</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/bar:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="19%" />
-<col width="35%" />
-<col width="46%" />
+<col style="width: 19%" />
+<col style="width: 35%" />
+<col style="width: 46%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>301</td>
-<td>HS_PUBKEY</td>
-<td>0000A552100</td>
+<tr class="row-even"><td><p>301</p></td>
+<td><p>HS_PUBKEY</p></td>
+<td><p>0000A552100</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/doe:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="19%" />
-<col width="35%" />
-<col width="46%" />
+<col style="width: 19%" />
+<col style="width: 35%" />
+<col style="width: 46%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-</div>
-<div class="section" id="hs-vlist-entry-containing-usernames-in-the-prefix-owner-handle-record">
+</section>
+<section id="hs-vlist-entry-containing-usernames-in-the-prefix-owner-handle-record">
 <span id="method2"></span><h2>HS_VLIST entry containing usernames in the prefix owner handle record<a class="headerlink" href="#hs-vlist-entry-containing-usernames-in-the-prefix-owner-handle-record" title="Permalink to this headline">¶</a></h2>
 <p>We can grant users write permissions by adding the usernames (<strong>300:foo/bar</strong>,
-<strong>301:foo/bar</strong> and <strong>300:foo/doe</strong>) to a <code class="docutils literal"><span class="pre">HS_VLIST</span></code> entry in the
+<strong>301:foo/bar</strong> and <strong>300:foo/doe</strong>) to a <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> entry in the
 prefix owner handle record (i.e. somewhere in the record <strong>0.NA/foo</strong>),
-which was referenced in a <code class="docutils literal"><span class="pre">HS_ADMIN</span></code> entry in <strong>0.NA/foo</strong>.</p>
+which was referenced in a <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code> entry in <strong>0.NA/foo</strong>.</p>
 <blockquote>
 <div><p><strong>Handle record 0.NA/foo:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="24%" />
-<col width="63%" />
+<col style="width: 13%" />
+<col style="width: 24%" />
+<col style="width: 63%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 200:0.NA/foo)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 200:0.NA/foo)</p></td>
 </tr>
-<tr class="row-even"><td>200</td>
-<td>HS_VLIST</td>
-<td>300:foo/bar
+<tr class="row-even"><td><p>200</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>300:foo/bar
 301:foo/bar
-300:foo/doe</td>
+300:foo/doe</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/bar:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="19%" />
-<col width="35%" />
-<col width="46%" />
+<col style="width: 19%" />
+<col style="width: 35%" />
+<col style="width: 46%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>301</td>
-<td>HS_PUBKEY</td>
-<td>0000A552100</td>
+<tr class="row-even"><td><p>301</p></td>
+<td><p>HS_PUBKEY</p></td>
+<td><p>0000A552100</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/doe:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="19%" />
-<col width="35%" />
-<col width="46%" />
+<col style="width: 19%" />
+<col style="width: 35%" />
+<col style="width: 46%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-</div>
-<div class="section" id="hs-vlist-entry-containing-usernames-in-another-place">
+</section>
+<section id="hs-vlist-entry-containing-usernames-in-another-place">
 <span id="method3"></span><h2>HS_VLIST entry containing usernames in another place<a class="headerlink" href="#hs-vlist-entry-containing-usernames-in-another-place" title="Permalink to this headline">¶</a></h2>
 <p>We can give users write permissions by adding the usernames (<strong>300:foo/bar</strong>, <strong>301:foo/bar</strong>
-and <strong>300:foo/doe</strong>) to any <code class="docutils literal"><span class="pre">HS_VLIST</span></code> entry referenced somewhere in <strong>0.NA/foo</strong>.</p>
-<p>The difference to the previous method is: This <code class="docutils literal"><span class="pre">HS_VLIST</span></code> does not have to be inside
+and <strong>300:foo/doe</strong>) to any <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> entry referenced somewhere in <strong>0.NA/foo</strong>.</p>
+<p>The difference to the previous method is: This <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> does not have to be inside
 the <strong>0.NA/foo</strong> record, it only has to be referenced there - it can be put into
-a different handle, e.g. <strong>foo/admin</strong>, so changes to the <code class="docutils literal"><span class="pre">HS_VLIST</span></code> can be made
+a different handle, e.g. <strong>foo/admin</strong>, so changes to the <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> can be made
 without having to ask the prefix provider (who is usually the only one able to change
 entries in <strong>0.NA/foo</strong>).</p>
-<p>For example, if there is a <code class="docutils literal"><span class="pre">HS_ADMIN</span></code> at index 101 of <strong>0.NA/foo</strong> which points to
-a <code class="docutils literal"><span class="pre">HS_VLIST</span></code> at the index 200 in <strong>0.NA/foo</strong>, which points to a <code class="docutils literal"><span class="pre">HS_VLIST</span></code> at
-index 200 in &#8216;foo/admin&#8217;, which points to a <code class="docutils literal"><span class="pre">HS_SECKEY</span></code> at index 300 in &#8216;foo/bar&#8217; -
-then <strong>300:foo/bar</strong> is a username with all the permissions stated in the <code class="docutils literal"><span class="pre">HS_ADMIN</span></code>
+<p>For example, if there is a <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code> at index 101 of <strong>0.NA/foo</strong> which points to
+a <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> at the index 200 in <strong>0.NA/foo</strong>, which points to a <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> at
+index 200 in ‘foo/admin’, which points to a <code class="docutils literal notranslate"><span class="pre">HS_SECKEY</span></code> at index 300 in ‘foo/bar’ -
+then <strong>300:foo/bar</strong> is a username with all the permissions stated in the <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code>
 entry at the index 101 of <strong>0.NA/foo</strong>.</p>
 <blockquote>
 <div><p><strong>Handle record 0.NA/foo:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="24%" />
-<col width="63%" />
+<col style="width: 13%" />
+<col style="width: 24%" />
+<col style="width: 63%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 200:0.NA/foo)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 200:0.NA/foo)</p></td>
 </tr>
-<tr class="row-even"><td>200</td>
-<td>HS_VLIST</td>
-<td>200:foo/admin</td>
+<tr class="row-even"><td><p>200</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>200:foo/admin</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/admin:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="14%" />
-<col width="24%" />
-<col width="62%" />
+<col style="width: 14%" />
+<col style="width: 24%" />
+<col style="width: 62%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>200</td>
-<td>HS_VLIST</td>
-<td>300:foo/bar
+<tr class="row-odd"><td><p>200</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>300:foo/bar
 301:foo/bar
-300:foo/doe</td>
+300:foo/doe</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/bar:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="14%" />
-<col width="24%" />
-<col width="62%" />
+<col style="width: 14%" />
+<col style="width: 24%" />
+<col style="width: 62%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>301</td>
-<td>HS_PUBKEY</td>
-<td>0000A552100</td>
+<tr class="row-even"><td><p>301</p></td>
+<td><p>HS_PUBKEY</p></td>
+<td><p>0000A552100</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/doe:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="14%" />
-<col width="24%" />
-<col width="62%" />
+<col style="width: 14%" />
+<col style="width: 24%" />
+<col style="width: 62%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-odd"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This setting gives write permissions to users foo/bar and foo/doe.
-You should also make sure that those users are not able to change other people&#8217;s
-write permissions. For this, make sure the <code class="docutils literal"><span class="pre">HS_ADMIN</span></code> entries of the handles concerned
-with user administration point to a username or <code class="docutils literal"><span class="pre">HS_VLIST</span></code> that only you can
+<p class="admonition-title">Important</p>
+<p>This setting gives write permissions to users foo/bar and foo/doe.
+You should also make sure that those users are not able to change other people’s
+write permissions. For this, make sure the <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code> entries of the handles concerned
+with user administration point to a username or <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> that only you can
 access.</p>
 </div>
 </div></blockquote>
-<p>To ensure that only you (or your admin colleagues) can change users&#8217; write permissions,
-we add a list of admins (another <code class="docutils literal"><span class="pre">HS_VLIST</span></code>) to the admin handle record (foo/admin)
-and reference it in the <code class="docutils literal"><span class="pre">HS_ADMIN</span></code> entry of the admin handle record. Only the users
-in this list can administer users. We also have to add that new <code class="docutils literal"><span class="pre">HS_VLIST</span></code> to the
-<code class="docutils literal"><span class="pre">HS_VLIST</span></code> in 200:0.NA/foo, to make sure it has write permissions.</p>
+<p>To ensure that only you (or your admin colleagues) can change users’ write permissions,
+we add a list of admins (another <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code>) to the admin handle record (foo/admin)
+and reference it in the <code class="docutils literal notranslate"><span class="pre">HS_ADMIN</span></code> entry of the admin handle record. Only the users
+in this list can administer users. We also have to add that new <code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">HS_VLIST</span></code> in 200:0.NA/foo, to make sure it has write permissions.</p>
 <blockquote>
 <div><p><strong>Handle record 0.NA/foo:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="24%" />
-<col width="63%" />
+<col style="width: 13%" />
+<col style="width: 24%" />
+<col style="width: 63%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 200:0.NA/foo)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 200:0.NA/foo)</p></td>
 </tr>
-<tr class="row-even"><td>200</td>
-<td>HS_VLIST</td>
-<td>200:foo/admin
-201:foo/admin</td>
+<tr class="row-even"><td><p>200</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>200:foo/admin
+201:foo/admin</p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/admin:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="23%" />
-<col width="64%" />
+<col style="width: 13%" />
+<col style="width: 23%" />
+<col style="width: 64%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 201:foo/admin)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 201:foo/admin)</p></td>
 </tr>
-<tr class="row-even"><td>200</td>
-<td>HS_VLIST</td>
-<td>300:foo/bar
+<tr class="row-even"><td><p>200</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>300:foo/bar
 301:foo/bar
-300:foo/doe</td>
+300:foo/doe</p></td>
 </tr>
-<tr class="row-odd"><td>201</td>
-<td>HS_VLIST</td>
-<td>300:foo/admin
-301:foo/admin</td>
+<tr class="row-odd"><td><p>201</p></td>
+<td><p>HS_VLIST</p></td>
+<td><p>300:foo/admin
+301:foo/admin</p></td>
 </tr>
-<tr class="row-even"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>myadminpassword</em></td>
+<tr class="row-even"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>myadminpassword</em></p></td>
 </tr>
-<tr class="row-odd"><td>301</td>
-<td>HS_PUBKEY</td>
-<td>0000B652300</td>
+<tr class="row-odd"><td><p>301</p></td>
+<td><p>HS_PUBKEY</p></td>
+<td><p>0000B652300</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/bar:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="23%" />
-<col width="64%" />
+<col style="width: 13%" />
+<col style="width: 23%" />
+<col style="width: 64%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 201:foo/admin)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 201:foo/admin)</p></td>
 </tr>
-<tr class="row-even"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-even"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-odd"><td>301</td>
-<td>HS_PUBKEY</td>
-<td>0000A552100</td>
+<tr class="row-odd"><td><p>301</p></td>
+<td><p>HS_PUBKEY</p></td>
+<td><p>0000A552100</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Handle record foo/doe:</strong></p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="23%" />
-<col width="64%" />
+<col style="width: 13%" />
+<col style="width: 23%" />
+<col style="width: 64%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Index</td>
-<td>Key</td>
-<td>Value</td>
+<tbody>
+<tr class="row-odd"><td><p>Index</p></td>
+<td><p>Key</p></td>
+<td><p>Value</p></td>
 </tr>
-<tr class="row-even"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
-<tr class="row-odd"><td>100</td>
-<td>HS_ADMIN</td>
-<td>(refers to 201:foo/admin)</td>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>HS_ADMIN</p></td>
+<td><p>(refers to 201:foo/admin)</p></td>
 </tr>
-<tr class="row-even"><td>300</td>
-<td>HS_SECKEY</td>
-<td><em>mypassword</em></td>
+<tr class="row-even"><td><p>300</p></td>
+<td><p>HS_SECKEY</p></td>
+<td><p><em>mypassword</em></p></td>
 </tr>
-<tr class="row-odd"><td>...</td>
-<td>...</td>
-<td>...</td>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-</div>
-</div>
+</section>
+</section>
 
 
-           </div>
+            <div class="clearer"></div>
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="handleserverconfig.html" class="btn btn-neutral float-right" title="Handle Server Configuration" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="creatingclientcertificates.html" class="btn btn-neutral" title="Creating the client certificate" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2015-2016, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
-
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Giving write permissions to users</a><ul>
+<li><a class="reference internal" href="#hs-admin-entry-for-each-username-in-the-prefix-owner-handle-record">HS_ADMIN entry for each username in the prefix owner handle record</a></li>
+<li><a class="reference internal" href="#hs-vlist-entry-containing-usernames-in-the-prefix-owner-handle-record">HS_VLIST entry containing usernames in the prefix owner handle record</a></li>
+<li><a class="reference internal" href="#hs-vlist-entry-containing-usernames-in-another-place">HS_VLIST entry containing usernames in another place</a></li>
+</ul>
+</li>
+</ul>
 
-    </section>
-
-  </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.1.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
-      });
-  </script>
-   
-
-</body>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="creatingclientcertificates.html"
+                        title="previous chapter">Creating the client certificate</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="handleserverconfig.html"
+                        title="next chapter">Handle Server Configuration</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/givingpermissiontousers.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="handleserverconfig.html" title="Handle Server Configuration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="creatingclientcertificates.html" title="Creating the client certificate"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">B2Handle 1.2.0-dev0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Giving write permissions to users</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2015-2017, Deutsches Klimarechenzentrum GmbH, GRNET S.A., SURFsara.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    </div>
+  </body>
 </html>
