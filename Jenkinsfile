@@ -95,6 +95,19 @@ pipeline {
                     pip install sphinx
                     python setup.py build_sphinx
                 '''
+                dir ("${WORKSPACE}/b2handle-pages") {
+                    git branch: "gh-pages",
+                        credentialsId: 'jenkins-master',
+                        url: "git@github.com:EUDAT-B2SAFE/B2HANDLE.git"
+                    sh """
+                        cd ${WORKSPACE}/b2handle-pages
+                        cp -R $WORKSPACE/$PROJECT_DIR/docs/build/html/* .
+                        git add .
+                        git commit -m 'Update docs'
+                        git push origin gh-pages
+                    """
+                    deleteDir()
+                }
             }
         }
     }
