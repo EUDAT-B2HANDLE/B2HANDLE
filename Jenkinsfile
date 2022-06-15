@@ -79,6 +79,23 @@ pipeline {
                         cobertura coberturaReportFile: '**/coverage.xml'
                     }
                 }
+                stage ('Test python 3.9') {
+                    agent {
+                        dockerfile {
+                            filename "b2handle/tests/Dockerfile-py3.9"
+                            dir "$PROJECT_DIR"
+                            additionalBuildArgs "-t eudat-b2handle:py3.9"
+                            args "-u root:root"
+                        }
+                    }
+                    steps {
+                        sh '''
+                            cd $WORKSPACE/$PROJECT_DIR/b2handle/tests
+                            ./docker-entrypoint.sh coverage
+                        '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
+                    }
+                }
             }
         }
         stage ('Deploy Docs') {
