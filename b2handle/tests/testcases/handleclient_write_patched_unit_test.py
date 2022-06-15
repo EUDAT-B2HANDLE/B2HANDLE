@@ -998,7 +998,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
     def test_add_additional_URL_another(self, getpatch, putpatch):
         """Test adding an additional URL."""
         # needed for the new versions of python for assertion . 
-        maxDiff = None
+        self.maxDiff = None
         
         # Define the replacement for the patched GET method:
         cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
