@@ -2,7 +2,8 @@
 FROM       python:2.7.9
 
 RUN        pip install -U "pip < 21.0" && \
-           pip install -U "setuptools < 45"
+           pip install -U "setuptools < 45" && \
+           pip install -U "requests==2.23.0"
 RUN        pip install \
            mock \
            coverage \
