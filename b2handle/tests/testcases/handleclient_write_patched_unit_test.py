@@ -967,7 +967,12 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         """Test adding the first additional URL'(created the 10320/LOC entry)."""
 
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
+        if (sys.version_info.major == 3 and sys.version_info.minor == 9):
+            cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "ttl":86400, "type":"URL",  "timestamp":"2015-09-30T15:54:32Z", "data":{"value":"www.url.foo", "format":"string"}}]}
+        else:
+            cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
+        
+        #cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:32Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
