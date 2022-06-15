@@ -3,7 +3,8 @@ FROM       python:3.10
 
 RUN        pip install \
            mock \
-           coverage 
+           coverage \
+           nose
 
 ADD        . /opt/B2HANDLE
 RUN        cd /opt/B2HANDLE && \
