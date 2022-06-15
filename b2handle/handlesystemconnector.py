@@ -83,8 +83,12 @@ class HandleSystemConnector(object):
             self.__setup_for_writeaccess(args)
 
         LOGGER.debug('End of instantiation of the handle system connector.')
-
-
+        
+    # Delete sessions : Close the requests session when the connector is deleted.
+    def __del__(self):
+        self.__session.close()
+        
+        
     # Helpers for init method:
 
     def __store_args_or_set_to_defaults(self, args, defaults):
