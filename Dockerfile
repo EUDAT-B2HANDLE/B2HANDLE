@@ -8,8 +8,9 @@ RUN        apt-get update && apt-get install -y --no-install-recommends \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*
 
-RUN     pip install -U pip && \
-        pip install -Iv setuptools==44.0.0
+RUN     pip install pip && \
+        pip install -Iv setuptools==44.0.0 && \
+        pip install -Iv requests==2.23.0
 
 ADD        . /opt/B2HANDLE
 
