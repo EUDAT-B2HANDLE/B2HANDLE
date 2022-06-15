@@ -2,6 +2,8 @@
 
 ## Python 3 support
 
+Currently it supports Python version 3.5, 3.6 , 3.7 , 3.9.
+
 As of version 1.1.0 the B2HANDLE library supports Python 3.
 Only for Python 3 users, the value of PYTHONHASHSEED variable should be set to 0 before running the tests.
 This can be simply performed by:
@@ -16,6 +18,7 @@ Simply run:
 
 
 ## Testing with nose and/or coverage
+Currently  Python version 3.5, 3.6 , 3.7 , 3.9 are supported. For Python 3.10 we are looking for a new version of testing tools. 
 
 If you have installed the B2HANDLE module running `python setup.py install`, [nose](https://pypi.python.org/pypi/nose/) should already be available. Otherwise you can install it using your distribution's package manager or `pip` (recommended) as follows:
 
