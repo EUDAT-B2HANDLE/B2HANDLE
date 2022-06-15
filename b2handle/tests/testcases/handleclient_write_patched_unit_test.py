@@ -1006,7 +1006,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         self.maxDiff = None
         
         # Define the replacement for the patched GET method:
-        cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
+        if (sys.version_info.major == 3 and sys.version_info.minor == 9): 
+            cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "ttl":86400, "type":"URL", "timestamp":"2015-09-30T15:54:30Z", "data":{"value":"www.url.foo", "format":"string"}}, {"index":2, "ttl":86400, "type":"10320/LOC", "timestamp":"2015-09-30T15:54:30Z", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}}]}
+        else:          
+            cont = {"responseCode":1, "handle":"my/testhandle", "values":[{"index":1, "type":"URL", "data":{"format":"string", "value":"www.url.foo"}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}, {"index":2, "type":"10320/LOC", "data":{"format":"string", "value":"<locations><location href = 'http://first.foo' /><location href = 'http://second.foo' /></locations> "}, "ttl":86400, "timestamp":"2015-09-30T15:54:30Z"}]}
         mock_response_get = MockResponse(status_code=200, content=json.dumps(cont))
         getpatch.return_value = mock_response_get
 
