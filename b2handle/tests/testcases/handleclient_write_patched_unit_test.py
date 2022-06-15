@@ -993,7 +993,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:30Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "type": "10320/LOC", "data": "<locations><location href=\"http://first.foo\" id=\"0\" /></locations>"}]}
+        expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:30Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "type": "10320/LOC", "data": "<locations><location id=\"0\" href=\"http://first.foo\" /></locations>"}]}
         replace_timestamps(expected_payload)        
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
@@ -1026,7 +1026,7 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:30Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:30Z", "data": "<locations><location href=\"http://first.foo\" /><location href=\"http://second.foo\" /><location href=\"http://third.foo\" id=\"0\" /></locations>"}]}
+        expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:30Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:30Z", "data": "<locations><location href=\"http://first.foo\" /><location href=\"http://second.foo\" /><location id=\"0\" href=\"http://third.foo\"/></locations>"}]}
         replace_timestamps(expected_payload)
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
@@ -1076,7 +1076,10 @@ class EUDATHandleClientWriteaccessPatchedTestCase(unittest.TestCase):
         passed_payload, _ = self.get_payload_headers_from_mockresponse(putpatch)
 
         # Compare with expected payload:
-        expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:31Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:31Z", "data": "<locations><location href=\"http://first.foo\" /><location href=\"http://second.foo\" /><location href=\"http://one\" id=\"0\" /><location href=\"http://two\" id=\"1\" /><location href=\"http://three\" id=\"2\" /></locations>"}]}
+        if (sys.version_info.major == 3 and sys.version_info.minor == 9):
+            expected_payload = {"values": [{"index": 1, "type": "URL", "data": {"value": "www.url.foo", "format": "string"}, "ttl": 86400, "timestamp": "2015-09-30T15:54:31Z" }, {"index": 2, "type": "10320/LOC", "data": "<locations><location href=\"http://first.foo\" /><location href=\"http://second.foo\" /><location id=\"0\" href=\"http://one\" /><location id=\"1\" href=\"http://two\"/><location id=\"2\" href=\"http://three\" /></locations>", "ttl": 86400, "timestamp": "2015-09-30T15:54:31Z",}]}
+        else:
+            expected_payload = {"values": [{"index": 1, "ttl": 86400, "type": "URL", "timestamp": "2015-09-30T15:54:31Z", "data": {"value": "www.url.foo", "format": "string"}}, {"index": 2, "ttl": 86400, "type": "10320/LOC", "timestamp": "2015-09-30T15:54:31Z", "data": "<locations><location href=\"http://first.foo\" /><location href=\"http://second.foo\" /><location href=\"http://one\" id=\"0\" /><location href=\"http://two\" id=\"1\" /><location href=\"http://three\" id=\"2\" /></locations>"}]}
         replace_timestamps(expected_payload)        
         self.assertEqual(passed_payload, expected_payload,
             failure_message(expected=expected_payload, passed=passed_payload, methodname='add_additional_URL'))
