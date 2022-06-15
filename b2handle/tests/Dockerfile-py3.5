@@ -4,7 +4,8 @@ FROM       python:3.5
 RUN        pip install \
            mock \
            coverage \
-           nose
+           nose && \
+           pip install -U "requests==2.23.0"
 
 ADD        . /opt/B2HANDLE
 RUN        cd /opt/B2HANDLE && \
