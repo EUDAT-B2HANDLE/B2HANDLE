@@ -94,7 +94,9 @@ setup(name='b2handle',
       packages=['b2handle', 'b2handle/util', 'b2handle/tests', 'b2handle/tests/testcases'],
       zip_safe=False,
       install_requires=[
-          'requests',
+          'requests < 2.24.0; python_version < "2.8.0"',
+          'requests == 2.23.0; python_version < "3.6.0"',
+          'requests == 2.26.0; python_version > "3.6.0"'
           'datetime',
           'future',
           'six',
