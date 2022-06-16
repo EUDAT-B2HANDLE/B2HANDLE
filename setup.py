@@ -25,8 +25,10 @@ class NoseTestCommand(TestCommand):
 
 # Set common test dependencies
 test_dependencies = [
-    'mock',
-    'nose',
+    'mock <= 3.0.5; python_version < "2.8.0"',
+    'mock <= 3.0.5; python_version < "3.6.0"',
+    'mock == 4.0.3; python_version > "3.6.0"'
+    'nose'
 ]
 
 if sys.version_info < (2, 7):
